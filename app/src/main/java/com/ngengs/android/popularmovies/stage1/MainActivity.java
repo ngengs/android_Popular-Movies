@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         rv.setHasFixedSize(true);
         rv.setNestedScrollingEnabled(false);
         rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @SuppressWarnings("EmptyMethod")
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);

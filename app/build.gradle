@@ -6,6 +6,7 @@ android {
     defaultConfig {
         applicationId "com.ngengs.android.popularmovies.stage1"
         minSdkVersion 16
+        //noinspection OldTargetApi
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -20,6 +21,9 @@ android {
         buildTypes.each {
             it.buildConfigField 'String', 'API_KEY', API_KEY
         }
+    }
+    lintOptions {
+        warning 'InvalidPackage'
     }
 }
 

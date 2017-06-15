@@ -4,6 +4,7 @@ package com.ngengs.android.popularmovies.stage1.globals;
  * Created by ngengs on 6/15/2017.
  */
 
+@SuppressWarnings({"unused", "DefaultFileTemplate"})
 public final class Values {
 
     /**

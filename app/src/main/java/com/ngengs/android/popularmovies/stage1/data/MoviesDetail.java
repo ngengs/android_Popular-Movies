@@ -11,6 +11,7 @@ import java.util.List;
  * Created by ngengs on 6/15/2017.
  */
 
+@SuppressWarnings({"SameParameterValue", "WeakerAccess", "unused", "DefaultFileTemplate"})
 public class MoviesDetail implements Serializable {
     private int id;
     @SerializedName("adult")

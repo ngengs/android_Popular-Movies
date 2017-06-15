@@ -12,6 +12,7 @@ import retrofit2.http.Query;
  * Created by ngengs on 6/15/2017.
  */
 
+@SuppressWarnings("DefaultFileTemplate")
 public interface MoviesDBService {
 
     @GET(Values.URL_PATH_POPULAR + "?" + Values.URL_FRAGMENT_KEY_API + "=" + BuildConfig.API_KEY)

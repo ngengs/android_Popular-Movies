@@ -19,12 +19,15 @@ import java.util.List;
  * Created by ngengs on 6/15/2017.
  */
 
+@SuppressWarnings({"CanBeFinal", "DefaultFileTemplate"})
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.ViewHolder> {
+    @SuppressWarnings("unused")
     private static final String TAG = "MovieListAdapter";
     private Context context;
     private List<MoviesDetail> data;
     private MovieListAdapter.ClickListener clickListener;
 
+    @SuppressWarnings("SameParameterValue")
     public MovieListAdapter(Context context, List<MoviesDetail> data, MovieListAdapter.ClickListener clickListener) {
         this.context = context;
         if (data != null) this.data = data;
@@ -58,9 +61,11 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         notifyItemRangeInserted(lastSize, data.size());
     }
 
-    public MoviesDetail get(int position) {
-        return data.get(position);
-    }
+// --Commented out by Inspection START (6/16/2017 12:03 AM):
+//    public MoviesDetail get(int position) {
+//        return data.get(position);
+//    }
+// --Commented out by Inspection STOP (6/16/2017 12:03 AM)
 
     public List<MoviesDetail> get() {
         return data;
