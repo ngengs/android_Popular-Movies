@@ -1,5 +1,13 @@
 apply plugin: 'com.android.application'
 
+// Signing definition
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = null
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties = new Properties()
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 // Manifest version information!
 def versionMajor = 1
 def versionMinor = 0
@@ -19,18 +27,66 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+
+    signingConfigs {
+        release {
+            if (keystoreProperties != null) {
+                storeFile file(keystoreProperties['STORE_LOCATION_RELEASE'])
+                storePassword keystoreProperties['STORE_PASSWORD_RELEASE']
+                keyAlias keystoreProperties['KEY_ALIAS_RELEASE']
+                keyPassword keystoreProperties['KEY_PASSWORD_RELEASE']
+            }
+        }
+
+        debug {
+            if (keystoreProperties != null) {
+                storeFile file(keystoreProperties['STORE_LOCATION_DEBUG'])
+                storePassword keystoreProperties['STORE_PASSWORD_DEBUG']
+                keyAlias keystoreProperties['KEY_ALIAS_DEBUG']
+                keyPassword keystoreProperties['KEY_PASSWORD_DEBUG']
+            }
+        }
+
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            debuggable false
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def newName = output.outputFile.name
+                    newName = newName.replace("app-", applicationId + "-")
+                    newName = newName.replace("-release", "-v" + versionName + "-build." + getBuildDate() + "-release")
+                    output.outputFile = new File(output.outputFile.parent, newName)
+                }
+            }
+        }
+        debug {
+            minifyEnabled false
+            versionNameSuffix "-debug"
+            debuggable true
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.debug
+            }
         }
         buildTypes.each {
             it.buildConfigField 'String', 'API_KEY', API_KEY
         }
     }
+
     lintOptions {
         warning 'InvalidPackage'
     }
+}
+
+static def getBuildDate() {
+    def date = new Date().format('yyyyMMdd')
+    return date
 }
 
 dependencies {
