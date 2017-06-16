@@ -1,5 +1,6 @@
 package com.ngengs.android.popularmovies.stage1;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,7 +18,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ngengs.android.popularmovies.stage1.adapters.MovieListAdapter;
 import com.ngengs.android.popularmovies.stage1.data.MoviesDetail;
@@ -81,7 +81,9 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         adapter = new MovieListAdapter(this, null, new MovieListAdapter.ClickListener() {
             @Override
             public void OnClickListener(int position, View view) {
-                Toast.makeText(rv.getContext(), "Test " + position, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, DetailMovieActivity.class);
+                intent.putExtra("DATA", adapter.get(position));
+                startActivity(intent);
             }
         });
         rv.setLayoutManager(layoutManager);

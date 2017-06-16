@@ -61,11 +61,9 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         notifyItemRangeInserted(lastSize, data.size());
     }
 
-// --Commented out by Inspection START (6/16/2017 12:03 AM):
-//    public MoviesDetail get(int position) {
-//        return data.get(position);
-//    }
-// --Commented out by Inspection STOP (6/16/2017 12:03 AM)
+    public MoviesDetail get(int position) {
+        return data.get(position);
+    }
 
     public List<MoviesDetail> get() {
         return data;
@@ -77,6 +75,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         notifyItemRangeRemoved(0, lastSize);
     }
 
+    @SuppressWarnings("UnusedParameters")
     public interface ClickListener {
         void OnClickListener(int position, View view);
     }

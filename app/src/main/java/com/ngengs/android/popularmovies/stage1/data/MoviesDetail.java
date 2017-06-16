@@ -19,7 +19,7 @@ public class MoviesDetail implements Serializable {
     @SerializedName("backdrop_path")
     private String backdropPath;
     @SerializedName("budget")
-    private double budget;
+    private float budget;
     @SerializedName("genres")
     private List<ObjectName> genres;
     @SerializedName("homepage")
@@ -43,7 +43,7 @@ public class MoviesDetail implements Serializable {
     @SerializedName("release_date")
     private Date releaseDate;
     @SerializedName("revenue")
-    private double revenue;
+    private float revenue;
     @SerializedName("runtime")
     private int runtime;
     @SerializedName("spoken_languages")
@@ -117,11 +117,11 @@ public class MoviesDetail implements Serializable {
         this.adult = adult;
     }
 
-    public double getBudget() {
+    public float getBudget() {
         return budget;
     }
 
-    public void setBudget(double budget) {
+    public void setBudget(float budget) {
         this.budget = budget;
     }
 
@@ -205,11 +205,11 @@ public class MoviesDetail implements Serializable {
         this.releaseDate = releaseDate;
     }
 
-    public double getRevenue() {
+    public float getRevenue() {
         return revenue;
     }
 
-    public void setRevenue(double revenue) {
+    public void setRevenue(float revenue) {
         this.revenue = revenue;
     }
 

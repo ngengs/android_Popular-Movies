@@ -9,4 +9,22 @@
     <string name="poster_image">Poster Image</string>
     <string name="movie_position">#%1$d</string>
     <string name="image_tools">Image Tools</string>
+    <string name="title_activity_detail_movie">DetailMovieActivity</string>
+    <string name="empty_string">-</string>
+    <string name="detail">Detail</string>
+    <string name="original_title">Original Title:</string>
+    <string name="release_date">Release Date:</string>
+    <string name="genre">Genre:</string>
+    <string name="budget">Budget:</string>
+    <string name="revenue">Revenue:</string>
+    <string name="company">Company:</string>
+    <string name="country">Country:</string>
+    <string name="language">Language:</string>
+    <string name="status">Status:</string>
+    <string name="tagline">Tagline</string>
+    <string name="synopsis">Synopsis</string>
+    <string name="rating_number">Rating: %1$.1f</string>
+    <string name="background_image">Background Image</string>
+    <string name="send_to">Send to</string>
+    <string name="share_content">I recommend this movie. %1$s %2$s #Udacity #PopularMovies @ngengs</string>
 </resources>
