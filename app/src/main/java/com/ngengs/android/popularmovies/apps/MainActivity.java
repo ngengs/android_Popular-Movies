@@ -30,6 +30,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -39,12 +42,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity implements Callback<MoviesList> {
     private static final String TAG = "MainActivity";
 
-    private RecyclerView rv;
-    private ProgressBar progressBar;
-    private TextView textMessage;
-    private ImageView imageTools;
-    private View tools;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.recyclerView)
+    RecyclerView rv;
+    @BindView(R.id.progressBar)
+    ProgressBar progressBar;
+    @BindView(R.id.textTools)
+    TextView textMessage;
+    @BindView(R.id.imageTools)
+    ImageView imageTools;
+    @BindView(R.id.tools)
+    View tools;
+    @BindView(R.id.swipeRefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
     private GridLayoutManager layoutManager;
     private Snackbar snackbar;
 
@@ -63,16 +72,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         loading = false;
         fromPagination = false;
-
-        rv = (RecyclerView) findViewById(R.id.recyclerView);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        textMessage = (TextView) findViewById(R.id.textTools);
-        imageTools = (ImageView) findViewById(R.id.imageTools);
-        tools = findViewById(R.id.tools);
 
         // Make sure all view not visible
         rv.setVisibility(View.GONE);
@@ -114,14 +117,6 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                     if (sortType == Values.TYPE_POPULAR) getPopularMovies();
                     else getTopRatedMovies();
                 }
-            }
-        });
-
-        imageTools.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else getTopRatedMovies();
             }
         });
 
@@ -309,4 +304,11 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         });
         snackbar.show();
     }
+
+    @OnClick(R.id.imageTools)
+    void imageToolsClick() {
+        if (sortType == Values.TYPE_POPULAR) getPopularMovies();
+        else getTopRatedMovies();
+    }
+
 }

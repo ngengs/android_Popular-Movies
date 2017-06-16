@@ -28,6 +28,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,25 +41,43 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class DetailMovieActivity extends AppCompatActivity implements Callback<MoviesDetail> {
     private static final String TAG = "DetailMovieActivity";
 
-    private Toolbar toolbar;
-    private ImageView imageHeader;
-    private ImageView imageThumbnail;
-    private TextView textRating;
-    private TextView textOriginalTitle;
-    private TextView textReleaseDate;
-    private TextView textGenre;
-    private TextView textBudget;
-    private TextView textRevenue;
-    private TextView textCompany;
-    private TextView textCountry;
-    private TextView textLanguage;
-    private TextView textStatus;
-    private TextView textTagline;
-    private TextView textSynopsis;
-    private View rootData;
-    private View rootProgress;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.detailHeaderImage)
+    ImageView imageHeader;
+    @BindView(R.id.imageDetailThumb)
+    ImageView imageThumbnail;
+    @BindView(R.id.textRating)
+    TextView textRating;
+    @BindView(R.id.textMovieOriginalTitle)
+    TextView textOriginalTitle;
+    @BindView(R.id.textMovieReleaseDate)
+    TextView textReleaseDate;
+    @BindView(R.id.textMovieGenre)
+    TextView textGenre;
+    @BindView(R.id.textMovieBudget)
+    TextView textBudget;
+    @BindView(R.id.textMovieRevenue)
+    TextView textRevenue;
+    @BindView(R.id.textMovieCompany)
+    TextView textCompany;
+    @BindView(R.id.textMovieCountry)
+    TextView textCountry;
+    @BindView(R.id.textMovieLanguage)
+    TextView textLanguage;
+    @BindView(R.id.textMovieStatus)
+    TextView textStatus;
+    @BindView(R.id.textMovieTagline)
+    TextView textTagline;
+    @BindView(R.id.textMovieSynopsis)
+    TextView textSynopsis;
+    @BindView(R.id.rootData)
+    View rootData;
+    @BindView(R.id.rootProgressBar)
+    View rootProgress;
+    @BindView(R.id.fabShare)
+    FloatingActionButton fab;
     private Snackbar snackbar;
-    private FloatingActionButton fab;
 
     private MoviesDetail data;
     private MoviesDBService moviesDBService;
@@ -67,24 +88,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_movie);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        imageHeader = (ImageView) findViewById(R.id.detailHeaderImage);
-        imageThumbnail = (ImageView) findViewById(R.id.imageDetailThumb);
-        textRating = (TextView) findViewById(R.id.textRating);
-        textOriginalTitle = (TextView) findViewById(R.id.textMovieOriginalTitle);
-        textReleaseDate = (TextView) findViewById(R.id.textMovieReleaseDate);
-        textGenre = (TextView) findViewById(R.id.textMovieGenre);
-        textBudget = (TextView) findViewById(R.id.textMovieBudget);
-        textRevenue = (TextView) findViewById(R.id.textMovieRevenue);
-        textCompany = (TextView) findViewById(R.id.textMovieCompany);
-        textCountry = (TextView) findViewById(R.id.textMovieCountry);
-        textLanguage = (TextView) findViewById(R.id.textMovieLanguage);
-        textStatus = (TextView) findViewById(R.id.textMovieStatus);
-        textTagline = (TextView) findViewById(R.id.textMovieTagline);
-        textSynopsis = (TextView) findViewById(R.id.textMovieSynopsis);
-        rootData = findViewById(R.id.rootData);
-        rootProgress = findViewById(R.id.rootProgressBar);
-        fab = (FloatingActionButton) findViewById(R.id.fabShare);
+        ButterKnife.bind(this);
 
         rootData.setVisibility(View.GONE);
         fab.hide();
@@ -122,21 +126,6 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         } else {
             getDetailMovie();
         }
-
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (loadFromServer) {
-                    Intent sendIntent = new Intent();
-                    sendIntent.setAction(Intent.ACTION_SEND);
-                    Log.d(TAG, "onClick: " + getResources().getString(R.string.share_content, data.getTitle(), Values.URL_IMDB_BASE + Values.URL_IMDB_PATH_TITLE + data.getImdbId()));
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.share_content, data.getTitle(), Values.URL_IMDB_BASE + Values.URL_IMDB_PATH_TITLE + data.getImdbId()));
-                    sendIntent.setType("text/plain");
-                    startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
-                }
-            }
-        });
     }
 
 
@@ -290,4 +279,17 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         if (data.getStatus() != null) textStatus.setText(data.getStatus());
         if (data.getTagline() != null) textTagline.setText(data.getTagline());
     }
+
+    @OnClick(R.id.fabShare)
+    void fabShare() {
+        if (loadFromServer) {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            Log.d(TAG, "onClick: " + getResources().getString(R.string.share_content, data.getTitle(), Values.URL_IMDB_BASE + Values.URL_IMDB_PATH_TITLE + data.getImdbId()));
+            sendIntent.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.share_content, data.getTitle(), Values.URL_IMDB_BASE + Values.URL_IMDB_PATH_TITLE + data.getImdbId()));
+            sendIntent.setType("text/plain");
+            startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
+        }
+    }
+
 }

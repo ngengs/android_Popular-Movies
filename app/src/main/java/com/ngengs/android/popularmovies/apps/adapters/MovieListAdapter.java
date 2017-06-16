@@ -16,6 +16,10 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 /**
  * Created by ngengs on 6/15/2017.
  */
@@ -45,7 +49,6 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String imageUrl = data.get(position).getPosterPath();
-//        Log.d(TAG, "onBindViewHolder: "+imageUrl);
         if (imageUrl != null)
             Picasso.with(context).load(imageUrl).noFade().placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white)).into(holder.image);
         holder.rankPosition.setText(context.getResources().getString(R.string.movie_position, (position + 1)));
@@ -82,21 +85,19 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.imagePoster)
         ImageView image;
+        @BindView(R.id.rankPosition)
         TextView rankPosition;
-        View root;
 
         ViewHolder(View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.imagePoster);
-            rankPosition = (TextView) itemView.findViewById(R.id.rankPosition);
-            root = itemView.findViewById(R.id.itemRoot);
-            root.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clickListener.OnClickListener(getAdapterPosition(), v);
-                }
-            });
+            ButterKnife.bind(this, itemView);
+        }
+
+        @OnClick(R.id.itemRoot)
+        void itemClick(View v) {
+            clickListener.OnClickListener(getAdapterPosition(), v);
         }
     }
 }
