@@ -103,7 +103,6 @@ task tagCommit {
         println "Tag for version: ${versionMajor}.${versionMinor}.${versionPatch}"
         exec {
             commandLine 'git', 'tag', '-a', "v${versionMajor}.${versionMinor}.${versionPatch}", '-m', "'Release version ${versionMajor}.${versionMinor}.${versionPatch}'"
-            standardOutput = stdout
         }
     }
 }
