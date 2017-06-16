@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.ngengs.android.popularmovies.stage1.R;
 import com.ngengs.android.popularmovies.stage1.data.MoviesDetail;
+import com.ngengs.android.popularmovies.stage1.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         String imageUrl = data.get(position).getPosterPath();
 //        Log.d(TAG, "onBindViewHolder: "+imageUrl);
         if (imageUrl != null)
-            Picasso.with(context).load(imageUrl).noFade().placeholder(R.drawable.ic_collections_white).into(holder.image);
+            Picasso.with(context).load(imageUrl).noFade().placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white)).into(holder.image);
         holder.rankPosition.setText(context.getResources().getString(R.string.movie_position, (position + 1)));
     }
 

@@ -22,6 +22,7 @@ import com.ngengs.android.popularmovies.stage1.data.ObjectName;
 import com.ngengs.android.popularmovies.stage1.globals.Values;
 import com.ngengs.android.popularmovies.stage1.utils.CircleTransform;
 import com.ngengs.android.popularmovies.stage1.utils.MoviesDBService;
+import com.ngengs.android.popularmovies.stage1.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
 import java.text.NumberFormat;
@@ -116,7 +117,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
                 Picasso.with(this)
                         .load(data.getPosterPath(3))
                         .centerCrop()
-                        .placeholder(R.drawable.ic_thumbnail_placeholder)
+                        .placeholder(ResourceHelpers.getDrawable(this, R.drawable.ic_thumbnail_placeholder))
                         .resizeDimen(R.dimen.image_description_thumbnail, R.dimen.image_description_thumbnail)
                         .transform(new CircleTransform(true))
                         .into(imageThumbnail);
