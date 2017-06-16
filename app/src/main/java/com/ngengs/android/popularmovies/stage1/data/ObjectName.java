@@ -2,12 +2,14 @@ package com.ngengs.android.popularmovies.stage1.data;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by ngengs on 6/15/2017.
  */
 
 @SuppressWarnings({"WeakerAccess", "unused", "DefaultFileTemplate"})
-public class ObjectName {
+public class ObjectName implements Serializable {
     private int id;
     private String name;
     @SerializedName("iso_639_1")
