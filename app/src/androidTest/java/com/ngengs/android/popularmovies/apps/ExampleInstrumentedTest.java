@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.stage1;
+package com.ngengs.android.popularmovies.apps;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.ngengs.android.popularmovies.stage1", appContext.getPackageName());
+        assertEquals("com.ngengs.android.popularmovies.apps", appContext.getPackageName());
     }
 }

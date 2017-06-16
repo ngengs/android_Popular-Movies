@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.stage1;
+package com.ngengs.android.popularmovies.apps;
 
 import org.junit.Test;
 

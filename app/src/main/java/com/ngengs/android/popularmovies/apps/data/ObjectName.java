@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.stage1.data;
+package com.ngengs.android.popularmovies.apps.data;
 
 import com.google.gson.annotations.SerializedName;
 

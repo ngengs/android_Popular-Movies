@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.stage1;
+package com.ngengs.android.popularmovies.apps;
 
 import android.content.Intent;
 import android.os.Build;
@@ -19,12 +19,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.ngengs.android.popularmovies.stage1.adapters.MovieListAdapter;
-import com.ngengs.android.popularmovies.stage1.data.MoviesDetail;
-import com.ngengs.android.popularmovies.stage1.data.MoviesList;
-import com.ngengs.android.popularmovies.stage1.globals.Values;
-import com.ngengs.android.popularmovies.stage1.utils.GridSpacesItemDecoration;
-import com.ngengs.android.popularmovies.stage1.utils.MoviesDBService;
+import com.ngengs.android.popularmovies.apps.adapters.MovieListAdapter;
+import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.data.MoviesList;
+import com.ngengs.android.popularmovies.apps.globals.Values;
+import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
+import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
 
 import java.io.Serializable;
 import java.util.ArrayList;

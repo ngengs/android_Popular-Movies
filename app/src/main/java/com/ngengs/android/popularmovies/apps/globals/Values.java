@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.stage1.globals;
+package com.ngengs.android.popularmovies.apps.globals;
 
 /**
  * Created by ngengs on 6/15/2017.

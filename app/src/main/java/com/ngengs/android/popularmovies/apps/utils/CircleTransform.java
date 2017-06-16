@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.stage1.utils;
+package com.ngengs.android.popularmovies.apps.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;

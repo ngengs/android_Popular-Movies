@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.stage1;
+package com.ngengs.android.popularmovies.apps;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -17,11 +17,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ngengs.android.popularmovies.stage1.data.MoviesDetail;
-import com.ngengs.android.popularmovies.stage1.data.ObjectName;
-import com.ngengs.android.popularmovies.stage1.globals.Values;
-import com.ngengs.android.popularmovies.stage1.utils.MoviesDBService;
-import com.ngengs.android.popularmovies.stage1.utils.ResourceHelpers;
+import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.data.ObjectName;
+import com.ngengs.android.popularmovies.apps.globals.Values;
+import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
+import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
 import java.text.NumberFormat;

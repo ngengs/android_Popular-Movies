@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.stage1.adapters;
+package com.ngengs.android.popularmovies.apps.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ngengs.android.popularmovies.stage1.R;
-import com.ngengs.android.popularmovies.stage1.data.MoviesDetail;
-import com.ngengs.android.popularmovies.stage1.utils.ResourceHelpers;
+import com.ngengs.android.popularmovies.apps.R;
+import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

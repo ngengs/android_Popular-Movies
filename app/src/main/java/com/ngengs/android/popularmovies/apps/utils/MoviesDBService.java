@@ -1,9 +1,9 @@
-package com.ngengs.android.popularmovies.stage1.utils;
+package com.ngengs.android.popularmovies.apps.utils;
 
-import com.ngengs.android.popularmovies.stage1.BuildConfig;
-import com.ngengs.android.popularmovies.stage1.data.MoviesDetail;
-import com.ngengs.android.popularmovies.stage1.data.MoviesList;
-import com.ngengs.android.popularmovies.stage1.globals.Values;
+import com.ngengs.android.popularmovies.apps.BuildConfig;
+import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.data.MoviesList;
+import com.ngengs.android.popularmovies.apps.globals.Values;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

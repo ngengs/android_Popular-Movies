@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="com.ngengs.android.popularmovies.stage1">
+          package="com.ngengs.android.popularmovies.apps">
 
     <!-- Permission Declaration -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.ngengs.android.popularmovies.apps.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailMovieActivity"
+            android:name="com.ngengs.android.popularmovies.apps.DetailMovieActivity"
             android:label="@string/title_activity_detail_movie"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>

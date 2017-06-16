@@ -10,7 +10,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
     defaultConfig {
-        applicationId "com.ngengs.android.popularmovies.stage1"
+        applicationId "com.ngengs.android.popularmovies.apps"
         minSdkVersion 16
         //noinspection OldTargetApi
         targetSdkVersion 25
