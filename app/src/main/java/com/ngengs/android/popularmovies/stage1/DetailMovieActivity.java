@@ -130,14 +130,14 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
                 .build();
         moviesDBService = retrofit.create(MoviesDBService.class);
 
-//        if (savedInstanceState != null) {
-//            data = (MoviesDetail) savedInstanceState.getSerializable("DATA");
-//            loadFromServer = savedInstanceState.getBoolean("ALREADY_CONNECT", false);
-//            if (loadFromServer) bindData();
-//            else getDetailMovie();
-//        } else {
+        if (savedInstanceState != null) {
+            data = (MoviesDetail) savedInstanceState.getSerializable("DATA");
+            loadFromServer = savedInstanceState.getBoolean("ALREADY_CONNECT", false);
+            if (loadFromServer) bindData();
+            else getDetailMovie();
+        } else {
             getDetailMovie();
-//        }
+        }
 
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -156,11 +156,11 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
     }
 
 
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        outState.putSerializable("DATA", data);
-//        outState.putBoolean("ALREADY_CONNECT", loadFromServer);
-//    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable("DATA", data);
+        outState.putBoolean("ALREADY_CONNECT", loadFromServer);
+    }
 
     private void getDetailMovie() {
         if (moviesDBService != null) {
