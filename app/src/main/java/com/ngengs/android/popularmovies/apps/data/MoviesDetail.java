@@ -1,9 +1,11 @@
 package com.ngengs.android.popularmovies.apps.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -11,8 +13,19 @@ import java.util.List;
  * Created by ngengs on 6/15/2017.
  */
 
-@SuppressWarnings({"SameParameterValue", "WeakerAccess", "unused", "DefaultFileTemplate"})
-public class MoviesDetail implements Serializable {
+@SuppressWarnings({"SameParameterValue", "unused", "DefaultFileTemplate"})
+public class MoviesDetail implements Parcelable {
+    public static final Creator<MoviesDetail> CREATOR = new Creator<MoviesDetail>() {
+        @Override
+        public MoviesDetail createFromParcel(Parcel in) {
+            return new MoviesDetail(in);
+        }
+
+        @Override
+        public MoviesDetail[] newArray(int size) {
+            return new MoviesDetail[size];
+        }
+    };
     private int id;
     @SerializedName("adult")
     private boolean adult;
@@ -60,12 +73,40 @@ public class MoviesDetail implements Serializable {
     private double voteAverage;
     @SerializedName("vote_count")
     private int voteCount;
-
     //Error Data
     @SerializedName("status_code")
     private int statusCode;
     @SerializedName("status_message")
     private String statusMessage;
+
+    @SuppressWarnings("WeakerAccess")
+    protected MoviesDetail(Parcel in) {
+        id = in.readInt();
+        adult = in.readByte() != 0;
+        backdropPath = in.readString();
+        budget = in.readFloat();
+        genres = in.createTypedArrayList(ObjectName.CREATOR);
+        homepage = in.readString();
+        imdbId = in.readString();
+        originalLanguage = in.readString();
+        originalTitle = in.readString();
+        overview = in.readString();
+        popularity = in.readDouble();
+        posterPath = in.readString();
+        productionCompanies = in.createTypedArrayList(ObjectName.CREATOR);
+        productionCountries = in.createTypedArrayList(ObjectName.CREATOR);
+        revenue = in.readFloat();
+        runtime = in.readInt();
+        spokenLanguages = in.createTypedArrayList(ObjectName.CREATOR);
+        status = in.readString();
+        tagline = in.readString();
+        title = in.readString();
+        video = in.readByte() != 0;
+        voteAverage = in.readDouble();
+        voteCount = in.readInt();
+        statusCode = in.readInt();
+        statusMessage = in.readString();
+    }
 
     public String getPosterPath(int sizeType) {
         if (posterPath != null && !posterPath.equals("")) {
@@ -291,5 +332,39 @@ public class MoviesDetail implements Serializable {
 
     public void setStatusMessage(String statusMessage) {
         this.statusMessage = statusMessage;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeByte((byte) (adult ? 1 : 0));
+        dest.writeString(backdropPath);
+        dest.writeFloat(budget);
+        dest.writeTypedList(genres);
+        dest.writeString(homepage);
+        dest.writeString(imdbId);
+        dest.writeString(originalLanguage);
+        dest.writeString(originalTitle);
+        dest.writeString(overview);
+        dest.writeDouble(popularity);
+        dest.writeString(posterPath);
+        dest.writeTypedList(productionCompanies);
+        dest.writeTypedList(productionCountries);
+        dest.writeFloat(revenue);
+        dest.writeInt(runtime);
+        dest.writeTypedList(spokenLanguages);
+        dest.writeString(status);
+        dest.writeString(tagline);
+        dest.writeString(title);
+        dest.writeByte((byte) (video ? 1 : 0));
+        dest.writeDouble(voteAverage);
+        dest.writeInt(voteCount);
+        dest.writeInt(statusCode);
+        dest.writeString(statusMessage);
     }
 }

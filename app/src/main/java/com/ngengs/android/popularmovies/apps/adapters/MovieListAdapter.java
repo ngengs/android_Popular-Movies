@@ -16,23 +16,25 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 /**
  * Created by ngengs on 6/15/2017.
  */
 
-@SuppressWarnings({"CanBeFinal", "DefaultFileTemplate"})
+@SuppressWarnings("DefaultFileTemplate")
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.ViewHolder> {
     @SuppressWarnings("unused")
     private static final String TAG = "MovieListAdapter";
-    private Context context;
-    private List<MoviesDetail> data;
-    private MovieListAdapter.ClickListener clickListener;
+    private final Context context;
+    private final List<MoviesDetail> data;
+    private final MovieListAdapter.ClickListener clickListener;
 
-    @SuppressWarnings("SameParameterValue")
-    public MovieListAdapter(Context context, List<MoviesDetail> data, MovieListAdapter.ClickListener clickListener) {
+    public MovieListAdapter(Context context, MovieListAdapter.ClickListener clickListener) {
         this.context = context;
-        if (data != null) this.data = data;
-        else this.data = new ArrayList<>();
+        this.data = new ArrayList<>();
         this.clickListener = clickListener;
     }
 
@@ -45,7 +47,6 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String imageUrl = data.get(position).getPosterPath();
-//        Log.d(TAG, "onBindViewHolder: "+imageUrl);
         if (imageUrl != null)
             Picasso.with(context).load(imageUrl).noFade().placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white)).into(holder.image);
         holder.rankPosition.setText(context.getResources().getString(R.string.movie_position, (position + 1)));
@@ -76,27 +77,24 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         notifyItemRangeRemoved(0, lastSize);
     }
 
-    @SuppressWarnings("UnusedParameters")
     public interface ClickListener {
-        void OnClickListener(int position, View view);
+        void OnClickListener(int position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.imagePoster)
         ImageView image;
+        @BindView(R.id.rankPosition)
         TextView rankPosition;
-        View root;
 
         ViewHolder(View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.imagePoster);
-            rankPosition = (TextView) itemView.findViewById(R.id.rankPosition);
-            root = itemView.findViewById(R.id.itemRoot);
-            root.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clickListener.OnClickListener(getAdapterPosition(), v);
-                }
-            });
+            ButterKnife.bind(this, itemView);
+        }
+
+        @OnClick(R.id.itemRoot)
+        void itemClick() {
+            clickListener.OnClickListener(getAdapterPosition());
         }
     }
 }

@@ -8,11 +8,20 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
-// Manifest version information!
-def versionMajor = 1
-def versionMinor = 0
-def versionPatch = 0
-def versionBuild = 0 // bump for all build.
+def versionPropertiesFile = rootProject.file("version.properties")
+def versionProperties
+if (versionPropertiesFile.exists()) {
+    versionProperties = new Properties()
+    versionProperties.load(new FileInputStream(versionPropertiesFile))
+} else {
+    throw new Exception('Version properties file not Found')
+}
+
+//Manifest version information!
+int versionMajor = versionProperties['VERSION_MAJOR'] as int
+int versionMinor = versionProperties['VERSION_MINOR'] as int
+int versionPatch = versionProperties['VERSION_PATCH'] as int
+int versionBuild = versionProperties['VERSION_BUILD'] as int // always bump build number.
 
 android {
     compileSdkVersion 25
@@ -89,6 +98,83 @@ static def getBuildDate() {
     return date
 }
 
+task tagCommit {
+    doLast {
+        println "Tag for version: ${versionMajor}.${versionMinor}.${versionPatch}"
+        exec {
+            commandLine 'git', 'tag', '-a', "v${versionMajor}.${versionMinor}.${versionPatch}", '-m', "'Release version ${versionMajor}.${versionMinor}.${versionPatch}'"
+            standardOutput = stdout
+        }
+    }
+}
+
+task checkVersion {
+    doLast {
+        println "Version: ${versionMajor}.${versionMinor}.${versionPatch}"
+    }
+}
+
+task updateMajor {
+    doLast {
+        println "Bump Major version..."
+        println "Preparing data..."
+        println "From:\t${versionMajor}"
+        versionMajor = versionMajor + 1
+        versionMinor = 0
+        versionPatch = 0
+        versionBuild = versionBuild + 1
+        println "To:\t${versionMajor}"
+        println "Version target:\t${versionMajor}.${versionMinor}.${versionPatch}"
+        writeUpdateVersion(versionMajor, versionMinor, versionPatch, versionBuild)
+    }
+}
+
+task updateMinor {
+    doLast {
+        println "Bump Minor version..."
+        println "Preparing data..."
+        println "From:\t${versionMinor}"
+        versionMinor = versionMinor + 1
+        versionPatch = 0
+        versionBuild = versionBuild + 1
+        println "To:\t${versionMinor}"
+        println "Version target:\t${versionMajor}.${versionMinor}.${versionPatch}"
+        writeUpdateVersion(versionMajor, versionMinor, versionPatch, versionBuild)
+    }
+}
+
+task updatePatch {
+    doLast {
+        println "Bump Patch version..."
+        println "Preparing data..."
+        println "From:\t${versionPatch}"
+        versionPatch = versionPatch + 1
+        versionBuild = versionBuild + 1
+        println "To:\t${versionPatch}"
+        println "Version target:\t${versionMajor}.${versionMinor}.${versionPatch}"
+        writeUpdateVersion(versionMajor, versionMinor, versionPatch, versionBuild)
+    }
+}
+
+void writeUpdateVersion(int major, int minor, int patch, int build) {
+    println "Updating data..."
+    def file = rootProject.file("version.properties")
+    file.text = """# Use gradle task instead touch this file
+#
+# Available command:
+# updateMajor
+# updateMinor
+# updatePatch
+#
+# Version order in application will be MAJOR.MINOR.PATCH and BUILD is for counter only
+# Update time: ${new Date()}
+VERSION_MAJOR=${major}
+VERSION_MINOR=${minor}
+VERSION_PATCH=${patch}
+VERSION_BUILD=${build}
+"""
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -100,8 +186,10 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.google.code.gson:gson:2.8.1'
+    compile 'com.jakewharton:butterknife:8.6.0'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
 }

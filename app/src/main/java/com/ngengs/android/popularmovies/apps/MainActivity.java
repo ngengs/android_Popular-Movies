@@ -1,7 +1,7 @@
 package com.ngengs.android.popularmovies.apps;
 
 import android.content.Intent;
-import android.os.Build;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BaseTransientBottomBar;
@@ -25,11 +25,14 @@ import com.ngengs.android.popularmovies.apps.data.MoviesList;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
 import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
+import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -39,12 +42,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity implements Callback<MoviesList> {
     private static final String TAG = "MainActivity";
 
-    private RecyclerView rv;
-    private ProgressBar progressBar;
-    private TextView textMessage;
-    private ImageView imageTools;
-    private View tools;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.recyclerView)
+    RecyclerView rv;
+    @BindView(R.id.progressBar)
+    ProgressBar progressBar;
+    @BindView(R.id.textTools)
+    TextView textMessage;
+    @BindView(R.id.imageTools)
+    ImageView imageTools;
+    @BindView(R.id.tools)
+    View tools;
+    @BindView(R.id.swipeRefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
     private GridLayoutManager layoutManager;
     private Snackbar snackbar;
 
@@ -63,33 +72,25 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         loading = false;
         fromPagination = false;
-
-        rv = (RecyclerView) findViewById(R.id.recyclerView);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        textMessage = (TextView) findViewById(R.id.textTools);
-        imageTools = (ImageView) findViewById(R.id.imageTools);
-        tools = findViewById(R.id.tools);
 
         // Make sure all view not visible
         rv.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
 
-        layoutManager = new GridLayoutManager(this, 2);
-        adapter = new MovieListAdapter(this, null, new MovieListAdapter.ClickListener() {
+        adapter = new MovieListAdapter(this, new MovieListAdapter.ClickListener() {
             @Override
-            public void OnClickListener(int position, View view) {
+            public void OnClickListener(int position) {
                 Intent intent = new Intent(MainActivity.this, DetailMovieActivity.class);
                 intent.putExtra("DATA", adapter.get(position));
                 startActivity(intent);
             }
         });
-        rv.setLayoutManager(layoutManager);
+        gridCreator(getResources().getConfiguration().orientation);
         rv.setAdapter(adapter);
-        rv.addItemDecoration(new GridSpacesItemDecoration(2, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
         rv.setHasFixedSize(true);
         rv.setNestedScrollingEnabled(false);
         rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -117,14 +118,6 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
             }
         });
 
-        imageTools.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else getTopRatedMovies();
-            }
-        });
-
         forceRefresh = false;
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -149,11 +142,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
             sortType = savedInstanceState.getInt("SORT_TYPE", Values.TYPE_POPULAR);
             pageNow = savedInstanceState.getInt("PAGE_NOW", 0);
             pageTotal = savedInstanceState.getInt("PAGE_TOTAL", 1);
-            Serializable temp = savedInstanceState.getSerializable("DATA");
+            List<MoviesDetail> temp = savedInstanceState.getParcelableArrayList("DATA");
             if (temp != null) {
                 adapter.clear();
-                //noinspection unchecked
-                adapter.add((List) temp);
+                adapter.add(temp);
                 rv.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
                 tools.setVisibility(View.GONE);
@@ -166,13 +158,35 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        gridCreator(newConfig.orientation);
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         if (adapter.getItemCount() > 0) {
             List<MoviesDetail> data = adapter.get();
-            outState.putSerializable("DATA", new ArrayList<>(data));
+            outState.putParcelableArrayList("DATA", new ArrayList<>(data));
             outState.putInt("PAGE_NOW", pageNow);
             outState.putInt("PAGE_TOTAL", pageTotal);
             outState.putInt("SORT_TYPE", sortType);
+        }
+    }
+
+    private void gridCreator(int orientation) {
+        int gridSpan;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) gridSpan = 3;
+        else gridSpan = 2;
+        if (layoutManager == null) {
+            layoutManager = new GridLayoutManager(this, gridSpan);
+            rv.setLayoutManager(layoutManager);
+            rv.addItemDecoration(new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
+        } else {
+            layoutManager.setSpanCount(gridSpan);
+            rv.setLayoutManager(layoutManager);
+            rv.addItemDecoration(new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
+            adapter.notifyDataSetChanged();
         }
     }
 
@@ -280,20 +294,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         loading = false;
 
         if (fromPagination) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                imageTools.setImageDrawable(getResources().getDrawable(R.drawable.ic_refresh_white, null));
-            } else {
-                //noinspection deprecation
-                imageTools.setImageDrawable(getResources().getDrawable(R.drawable.ic_refresh_white));
-            }
+            imageTools.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_refresh_white));
             textMessage.setText(R.string.error_next_page);
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                imageTools.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_off_white, null));
-            } else {
-                //noinspection deprecation
-                imageTools.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_off_white));
-            }
+            imageTools.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_cloud_off_white));
             textMessage.setText(R.string.error_no_connection);
         }
         tools.setVisibility(View.VISIBLE);
@@ -309,4 +313,11 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         });
         snackbar.show();
     }
+
+    @OnClick(R.id.imageTools)
+    void imageToolsClick() {
+        if (sortType == Values.TYPE_POPULAR) getPopularMovies();
+        else getTopRatedMovies();
+    }
+
 }
