@@ -157,8 +157,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 rv.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
                 tools.setVisibility(View.GONE);
+                changeTitle();
             }
         } else {
+            changeTitle();
             getPopularMovies();
         }
     }
@@ -172,6 +174,13 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
             outState.putInt("PAGE_TOTAL", pageTotal);
             outState.putInt("SORT_TYPE", sortType);
         }
+    }
+
+    private void changeTitle() {
+        if (sortType == Values.TYPE_POPULAR)
+            setTitle(getResources().getString(R.string.title_popular));
+        else
+            setTitle(getResources().getString(R.string.title_top_rated));
     }
 
     private void getPopularMovies() {
@@ -212,7 +221,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 pageTotal = 1;
                 sortType = Values.TYPE_POPULAR;
                 loading = false;
-                if (!item.isChecked()) getPopularMovies();
+                if (!item.isChecked()) {
+                    changeTitle();
+                    getPopularMovies();
+                }
                 break;
             case R.id.menu_sort_by_top_rated:
                 forceRefresh = true;
@@ -220,7 +232,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 pageTotal = 1;
                 sortType = Values.TYPE_HIGH_RATED;
                 loading = false;
-                if (!item.isChecked()) getTopRatedMovies();
+                if (!item.isChecked()) {
+                    changeTitle();
+                    getTopRatedMovies();
+                }
                 break;
         }
         item.setChecked(true);
