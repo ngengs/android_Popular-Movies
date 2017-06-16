@@ -1,6 +1,7 @@
 package com.ngengs.android.popularmovies.apps;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -81,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         rv.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
 
-        layoutManager = new GridLayoutManager(this, 2);
         adapter = new MovieListAdapter(this, null, new MovieListAdapter.ClickListener() {
             @Override
             public void OnClickListener(int position, View view) {
@@ -90,9 +90,8 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 startActivity(intent);
             }
         });
-        rv.setLayoutManager(layoutManager);
+        gridCreator(getResources().getConfiguration().orientation);
         rv.setAdapter(adapter);
-        rv.addItemDecoration(new GridSpacesItemDecoration(2, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
         rv.setHasFixedSize(true);
         rv.setNestedScrollingEnabled(false);
         rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -161,6 +160,12 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        gridCreator(newConfig.orientation);
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         if (adapter.getItemCount() > 0) {
             List<MoviesDetail> data = adapter.get();
@@ -168,6 +173,22 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
             outState.putInt("PAGE_NOW", pageNow);
             outState.putInt("PAGE_TOTAL", pageTotal);
             outState.putInt("SORT_TYPE", sortType);
+        }
+    }
+
+    private void gridCreator(int orientation) {
+        int gridSpan;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) gridSpan = 3;
+        else gridSpan = 2;
+        if (layoutManager == null) {
+            layoutManager = new GridLayoutManager(this, gridSpan);
+            rv.setLayoutManager(layoutManager);
+            rv.addItemDecoration(new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
+        } else {
+            layoutManager.setSpanCount(gridSpan);
+            rv.setLayoutManager(layoutManager);
+            rv.addItemDecoration(new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
+            adapter.notifyDataSetChanged();
         }
     }
 
