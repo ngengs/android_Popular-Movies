@@ -96,7 +96,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
 
         setSupportActionBar(toolbar);
 
-        data = (MoviesDetail) getIntent().getSerializableExtra("DATA");
+        data = getIntent().getParcelableExtra("DATA");
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -119,7 +119,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         moviesDBService = retrofit.create(MoviesDBService.class);
 
         if (savedInstanceState != null) {
-            data = (MoviesDetail) savedInstanceState.getSerializable("DATA");
+            data = savedInstanceState.getParcelable("DATA");
             loadFromServer = savedInstanceState.getBoolean("ALREADY_CONNECT", false);
             if (loadFromServer) bindData();
             else getDetailMovie();
@@ -131,7 +131,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable("DATA", data);
+        outState.putParcelable("DATA", data);
         outState.putBoolean("ALREADY_CONNECT", loadFromServer);
     }
 

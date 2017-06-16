@@ -27,7 +27,6 @@ import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
 import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,11 +142,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
             sortType = savedInstanceState.getInt("SORT_TYPE", Values.TYPE_POPULAR);
             pageNow = savedInstanceState.getInt("PAGE_NOW", 0);
             pageTotal = savedInstanceState.getInt("PAGE_TOTAL", 1);
-            Serializable temp = savedInstanceState.getSerializable("DATA");
+            List<MoviesDetail> temp = savedInstanceState.getParcelableArrayList("DATA");
             if (temp != null) {
                 adapter.clear();
-                //noinspection unchecked
-                adapter.add((List) temp);
+                adapter.add(temp);
                 rv.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
                 tools.setVisibility(View.GONE);
@@ -169,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
     public void onSaveInstanceState(Bundle outState) {
         if (adapter.getItemCount() > 0) {
             List<MoviesDetail> data = adapter.get();
-            outState.putSerializable("DATA", new ArrayList<>(data));
+            outState.putParcelableArrayList("DATA", new ArrayList<>(data));
             outState.putInt("PAGE_NOW", pageNow);
             outState.putInt("PAGE_TOTAL", pageTotal);
             outState.putInt("SORT_TYPE", sortType);
