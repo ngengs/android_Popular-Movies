@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.ngengs.android.popularmovies.stage1.data.MoviesDetail;
 import com.ngengs.android.popularmovies.stage1.data.ObjectName;
 import com.ngengs.android.popularmovies.stage1.globals.Values;
-import com.ngengs.android.popularmovies.stage1.utils.CircleTransform;
 import com.ngengs.android.popularmovies.stage1.utils.MoviesDBService;
 import com.ngengs.android.popularmovies.stage1.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
@@ -79,7 +78,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         textRevenue = (TextView) findViewById(R.id.textMovieRevenue);
         textCompany = (TextView) findViewById(R.id.textMovieCompany);
         textCountry = (TextView) findViewById(R.id.textMovieCountry);
-        textLanguage = (TextView) findViewById(R.id.textMovieLanguague);
+        textLanguage = (TextView) findViewById(R.id.textMovieLanguage);
         textStatus = (TextView) findViewById(R.id.textMovieStatus);
         textTagline = (TextView) findViewById(R.id.textMovieTagline);
         textSynopsis = (TextView) findViewById(R.id.textMovieSynopsis);
@@ -98,6 +97,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
             if (data != null) getSupportActionBar().setTitle(data.getTitle());
         } else {
             Toast.makeText(this, "Something wrong with detail data", Toast.LENGTH_SHORT).show();
@@ -105,23 +105,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         }
 
         if (data != null) {
-
-            if (data.getBackdropPath() != null) {
-                Picasso.with(this)
-                        .load(data.getBackdropPath(3))
-                        .centerCrop()
-                        .resize(Resources.getSystem().getDisplayMetrics().widthPixels, getResources().getDimensionPixelSize(R.dimen.image_description_header))
-                        .into(imageHeader);
-            }
-            if (data.getPosterPath(3) != null) {
-                Picasso.with(this)
-                        .load(data.getPosterPath(3))
-                        .centerCrop()
-                        .placeholder(ResourceHelpers.getDrawable(this, R.drawable.ic_thumbnail_placeholder))
-                        .resizeDimen(R.dimen.image_description_thumbnail, R.dimen.image_description_thumbnail)
-                        .transform(new CircleTransform(true))
-                        .into(imageThumbnail);
-            }
+            bindOldData();
         }
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -219,6 +203,45 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         snackbar.show();
     }
 
+    private int getRatingColor(double score) {
+        if (score >= Values.RATING_SCORE_PERFECT)
+            return ResourceHelpers.getColor(this, R.color.colorRatingPerfect);
+        else if (score < Values.RATING_SCORE_PERFECT && score >= Values.RATING_SCORE_GOOD)
+            return ResourceHelpers.getColor(this, R.color.colorRatingGood);
+        else if (score < Values.RATING_SCORE_GOOD && score >= Values.RATING_SCORE_NORMAL)
+            return ResourceHelpers.getColor(this, R.color.colorRatingNormal);
+        else
+            return ResourceHelpers.getColor(this, R.color.colorRatingBad);
+    }
+
+    private void bindOldData() {
+        if (data.getBackdropPath() != null) {
+            Picasso.with(this)
+                    .load(data.getBackdropPath(3))
+                    .centerCrop()
+                    .resize(Resources.getSystem().getDisplayMetrics().widthPixels, getResources().getDimensionPixelSize(R.dimen.image_description_header))
+                    .into(imageHeader);
+        }
+        if (data.getPosterPath(3) != null) {
+            Picasso.with(this)
+                    .load(data.getPosterPath(3))
+                    .placeholder(ResourceHelpers.getDrawable(this, R.drawable.ic_collections_white))
+                    .resize(getResources().getDimensionPixelSize(R.dimen.image_description_thumbnail_width), 0)
+                    .into(imageThumbnail);
+        }
+        textRating.setText(getResources().getString(R.string.rating_number, data.getVoteAverage()));
+        textRating.setTextColor(getRatingColor(data.getVoteAverage()));
+        if (data.getOriginalTitle() != null) textOriginalTitle.setText(data.getOriginalTitle());
+        if (data.getReleaseDate() != null) {
+            java.text.DateFormat dateFormat = android.text.format.DateFormat.getLongDateFormat(this);
+            String stringDate = dateFormat.format(data.getReleaseDate());
+
+            textReleaseDate.setText(getResources().getString(R.string.release_date, stringDate));
+        }
+
+        if (data.getOverview() != null) textSynopsis.setText(data.getOverview());
+    }
+
     private void bindData() {
         fab.show();
         if (rootData.getVisibility() == View.GONE) rootData.setVisibility(View.VISIBLE);
@@ -226,14 +249,6 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
 
         Log.d(TAG, "bindData: https://www.imdb.com/title/" + data.getImdbId());
 
-        textRating.setText(getResources().getString(R.string.rating_number, data.getVoteAverage()));
-        if (data.getOriginalTitle() != null) textOriginalTitle.setText(data.getOriginalTitle());
-        if (data.getReleaseDate() != null) {
-            java.text.DateFormat dateFormat = android.text.format.DateFormat.getLongDateFormat(this);
-            String stringDate = dateFormat.format(data.getReleaseDate());
-
-            textReleaseDate.setText(stringDate);
-        }
         if (data.getGenres() != null && data.getGenres().size() > 0) {
             List<String> genre = new ArrayList<>();
             for (ObjectName item : data.getGenres()) {
@@ -274,6 +289,5 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         }
         if (data.getStatus() != null) textStatus.setText(data.getStatus());
         if (data.getTagline() != null) textTagline.setText(data.getTagline());
-        if (data.getOverview() != null) textSynopsis.setText(data.getOverview());
     }
 }

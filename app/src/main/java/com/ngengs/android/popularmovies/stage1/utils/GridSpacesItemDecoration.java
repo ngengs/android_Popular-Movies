@@ -10,10 +10,11 @@ import android.view.View;
 
 @SuppressWarnings("DefaultFileTemplate")
 public class GridSpacesItemDecoration extends RecyclerView.ItemDecoration {
-    private int spanCount;
-    private int spacing;
+    private final int spanCount;
+    private final int spacing;
 
 
+    @SuppressWarnings("SameParameterValue")
     public GridSpacesItemDecoration(int spanCount, int spacing) {
         this.spanCount = spanCount;
         this.spacing = spacing;

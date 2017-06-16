@@ -14,8 +14,7 @@
     <string name="title_activity_detail_movie">DetailMovieActivity</string>
     <string name="empty_string">-</string>
     <string name="detail">Detail</string>
-    <string name="original_title">Original Title:</string>
-    <string name="release_date">Release Date:</string>
+    <string name="release_date">Release Date: %1$s</string>
     <string name="genre">Genre:</string>
     <string name="budget">Budget:</string>
     <string name="revenue">Revenue:</string>
@@ -25,7 +24,7 @@
     <string name="status">Status:</string>
     <string name="tagline">Tagline</string>
     <string name="synopsis">Synopsis</string>
-    <string name="rating_number">Rating: %1$.1f</string>
+    <string name="rating_number">%1$.1f</string>
     <string name="background_image">Background Image</string>
     <string name="send_to">Send to</string>
     <string name="share_content">I recommend this movie. %1$s %2$s #Udacity #PopularMovies @ngengs</string>

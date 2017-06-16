@@ -16,6 +16,7 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
@@ -24,6 +25,7 @@
             app:expandedTitleMarginBottom="16dp"
             app:expandedTitleMarginEnd="0dp"
             app:expandedTitleMarginStart="0dp"
+            app:expandedTitleTextAppearance="@style/AppTheme.ExpandedTitleOverlay"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
@@ -37,42 +39,13 @@
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.7"/>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fitsSystemWindows="true"
-                app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="0.5">
-
-                <TextView
-                    android:id="@+id/textRating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="?attr/actionBarSize"
-                    android:text="@string/empty_string"
-                    android:textColor="#FFF"
-                    android:textSize="16sp"/>
-
-                <ImageView
-                    android:id="@+id/imageDetailThumb"
-                    android:layout_width="@dimen/image_description_thumbnail"
-                    android:layout_height="@dimen/image_description_thumbnail"
-                    android:layout_alignBottom="@id/textRating"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="32dp"
-                    android:contentDescription="@string/poster_image"
-                    android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/ic_thumbnail_placeholder"/>
-            </RelativeLayout>
-
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:theme="@style/Base.ThemeOverlay.AppCompat.Dark"
                 app:layout_collapseMode="pin"/>
+
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 

@@ -3,7 +3,6 @@
     <dimen name="grid_spacing">8dp</dimen>
     <dimen name="image_max_height">500dp</dimen>
     <dimen name="image_description_header">250dp</dimen>
-    <dimen name="image_description_thumbnail">75dp</dimen>
-    <dimen name="image_description_thumbnail_height">150dp</dimen>
-    <dimen name="image_description_thumbnail_width">100dp</dimen>
+    <dimen name="image_description_thumbnail_width">160dp</dimen>
+    <dimen name="image_description_thumbnail_min_height">200dp</dimen>
 </resources>

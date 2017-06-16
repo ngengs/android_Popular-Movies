@@ -4,4 +4,10 @@
     <color name="colorPrimaryDark">#006064</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorBackground">#303030</color>
+
+    <!--Rating Color-->
+    <color name="colorRatingPerfect">#1B5E20</color>
+    <color name="colorRatingGood">#689F38</color>
+    <color name="colorRatingNormal">#AAA</color>
+    <color name="colorRatingBad">#F44336</color>
 </resources>

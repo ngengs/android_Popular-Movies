@@ -29,10 +29,13 @@ public final class Values {
 
 
     /**
-     * Integer Value
+     * Integer / Decimal Value
      */
     public static final int TYPE_POPULAR = 0;
     public static final int TYPE_HIGH_RATED = 1;
     public static final int TYPE_DEFAULT_IMAGE_THUMB = 6;
+    public static final double RATING_SCORE_PERFECT = 9.0;
+    public static final double RATING_SCORE_GOOD = 7.0;
+    public static final double RATING_SCORE_NORMAL = 5.0;
 
 }
