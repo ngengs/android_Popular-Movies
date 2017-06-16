@@ -23,6 +23,7 @@ import com.ngengs.android.popularmovies.stage1.adapters.MovieListAdapter;
 import com.ngengs.android.popularmovies.stage1.data.MoviesDetail;
 import com.ngengs.android.popularmovies.stage1.data.MoviesList;
 import com.ngengs.android.popularmovies.stage1.globals.Values;
+import com.ngengs.android.popularmovies.stage1.utils.GridSpacesItemDecoration;
 import com.ngengs.android.popularmovies.stage1.utils.MoviesDBService;
 
 import java.io.Serializable;
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         });
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(adapter);
+        rv.addItemDecoration(new GridSpacesItemDecoration(2, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
         rv.setHasFixedSize(true);
         rv.setNestedScrollingEnabled(false);
         rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
