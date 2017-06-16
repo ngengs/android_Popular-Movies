@@ -2,7 +2,6 @@ package com.ngengs.android.popularmovies.apps;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BaseTransientBottomBar;
@@ -26,6 +25,7 @@ import com.ngengs.android.popularmovies.apps.data.MoviesList;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
 import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
+import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,9 +81,9 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         rv.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
 
-        adapter = new MovieListAdapter(this, null, new MovieListAdapter.ClickListener() {
+        adapter = new MovieListAdapter(this, new MovieListAdapter.ClickListener() {
             @Override
-            public void OnClickListener(int position, View view) {
+            public void OnClickListener(int position) {
                 Intent intent = new Intent(MainActivity.this, DetailMovieActivity.class);
                 intent.putExtra("DATA", adapter.get(position));
                 startActivity(intent);
@@ -294,20 +294,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         loading = false;
 
         if (fromPagination) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                imageTools.setImageDrawable(getResources().getDrawable(R.drawable.ic_refresh_white, null));
-            } else {
-                //noinspection deprecation
-                imageTools.setImageDrawable(getResources().getDrawable(R.drawable.ic_refresh_white));
-            }
+            imageTools.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_refresh_white));
             textMessage.setText(R.string.error_next_page);
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                imageTools.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_off_white, null));
-            } else {
-                //noinspection deprecation
-                imageTools.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_off_white));
-            }
+            imageTools.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_cloud_off_white));
             textMessage.setText(R.string.error_no_connection);
         }
         tools.setVisibility(View.VISIBLE);

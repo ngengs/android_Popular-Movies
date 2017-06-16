@@ -14,7 +14,6 @@ public class GridSpacesItemDecoration extends RecyclerView.ItemDecoration {
     private final int spacing;
 
 
-    @SuppressWarnings("SameParameterValue")
     public GridSpacesItemDecoration(int spanCount, int spacing) {
         this.spanCount = spanCount;
         this.spacing = spacing;

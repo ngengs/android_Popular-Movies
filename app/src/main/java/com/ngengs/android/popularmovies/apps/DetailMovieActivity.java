@@ -37,7 +37,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@SuppressWarnings("FieldCanBeLocal")
 public class DetailMovieActivity extends AppCompatActivity implements Callback<MoviesDetail> {
     private static final String TAG = "DetailMovieActivity";
 

@@ -24,19 +24,17 @@ import butterknife.OnClick;
  * Created by ngengs on 6/15/2017.
  */
 
-@SuppressWarnings({"CanBeFinal", "DefaultFileTemplate"})
+@SuppressWarnings("DefaultFileTemplate")
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.ViewHolder> {
     @SuppressWarnings("unused")
     private static final String TAG = "MovieListAdapter";
-    private Context context;
-    private List<MoviesDetail> data;
-    private MovieListAdapter.ClickListener clickListener;
+    private final Context context;
+    private final List<MoviesDetail> data;
+    private final MovieListAdapter.ClickListener clickListener;
 
-    @SuppressWarnings("SameParameterValue")
-    public MovieListAdapter(Context context, List<MoviesDetail> data, MovieListAdapter.ClickListener clickListener) {
+    public MovieListAdapter(Context context, MovieListAdapter.ClickListener clickListener) {
         this.context = context;
-        if (data != null) this.data = data;
-        else this.data = new ArrayList<>();
+        this.data = new ArrayList<>();
         this.clickListener = clickListener;
     }
 
@@ -79,9 +77,8 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         notifyItemRangeRemoved(0, lastSize);
     }
 
-    @SuppressWarnings("UnusedParameters")
     public interface ClickListener {
-        void OnClickListener(int position, View view);
+        void OnClickListener(int position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -96,8 +93,8 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         }
 
         @OnClick(R.id.itemRoot)
-        void itemClick(View v) {
-            clickListener.OnClickListener(getAdapterPosition(), v);
+        void itemClick() {
+            clickListener.OnClickListener(getAdapterPosition());
         }
     }
 }

@@ -13,7 +13,7 @@ import java.util.List;
  * Created by ngengs on 6/15/2017.
  */
 
-@SuppressWarnings({"SameParameterValue", "WeakerAccess", "unused", "DefaultFileTemplate"})
+@SuppressWarnings({"SameParameterValue", "unused", "DefaultFileTemplate"})
 public class MoviesDetail implements Parcelable {
     public static final Creator<MoviesDetail> CREATOR = new Creator<MoviesDetail>() {
         @Override
@@ -79,6 +79,7 @@ public class MoviesDetail implements Parcelable {
     @SerializedName("status_message")
     private String statusMessage;
 
+    @SuppressWarnings("WeakerAccess")
     protected MoviesDetail(Parcel in) {
         id = in.readInt();
         adult = in.readByte() != 0;
