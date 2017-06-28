@@ -24,6 +24,7 @@ import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +71,10 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
     TextView textTagline;
     @BindView(R.id.textMovieSynopsis)
     TextView textSynopsis;
-    @BindView(R.id.rootData)
-    View rootData;
+    @BindView(R.id.taglineView)
+    View taglineView;
+    @BindView(R.id.detailView)
+    View detailView;
     @BindView(R.id.rootProgressBar)
     View rootProgress;
     @BindView(R.id.fabShare)
@@ -89,7 +92,8 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         setContentView(R.layout.activity_detail_movie);
         ButterKnife.bind(this);
 
-        rootData.setVisibility(View.GONE);
+        detailView.setVisibility(View.GONE);
+        taglineView.setVisibility(View.GONE);
         fab.hide();
         loadFromServer = false;
 
@@ -130,6 +134,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putParcelable("DATA", data);
         outState.putBoolean("ALREADY_CONNECT", loadFromServer);
     }
@@ -137,7 +142,8 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
     private void getDetailMovie() {
         if (moviesDBService != null) {
             rootProgress.setVisibility(View.VISIBLE);
-            rootData.setVisibility(View.GONE);
+            taglineView.setVisibility(View.GONE);
+            detailView.setVisibility(View.GONE);
             if (callService != null) callService.cancel();
             callService = moviesDBService.detail(data.getId());
             callService.enqueue(this);
@@ -160,7 +166,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
     public void onResponse(@NonNull Call<MoviesDetail> call, @NonNull Response<MoviesDetail> response) {
         Log.d(TAG, "onResponse: " + response.toString());
         if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
-        if (rootData.getVisibility() == View.GONE) rootData.setVisibility(View.VISIBLE);
+        if (detailView.getVisibility() == View.GONE) detailView.setVisibility(View.VISIBLE);
         if (snackbar != null) {
             snackbar.dismiss();
             snackbar = null;
@@ -179,7 +185,8 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
     public void onFailure(@NonNull Call<MoviesDetail> call, @NonNull Throwable t) {
         Log.e(TAG, "onFailure: ", t);
         if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
-        if (rootData.getVisibility() == View.VISIBLE) rootData.setVisibility(View.GONE);
+        if (detailView.getVisibility() == View.VISIBLE) detailView.setVisibility(View.GONE);
+        if (taglineView.getVisibility() == View.VISIBLE) taglineView.setVisibility(View.GONE);
         if (snackbar != null) snackbar.dismiss();
         snackbar = Snackbar.make(toolbar, R.string.error_cant_get_data_check_connection, Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.retry, new View.OnClickListener() {
@@ -221,7 +228,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         textRating.setTextColor(getRatingColor(data.getVoteAverage()));
         if (data.getOriginalTitle() != null) textOriginalTitle.setText(data.getOriginalTitle());
         if (data.getReleaseDate() != null) {
-            java.text.DateFormat dateFormat = android.text.format.DateFormat.getLongDateFormat(this);
+            DateFormat dateFormat = android.text.format.DateFormat.getLongDateFormat(this);
             String stringDate = dateFormat.format(data.getReleaseDate());
 
             textReleaseDate.setText(getResources().getString(R.string.release_date, stringDate));
@@ -232,7 +239,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
 
     private void bindData() {
         fab.show();
-        if (rootData.getVisibility() == View.GONE) rootData.setVisibility(View.VISIBLE);
+        if (detailView.getVisibility() == View.GONE) detailView.setVisibility(View.VISIBLE);
         if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
 
         Log.d(TAG, "bindData: https://www.imdb.com/title/" + data.getImdbId());
@@ -276,7 +283,10 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
             textLanguage.setText(TextUtils.join(", ", spokenLanguage));
         }
         if (data.getStatus() != null) textStatus.setText(data.getStatus());
-        if (data.getTagline() != null) textTagline.setText(data.getTagline());
+        if (!TextUtils.isEmpty(data.getTagline())) {
+            textTagline.setText(data.getTagline());
+            taglineView.setVisibility(View.VISIBLE);
+        }
     }
 
     @OnClick(R.id.fabShare)
