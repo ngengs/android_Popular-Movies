@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="image_description_thumbnail_width">100dp</dimen>
+    <dimen name="image_description_thumbnail_min_height">125dp</dimen>
+</resources>
