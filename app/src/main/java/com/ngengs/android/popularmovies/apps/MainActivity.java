@@ -5,11 +5,13 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -54,6 +56,11 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
     View tools;
     @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.rootMainView)
+    CoordinatorLayout rootMainView;
+
     private GridLayoutManager layoutManager;
     private Snackbar snackbar;
 
@@ -74,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        setSupportActionBar(toolbar);
+
         loading = false;
         fromPagination = false;
 
@@ -89,7 +98,15 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 startActivity(intent);
             }
         });
-        gridCreator(getResources().getConfiguration().orientation);
+
+        int gridSpan;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            gridSpan = 3;
+        else gridSpan = 2;
+        layoutManager = new GridLayoutManager(this, gridSpan);
+
+        rv.setLayoutManager(layoutManager);
+        rv.addItemDecoration(new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
         rv.setAdapter(adapter);
         rv.setHasFixedSize(true);
         rv.setNestedScrollingEnabled(false);
@@ -152,41 +169,20 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 changeTitle();
             }
         } else {
-            changeTitle();
             getPopularMovies();
+            changeTitle();
         }
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        gridCreator(newConfig.orientation);
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         if (adapter.getItemCount() > 0) {
             List<MoviesDetail> data = adapter.get();
             outState.putParcelableArrayList("DATA", new ArrayList<>(data));
             outState.putInt("PAGE_NOW", pageNow);
             outState.putInt("PAGE_TOTAL", pageTotal);
             outState.putInt("SORT_TYPE", sortType);
-        }
-    }
-
-    private void gridCreator(int orientation) {
-        int gridSpan;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) gridSpan = 3;
-        else gridSpan = 2;
-        if (layoutManager == null) {
-            layoutManager = new GridLayoutManager(this, gridSpan);
-            rv.setLayoutManager(layoutManager);
-            rv.addItemDecoration(new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
-        } else {
-            layoutManager.setSpanCount(gridSpan);
-            rv.setLayoutManager(layoutManager);
-            rv.addItemDecoration(new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
-            adapter.notifyDataSetChanged();
         }
     }
 
