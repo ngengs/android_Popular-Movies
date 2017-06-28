@@ -106,6 +106,7 @@ public class MoviesDetail implements Parcelable {
         voteCount = in.readInt();
         statusCode = in.readInt();
         statusMessage = in.readString();
+        releaseDate = new Date(in.readLong());
     }
 
     public String getPosterPath(int sizeType) {
@@ -366,5 +367,6 @@ public class MoviesDetail implements Parcelable {
         dest.writeInt(voteCount);
         dest.writeInt(statusCode);
         dest.writeString(statusMessage);
+        dest.writeLong(releaseDate.getTime());
     }
 }
