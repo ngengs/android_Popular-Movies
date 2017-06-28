@@ -32,13 +32,16 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class DetailMovieActivity extends AppCompatActivity implements Callback<MoviesDetail> {
+public class DetailMovieActivity extends AppCompatActivity {
     private static final String TAG = "DetailMovieActivity";
 
     @BindView(R.id.toolbar)
@@ -84,6 +87,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
     private MoviesDetail data;
     private MoviesDBService moviesDBService;
     private Call<MoviesDetail> callService;
+    private CompositeDisposable disposable = new CompositeDisposable();
     private boolean loadFromServer;
 
     @Override
@@ -118,6 +122,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Values.URL_BASE)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
                 .build();
         moviesDBService = retrofit.create(MoviesDBService.class);
 
@@ -131,6 +136,13 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.clear();
+        }
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -144,9 +156,21 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
             rootProgress.setVisibility(View.VISIBLE);
             taglineView.setVisibility(View.GONE);
             detailView.setVisibility(View.GONE);
-            if (callService != null) callService.cancel();
-            callService = moviesDBService.detail(data.getId());
-            callService.enqueue(this);
+            disposable.add(
+                    moviesDBService.detail(data.getId())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(new Consumer<MoviesDetail>() {
+                                @Override
+                                public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
+                                    onResponse(moviesDetail);
+                                }
+                            }, new Consumer<Throwable>() {
+                                @Override
+                                public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
+                                    onFailure(throwable);
+                                }
+                            }));
         }
     }
 
@@ -162,8 +186,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onResponse(@NonNull Call<MoviesDetail> call, @NonNull Response<MoviesDetail> response) {
+    public void onResponse(@NonNull MoviesDetail response) {
         Log.d(TAG, "onResponse: " + response.toString());
         if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
         if (detailView.getVisibility() == View.GONE) detailView.setVisibility(View.VISIBLE);
@@ -171,19 +194,15 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
             snackbar.dismiss();
             snackbar = null;
         }
-        MoviesDetail moviesDetail = response.body();
-        if (moviesDetail != null) {
-            data = moviesDetail;
+        data = response;
 
-            Log.d(TAG, "onResponse: " + data.getHomepage());
-            loadFromServer = true;
-            bindData();
-        }
+        Log.d(TAG, "onResponse: " + data.getHomepage());
+        loadFromServer = true;
+        bindData();
+
     }
 
-    @Override
-    public void onFailure(@NonNull Call<MoviesDetail> call, @NonNull Throwable t) {
-        Log.e(TAG, "onFailure: ", t);
+    public void onFailure(@NonNull Throwable t) {
         if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
         if (detailView.getVisibility() == View.VISIBLE) detailView.setVisibility(View.GONE);
         if (taglineView.getVisibility() == View.VISIBLE) taglineView.setVisibility(View.GONE);
@@ -196,6 +215,7 @@ public class DetailMovieActivity extends AppCompatActivity implements Callback<M
             }
         });
         snackbar.show();
+        Log.e(TAG, "onFailure: ", t);
     }
 
     private int getRatingColor(double score) {

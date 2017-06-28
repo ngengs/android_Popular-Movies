@@ -35,13 +35,16 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity implements Callback<MoviesList> {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     @BindView(R.id.recyclerView)
@@ -65,15 +68,34 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
     private Snackbar snackbar;
 
     private MoviesDBService moviesDBService;
-    private Call<MoviesList> callService;
     private MovieListAdapter adapter;
-
+    private CompositeDisposable disposable = new CompositeDisposable();
     private int sortType;
     private int pageTotal = 1;
     private int pageNow = 0;
     private boolean forceRefresh;
     private boolean loading;
     private boolean fromPagination;
+    private boolean changeData;
+    private boolean processLoadData = true;
+    private Consumer<MoviesList> moviesListConsumer = new Consumer<MoviesList>() {
+        @Override
+        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
+            onResponse(moviesList);
+        }
+    };
+    private Action actionComplete = new Action() {
+        @Override
+        public void run() throws Exception {
+            onComplete();
+        }
+    };
+    private Consumer<Throwable> errorConsumer = new Consumer<Throwable>() {
+        @Override
+        public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
+            onFailure(throwable);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
 
         loading = false;
         fromPagination = false;
+        changeData = true;
 
         // Make sure all view not visible
         rv.setVisibility(View.GONE);
@@ -125,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
                 boolean endHasBeenReached = (firstVisibleItemPosition + visibleItemCount + 5) >= totalItemCount;
 
-                if (!loading && pageNow < pageTotal && endHasBeenReached) {
+                if (!loading && pageNow < pageTotal && endHasBeenReached && !processLoadData) {
                     Log.d(TAG, "onScrolled: CatchData");
                     forceRefresh = false;
                     fromPagination = true;
@@ -151,8 +174,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Values.URL_BASE)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
                 .build();
         moviesDBService = retrofit.create(MoviesDBService.class);
+        Log.d(TAG, "onCreate: disposable isDiposed: " + disposable.isDisposed());
 
         sortType = Values.TYPE_POPULAR;
         if (savedInstanceState != null) {
@@ -168,9 +193,25 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 tools.setVisibility(View.GONE);
                 changeTitle();
             }
+            processLoadData = savedInstanceState.getBoolean("PROCESS_LOAD_DATA", false);
+            Log.d(TAG, "onCreate: load savedInstanceState: isProcessLoadData value " + processLoadData);
+            Log.d(TAG, "onCreate: load savedInstanceState: sortType value " + (sortType == Values.TYPE_POPULAR));
+            if (processLoadData) {
+                if (pageNow == 0) adapter.clear();
+                if (sortType == Values.TYPE_POPULAR) getPopularMovies();
+                else getTopRatedMovies();
+            }
         } else {
             getPopularMovies();
             changeTitle();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.clear();
         }
     }
 
@@ -183,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
             outState.putInt("PAGE_NOW", pageNow);
             outState.putInt("PAGE_TOTAL", pageTotal);
             outState.putInt("SORT_TYPE", sortType);
+            outState.putBoolean("PROCESS_LOAD_DATA", processLoadData);
         }
     }
 
@@ -195,23 +237,35 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
 
     private void getPopularMovies() {
         if (moviesDBService != null && pageNow < pageTotal) {
+            Log.d(TAG, "getPopularMovies: now. page: " + pageNow);
             loading = true;
-            if (!forceRefresh) progressBar.setVisibility(View.VISIBLE);
+            processLoadData = true;
+            if (!forceRefresh || changeData) progressBar.setVisibility(View.VISIBLE);
             tools.setVisibility(View.GONE);
-            if (callService != null) callService.cancel();
-            callService = moviesDBService.listMoviesPopular(pageNow + 1);
-            callService.enqueue(this);
+
+            disposable.add(
+                    moviesDBService.listMoviesPopular(pageNow + 1)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(moviesListConsumer, errorConsumer, actionComplete)
+            );
         }
     }
 
     private void getTopRatedMovies() {
         if (moviesDBService != null && pageNow < pageTotal) {
+            Log.d(TAG, "getTopRatedMovies: now. page: " + pageNow);
             loading = true;
-            if (!forceRefresh) progressBar.setVisibility(View.VISIBLE);
+            processLoadData = true;
+            if (!forceRefresh || changeData) progressBar.setVisibility(View.VISIBLE);
             tools.setVisibility(View.GONE);
-            if (callService != null) callService.cancel();
-            callService = moviesDBService.listMoviesTopRated(pageNow + 1);
-            callService.enqueue(this);
+
+            disposable.add(
+                    moviesDBService.listMoviesTopRated(pageNow + 1)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(moviesListConsumer, errorConsumer, actionComplete)
+            );
         }
     }
 
@@ -219,6 +273,10 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_popular, menu);
+        if (sortType == Values.TYPE_POPULAR)
+            menu.findItem(R.id.menu_sort_by_popular).setChecked(true);
+        else
+            menu.findItem(R.id.menu_sort_by_top_rated).setChecked(true);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -231,6 +289,8 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 pageTotal = 1;
                 sortType = Values.TYPE_POPULAR;
                 loading = false;
+                changeData = true;
+                if (disposable != null && !disposable.isDisposed()) disposable.clear();
                 if (!item.isChecked()) {
                     changeTitle();
                     getPopularMovies();
@@ -242,6 +302,8 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
                 pageTotal = 1;
                 sortType = Values.TYPE_HIGH_RATED;
                 loading = false;
+                changeData = true;
+                if (disposable != null && !disposable.isDisposed()) disposable.clear();
                 if (!item.isChecked()) {
                     changeTitle();
                     getTopRatedMovies();
@@ -252,42 +314,42 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onResponse(@NonNull Call<MoviesList> call, @NonNull Response<MoviesList> response) {
-        if (progressBar.getVisibility() == View.VISIBLE) progressBar.setVisibility(View.GONE);
-        if (forceRefresh) {
-            adapter.clear();
-            forceRefresh = false;
-        }
+    private void onResponse(@NonNull MoviesList moviesList) {
         if (rv.getVisibility() == View.GONE) rv.setVisibility(View.VISIBLE);
-        if (swipeRefreshLayout.isRefreshing()) swipeRefreshLayout.setRefreshing(false);
+
+        if (forceRefresh) adapter.clear();
+
 
         if (snackbar != null) {
             snackbar.dismiss();
             snackbar = null;
         }
         if (tools.getVisibility() == View.VISIBLE) tools.setVisibility(View.GONE);
-        loading = false;
         fromPagination = false;
-        MoviesList responseBody = response.body();
-        if (responseBody != null) {
-            pageTotal = responseBody.getTotalPage();
-            pageNow = responseBody.getPage();
-            List<MoviesDetail> movies = responseBody.getMovies();
-            if (responseBody.getStatusMessage() == null && movies.size() > 0) {
-                adapter.add(movies);
-            }
+        pageTotal = moviesList.getTotalPage();
+        pageNow = moviesList.getPage();
+        List<MoviesDetail> movies = moviesList.getMovies();
+        if (moviesList.getStatusMessage() == null && movies.size() > 0) {
+            adapter.add(movies);
         }
+        Log.d(TAG, "onResponse: finish Response");
     }
 
-    @Override
-    public void onFailure(@NonNull Call<MoviesList> call, @NonNull Throwable t) {
+    private void onComplete() {
         if (progressBar.getVisibility() == View.VISIBLE) progressBar.setVisibility(View.GONE);
-        if (forceRefresh) forceRefresh = false;
         if (swipeRefreshLayout.isRefreshing()) swipeRefreshLayout.setRefreshing(false);
+        if (forceRefresh) forceRefresh = false;
+
+        processLoadData = false;
+        changeData = false;
+        loading = false;
+        Log.d(TAG, "onComplete: finish complete");
+    }
+
+    private void onFailure(@NonNull Throwable t) {
+        if (progressBar.getVisibility() == View.VISIBLE) progressBar.setVisibility(View.GONE);
         if (rv.getVisibility() == View.VISIBLE && adapter.getItemCount() == 0)
             rv.setVisibility(View.GONE);
-        loading = false;
 
         if (fromPagination) {
             imageTools.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_refresh_white));
@@ -308,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements Callback<MoviesLi
             }
         });
         snackbar.show();
+        Log.e(TAG, "onFailure: ", t);
     }
 
     @OnClick(R.id.imageTools)
