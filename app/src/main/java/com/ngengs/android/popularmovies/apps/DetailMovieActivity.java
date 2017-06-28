@@ -158,8 +158,8 @@ public class DetailMovieActivity extends AppCompatActivity {
             detailView.setVisibility(View.GONE);
             disposable.add(
                     moviesDBService.detail(data.getId())
-                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Consumer<MoviesDetail>() {
                                 @Override
                                 public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {

@@ -245,8 +245,8 @@ public class MainActivity extends AppCompatActivity {
 
             disposable.add(
                     moviesDBService.listMoviesPopular(pageNow + 1)
-                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(moviesListConsumer, errorConsumer, actionComplete)
             );
         }
@@ -262,8 +262,8 @@ public class MainActivity extends AppCompatActivity {
 
             disposable.add(
                     moviesDBService.listMoviesTopRated(pageNow + 1)
-                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(moviesListConsumer, errorConsumer, actionComplete)
             );
         }
