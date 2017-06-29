@@ -26,6 +26,7 @@ import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment;
 import com.ngengs.android.popularmovies.apps.fragments.GridFragment;
 import com.ngengs.android.popularmovies.apps.globals.Values;
+import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -40,7 +41,10 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     Toolbar toolbar;
     @Nullable
     @BindView(R.id.collapsingToolbar)
-    CollapsingToolbarLayout toolbarDetail;
+    CollapsingToolbarLayout toolbarDetailCollapsing;
+    @Nullable
+    @BindView(R.id.toolbarDetail)
+    Toolbar toolbarDetail;
     @BindView(R.id.fragmentGrid)
     FrameLayout gridFragmentLayout;
     @Nullable
@@ -59,14 +63,17 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     @BindView(R.id.detailHeaderImage)
     ImageView detailHeaderImage;
     @Nullable
-    @BindView(R.id.fabShare)
+    @BindView(R.id.fabFavorite)
     FloatingActionButton fab;
     private ActionBar actionBar;
+    private Menu menuDetail;
 
     private GridFragment gridFragment;
     private DetailMovieFragment detailMovieFragment;
     private FragmentManager fragmentManager;
     private boolean openDetail = false;
+    // TODO: remove temporary favorite detector
+    private boolean moviesFavorite = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         actionBar = getSupportActionBar();
         Log.d(TAG, "onCreate: now");
 
-        fragmentManager = getSupportFragmentManager();
+        if (fragmentManager == null) fragmentManager = getSupportFragmentManager();
 
         if (gridFragmentLayout != null) {
             if (savedInstanceState == null) {
@@ -105,6 +112,25 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         if (isMultiLayout()) {
             Log.d(TAG, "createMultiLayout: success");
             Log.d(TAG, "createMultiLayout: gridfragment status: " + (gridFragment != null));
+            toolbarDetail.inflateMenu(R.menu.menu_detail);
+            menuDetail = toolbarDetail.getMenu();
+            menuDetail.findItem(R.id.menu_detail_close).setVisible(true);
+            menuDetail.findItem(R.id.menu_detail_share).setVisible(false);
+            toolbarDetail.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.menu_detail_close:
+                            onCloseMultiLayout();
+                            return true;
+                        case R.id.menu_detail_share:
+                            Log.d(TAG, "onMenuItemClick: Share");
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+            });
             if (openDetail) {
                 showMultiLayout(true);
             } else {
@@ -184,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(detailFragmentLayout.getId(), detailMovieFragment);
                 fragmentTransaction.commit();
+                moviesFavorite = false;
             }
         }
     }
@@ -205,20 +232,31 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
 
     @Override
     public void onFragmentShowShare() {
-        if (isMultiLayout() && fab != null) {
-            fab.setVisibility(View.VISIBLE);
+        if (isMultiLayout()) {
+            menuDetail.findItem(R.id.menu_detail_share).setVisible(true);
+        }
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Optional
+    @OnClick(R.id.fabFavorite)
+    void onFavoriteClick() {
+        if (isMultiLayout()) {
+            moviesFavorite = !moviesFavorite;
+            if (moviesFavorite)
+                fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
+            else
+                fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
         }
     }
 
     @Override
     public void onFragmentChangeTitle(@NonNull String title) {
         Log.d(TAG, "onFragmentChangeTitle: start");
-        if (isMultiLayout() && toolbarDetail != null) {
+        if (isMultiLayout() && toolbarDetailCollapsing != null) {
             Log.d(TAG, "onFragmentChangeTitle: change to: " + title);
-            toolbarDetail.clearFocus();
-            toolbarDetail.destroyDrawingCache();
-            toolbarDetail.setTitle(title);
-            Log.d(TAG, "onFragmentChangeTitle: changed to: " + toolbarDetail.getTitle());
+            toolbarDetailCollapsing.setTitle(title);
+            Log.d(TAG, "onFragmentChangeTitle: changed to: " + toolbarDetailCollapsing.getTitle());
         }
     }
 
@@ -233,17 +271,17 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         }
     }
 
-    @SuppressWarnings({"ConstantConditions", "unused"})
-    @Optional
-    @OnClick(R.id.detailToolbarButtonClose)
+    @SuppressWarnings("ConstantConditions")
     void onCloseMultiLayout() {
         if (isMultiLayout()) {
-            showMultiLayout(false);
+            if (detailMovieFragment == null)
+                detailMovieFragment = (DetailMovieFragment) fragmentManager.findFragmentById(R.id.fragmentDetail);
+
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.remove(detailMovieFragment);
             fragmentTransaction.commit();
             detailHeaderImage.setImageResource(0);
-            fab.setVisibility(View.GONE);
+            showMultiLayout(false);
         }
     }
 }

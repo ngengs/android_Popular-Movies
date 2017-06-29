@@ -64,29 +64,9 @@
                     android:id="@+id/toolbarDetail"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    android:paddingEnd="?attr/actionBarSize"
-                    android:paddingLeft="0dp"
-                    android:paddingRight="?attr/actionBarSize"
-                    android:paddingStart="0dp"
+                    android:padding="0dp"
                     android:theme="@style/Base.ThemeOverlay.AppCompat.Dark"
                     app:layout_collapseMode="pin" />
-
-
-                <RelativeLayout
-                    android:id="@+id/detailToolbarButtonClose"
-                    android:layout_width="?attr/actionBarSize"
-                    android:layout_height="?attr/actionBarSize"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_gravity="top|end"
-                    app:layout_collapseMode="pin">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        app:srcCompat="@drawable/ic_close_white" />
-                </RelativeLayout>
 
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
@@ -107,14 +87,13 @@
         </android.support.v4.widget.NestedScrollView>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabShare"
+            android:id="@+id/fabFavorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:visibility="gone"
             app:layout_anchor="@id/appbarDetail"
             app:layout_anchorGravity="bottom|end"
-            app:srcCompat="@drawable/ic_share_white" />
+            app:srcCompat="@drawable/ic_favorite_border_white" />
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.CoordinatorLayout

@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -20,12 +22,14 @@ import android.widget.Toast;
 
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment;
+import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+@SuppressWarnings("ALL")
 public class DetailMovieActivity extends AppCompatActivity implements DetailMovieFragment.OnFragmentInteractionListener {
     private static final String TAG = "DetailMovieActivity";
 
@@ -33,7 +37,7 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
     Toolbar toolbar;
     @BindView(R.id.detailHeaderImage)
     ImageView imageHeader;
-    @BindView(R.id.fabShare)
+    @BindView(R.id.fabFavorite)
     FloatingActionButton fab;
     @BindView(R.id.fragmentDetail)
     FrameLayout detailFragmentLayout;
@@ -42,14 +46,15 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
     private FragmentManager fragmentManager;
     private DetailMovieFragment detailMovieFragment;
     private ActionBar actionBar;
+    // TODO: remove temporary favorite detector
+    private boolean moviesFavorite = false;
+    private boolean moviesShare = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_movie);
         ButterKnife.bind(this);
-
-        fab.hide();
 
         setSupportActionBar(toolbar);
 
@@ -63,7 +68,6 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
-//            if (data != null) getSupportActionBar().setTitle(data.getTitle());
         }
 
         fragmentManager = getSupportFragmentManager();
@@ -80,9 +84,6 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
             }
         }
 
-//        if (data != null) {
-//            bindOldData();
-//        }
     }
 
     @Override
@@ -95,20 +96,48 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
         super.onSaveInstanceState(outState);
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu: create menu");
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_detail, menu);
+        menu.findItem(R.id.menu_detail_close).setVisible(false);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.menu_detail_share).setVisible(moviesShare);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == android.R.id.home) {
-            onBackPressed();
-            return true;
+        switch (id) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            case R.id.menu_detail_share:
+                shareItem();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @OnClick(R.id.fabShare)
-    void fabShare() {
+    @OnClick(R.id.fabFavorite)
+    void onFavoriteClick() {
+        moviesFavorite = !moviesFavorite;
+        if (moviesFavorite)
+            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
+        else
+            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
+    }
+
+    private void shareItem() {
         if (detailMovieFragment.getStatusLoadedFromServer()) {
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
@@ -121,7 +150,9 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
 
     @Override
     public void onFragmentShowShare() {
-        fab.show();
+        Log.d(TAG, "onFragmentShowShare: changed");
+        moviesShare = true;
+        invalidateOptionsMenu();
     }
 
     @Override
