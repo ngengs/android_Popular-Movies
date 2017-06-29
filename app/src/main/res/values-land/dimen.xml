@@ -2,4 +2,5 @@
 <resources>
     <dimen name="image_description_thumbnail_width">100dp</dimen>
     <dimen name="image_description_thumbnail_min_height">125dp</dimen>
+    <dimen name="movie_detail_content_overlay">64dp</dimen>
 </resources>

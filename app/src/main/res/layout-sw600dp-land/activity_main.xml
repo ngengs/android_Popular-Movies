@@ -76,7 +76,7 @@
             android:id="@+id/scrollDetail"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="-75dp"
+            app:behavior_overlapTop="@dimen/movie_detail_content_overlay"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <FrameLayout
