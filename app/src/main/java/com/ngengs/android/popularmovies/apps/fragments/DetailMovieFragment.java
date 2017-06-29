@@ -214,6 +214,11 @@ public class DetailMovieFragment extends Fragment {
         if (data.getOverview() != null) textSynopsis.setText(data.getOverview());
     }
 
+    public int getMoviesId() {
+        if (data != null) return data.getId();
+        else return -1;
+    }
+
     private void bindData() {
         if (mListener != null) {
             mListener.onFragmentShowShare();

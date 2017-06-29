@@ -206,11 +206,22 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         } else {
             showMultiLayout(true);
             if (isMultiLayout() && detailFragmentLayout != null) {
-                detailMovieFragment = DetailMovieFragment.newInstance(data);
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(detailFragmentLayout.getId(), detailMovieFragment);
-                fragmentTransaction.commit();
-                moviesFavorite = false;
+                boolean changeFragment = true;
+                if (detailMovieFragment != null) {
+                    // Check is fragment same as the clicked data
+                    DetailMovieFragment temp = (DetailMovieFragment) fragmentManager.findFragmentById(detailFragmentLayout.getId());
+                    Log.d(TAG, "onFragmentClickMovies: old id: " + temp.getMoviesId());
+                    Log.d(TAG, "onFragmentClickMovies: new id: " + data.getId());
+                    if (data.getId() == temp.getMoviesId()) changeFragment = false;
+                }
+                Log.d(TAG, "onFragmentClickMovies: can change: " + changeFragment);
+                if (changeFragment) {
+                    detailMovieFragment = DetailMovieFragment.newInstance(data);
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(detailFragmentLayout.getId(), detailMovieFragment);
+                    fragmentTransaction.commit();
+                    moviesFavorite = false;
+                }
             }
         }
     }
@@ -281,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
             fragmentTransaction.remove(detailMovieFragment);
             fragmentTransaction.commit();
             detailHeaderImage.setImageResource(0);
+            detailMovieFragment = null;
             showMultiLayout(false);
         }
     }
