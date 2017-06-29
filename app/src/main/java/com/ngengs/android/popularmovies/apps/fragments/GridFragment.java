@@ -187,6 +187,7 @@ public class GridFragment extends Fragment {
         if (mListener != null) {
             if (disposable != null && !disposable.isDisposed()) {
                 disposable.dispose();
+                disposable = null;
                 onComplete();
             }
 
@@ -372,9 +373,6 @@ public class GridFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.dispose();
-        }
     }
 
     @OnClick(R.id.imageTools)

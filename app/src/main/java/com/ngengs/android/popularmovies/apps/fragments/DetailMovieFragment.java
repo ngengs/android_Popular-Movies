@@ -142,9 +142,6 @@ public class DetailMovieFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.clear();
-        }
     }
 
     @Override
