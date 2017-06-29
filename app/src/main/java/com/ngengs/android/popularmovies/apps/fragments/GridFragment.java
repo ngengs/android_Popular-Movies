@@ -132,6 +132,7 @@ public class GridFragment extends Fragment {
         context = view.getContext();
         unbinder = ButterKnife.bind(this, view);
         createLayout(savedInstanceState);
+        if (mListener != null) mListener.onAttachHandler();
         return view;
     }
 
@@ -303,6 +304,12 @@ public class GridFragment extends Fragment {
         }
     }
 
+    public void updateSpanColumn(int span) {
+        if (layoutManager != null) layoutManager.setSpanCount(span);
+        else layoutManager = new GridLayoutManager(context, span);
+        rv.setLayoutManager(layoutManager);
+    }
+
     private void onResponse(@NonNull MoviesList moviesList) {
         if (rv.getVisibility() == View.GONE) rv.setVisibility(View.VISIBLE);
 
@@ -433,6 +440,8 @@ public class GridFragment extends Fragment {
         void onFragmentClickMovies(MoviesDetail data);
 
         void onFragmentChangeTitle(int sortType);
+
+        void onAttachHandler();
     }
 
 }
