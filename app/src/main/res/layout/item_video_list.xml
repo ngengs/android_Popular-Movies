@@ -20,7 +20,7 @@
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:contentDescription="@string/video_image"
-        android:maxHeight="250dp"
+        android:maxHeight="@dimen/image_video_thumbnail_max_height"
         android:scaleType="centerInside"
         app:srcCompat="@drawable/ic_collections_white" />
 

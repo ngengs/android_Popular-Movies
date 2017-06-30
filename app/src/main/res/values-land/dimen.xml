@@ -4,4 +4,5 @@
     <dimen name="image_description_thumbnail_min_height">125dp</dimen>
     <dimen name="movie_detail_content_overlay">64dp</dimen>
     <dimen name="margin_card_detail_horizontal">0dp</dimen>
+    <dimen name="image_video_thumbnail_max_height">150dp</dimen>
 </resources>
