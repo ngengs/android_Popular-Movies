@@ -86,6 +86,10 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
         return data.get(position);
     }
 
+    public List<VideosDetail> get() {
+        return data;
+    }
+
     public interface ClickListener {
         void onClickListener(int position);
     }

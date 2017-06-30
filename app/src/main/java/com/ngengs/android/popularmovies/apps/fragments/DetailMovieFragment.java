@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -99,6 +100,7 @@ public class DetailMovieFragment extends Fragment {
     private MoviesDBService moviesDBService;
     private CompositeDisposable disposable = new CompositeDisposable();
     private boolean loadFromServer;
+    private boolean loadVideoFromServer;
     private Context context;
 
     private Unbinder unbinder;
@@ -148,6 +150,7 @@ public class DetailMovieFragment extends Fragment {
             detailView.setVisibility(View.GONE);
             taglineView.setVisibility(View.GONE);
             loadFromServer = false;
+            loadVideoFromServer = false;
         }
         return view;
     }
@@ -236,8 +239,6 @@ public class DetailMovieFragment extends Fragment {
         if (detailView.getVisibility() == View.GONE) detailView.setVisibility(View.VISIBLE);
         if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
 
-        Log.d(TAG, "bindData: https://www.imdb.com/title/" + data.getImdbId());
-
         if (data.getGenres() != null && data.getGenres().size() > 0) {
             List<String> genre = new ArrayList<>();
             for (ObjectName item : data.getGenres()) {
@@ -292,6 +293,7 @@ public class DetailMovieFragment extends Fragment {
         detailView.setVisibility(View.GONE);
         taglineView.setVisibility(View.GONE);
         loadFromServer = false;
+        loadVideoFromServer = false;
 
         recyclerVideo.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
         recyclerVideo.setHasFixedSize(true);
@@ -321,9 +323,14 @@ public class DetailMovieFragment extends Fragment {
         if (savedInstanceState != null) {
             data = savedInstanceState.getParcelable("DATA");
             loadFromServer = savedInstanceState.getBoolean("ALREADY_CONNECT", false);
+            loadVideoFromServer = savedInstanceState.getBoolean("ALREADY_VIDEO_CONNECT", false);
+            List<VideosDetail> temp = savedInstanceState.getParcelableArrayList("DATA_VIDEO");
             Log.d(TAG, "createLayout: loadFromServer: " + loadFromServer);
             bindOldData();
-            if (loadFromServer) bindData();
+            if (loadFromServer && loadVideoFromServer) {
+                bindData();
+                bindVideo(temp);
+            }
             else getDetailMovie();
         } else {
             if (data != null) bindOldData();
@@ -335,7 +342,9 @@ public class DetailMovieFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable("DATA", data);
+        outState.putParcelableArrayList("DATA_VIDEO", new ArrayList<Parcelable>(videoListAdapter.get()));
         outState.putBoolean("ALREADY_CONNECT", loadFromServer);
+        outState.putBoolean("ALREADY_VIDEO_CONNECT", loadVideoFromServer);
     }
 
     private void getDetailMovie() {
@@ -389,10 +398,16 @@ public class DetailMovieFragment extends Fragment {
     public void onResponseVideo(@NonNull VideosList response) {
         Log.d(TAG, "onResponseVideo: " + response.toString());
         if (response.getVideos() != null) {
-            if (response.getVideos().size() > 0) cardVideo.setVisibility(View.VISIBLE);
-            videoListAdapter.add(response.getVideos());
+            bindVideo(response.getVideos());
         }
 
+    }
+
+    private void bindVideo(List<VideosDetail> video) {
+        loadVideoFromServer = true;
+        if (video.size() > 0) cardVideo.setVisibility(View.VISIBLE);
+        videoListAdapter.clear();
+        videoListAdapter.add(video);
     }
 
     public boolean getStatusLoadedFromServer() {
