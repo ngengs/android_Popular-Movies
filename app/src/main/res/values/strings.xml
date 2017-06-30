@@ -30,4 +30,5 @@
     <string name="share_content">I recommend this movie. %1$s %2$s #Udacity #PopularMovies @ngengs</string>
     <string name="video_image">Video Image</string>
     <string name="videos_title">Videos</string>
+    <string name="video_indicator">Video Indicator</string>
 </resources>
