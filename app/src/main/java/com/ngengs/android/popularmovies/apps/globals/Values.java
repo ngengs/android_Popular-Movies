@@ -15,9 +15,13 @@ public final class Values {
     public static final String URL_PATH_DETAIL_PARAM = "id";
     public static final String URL_PATH_POPULAR = "movie/popular";
     public static final String URL_PATH_TOP_RATED = "movie/top_rated";
+    public static final String URL_PATH_VIDEO = "movie/{id}/videos";
+    public static final String URL_PATH_VIDEO_PARAM = "id";
     public static final String URL_FRAGMENT_KEY_API = "api_key";
     public static final String URL_FRAGMENT_KEY_PAGE = "page";
     public static final String URL_IMAGE = "https://image.tmdb.org/t/p/";
+    public static final String URL_VIDEO_YOUTUBE = "https://www.youtube.com/watch?v=";
+    public static final String URL_VIDEO_YOUTUBE_THUMB = "https://img.youtube.com/vi/%s/hqdefault.jpg";
     public static final String[] IMAGE_SIZE_PATH = {"original", "w92", "w154", "w185", "w342", "w500", "w780"};
     public static final String[] IMAGE_SIZE_BACKDROP = {"original", "w300", "w780", "w1280"};
 

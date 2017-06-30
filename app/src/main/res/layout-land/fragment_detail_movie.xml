@@ -176,6 +176,8 @@
 
             </android.support.v7.widget.CardView>
 
+            <include layout="@layout/video_layout" />
+
         </LinearLayout>
 
         <LinearLayout

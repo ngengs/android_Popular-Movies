@@ -311,6 +311,8 @@
 
     </android.support.v7.widget.CardView>
 
+    <include layout="@layout/video_layout" />
+
     <RelativeLayout
         android:id="@+id/rootProgressBar"
         android:layout_width="match_parent"

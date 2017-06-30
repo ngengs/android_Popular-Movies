@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/itemRoot"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:background="#45000000"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="@drawable/ripple"
+    android:orientation="vertical"
+    tools:ignore="Overdraw">
+
+    <ImageView
+        android:id="@+id/imageVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/video_image"
+        android:maxHeight="250dp"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/ic_collections_white" />
+
+</FrameLayout>

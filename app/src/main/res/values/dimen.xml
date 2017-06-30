@@ -6,4 +6,5 @@
     <dimen name="image_description_thumbnail_width">160dp</dimen>
     <dimen name="image_description_thumbnail_min_height">200dp</dimen>
     <dimen name="movie_detail_content_overlay">0dp</dimen>
+    <dimen name="margin_card_detail_horizontal">8dp</dimen>
 </resources>

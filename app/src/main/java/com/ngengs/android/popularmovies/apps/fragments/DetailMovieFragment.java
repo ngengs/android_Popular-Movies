@@ -1,11 +1,16 @@
 package com.ngengs.android.popularmovies.apps.fragments;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +20,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ngengs.android.popularmovies.apps.R;
+import com.ngengs.android.popularmovies.apps.adapters.VideoListAdapter;
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.data.ObjectName;
+import com.ngengs.android.popularmovies.apps.data.VideosDetail;
+import com.ngengs.android.popularmovies.apps.data.VideosList;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
@@ -41,7 +49,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link DetailMovieFragment.OnFragmentInteractionListener} interface
+ * {@link OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link DetailMovieFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -81,6 +89,10 @@ public class DetailMovieFragment extends Fragment {
     View detailView;
     @BindView(R.id.rootProgressBar)
     View rootProgress;
+    @BindView(R.id.recyclerVideo)
+    RecyclerView recyclerVideo;
+    @BindView(R.id.cardVideo)
+    CardView cardVideo;
     private Snackbar snackbar;
 
     private MoviesDetail data;
@@ -92,6 +104,7 @@ public class DetailMovieFragment extends Fragment {
     private Unbinder unbinder;
 
     private OnFragmentInteractionListener mListener;
+    private VideoListAdapter videoListAdapter;
 
     public DetailMovieFragment() {
         // Required empty public constructor
@@ -280,6 +293,21 @@ public class DetailMovieFragment extends Fragment {
         taglineView.setVisibility(View.GONE);
         loadFromServer = false;
 
+        recyclerVideo.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+        recyclerVideo.setHasFixedSize(true);
+        videoListAdapter = new VideoListAdapter(context, new VideoListAdapter.ClickListener() {
+            @Override
+            public void onClickListener(int position) {
+                Log.d(TAG, "onClickListener: " + position);
+                VideosDetail video = videoListAdapter.get(position);
+                if (video != null && video.isYoutubeVideo()) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(video.getYoutubeVideo()));
+                    startActivity(intent);
+                }
+            }
+        });
+        recyclerVideo.setAdapter(videoListAdapter);
+
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Values.URL_BASE)
@@ -315,7 +343,7 @@ public class DetailMovieFragment extends Fragment {
             rootProgress.setVisibility(View.VISIBLE);
             taglineView.setVisibility(View.GONE);
             detailView.setVisibility(View.GONE);
-            disposable.add(
+            disposable.addAll(
                     moviesDBService.detail(data.getId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
@@ -329,7 +357,17 @@ public class DetailMovieFragment extends Fragment {
                                 public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
                                     onFailure(throwable);
                                 }
-                            }));
+                            }),
+                    moviesDBService.videos(data.getId())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Consumer<VideosList>() {
+                                @Override
+                                public void accept(@io.reactivex.annotations.NonNull VideosList videosList) throws Exception {
+                                    onResponseVideo(videosList);
+                                }
+                            })
+            );
         }
     }
 
@@ -346,6 +384,14 @@ public class DetailMovieFragment extends Fragment {
         Log.d(TAG, "onResponse: " + data.getHomepage());
         loadFromServer = true;
         bindData();
+    }
+
+    public void onResponseVideo(@NonNull VideosList response) {
+        Log.d(TAG, "onResponseVideo: " + response.toString());
+        if (response.getVideos() != null) {
+            if (response.getVideos().size() > 0) cardVideo.setVisibility(View.VISIBLE);
+            videoListAdapter.add(response.getVideos());
+        }
 
     }
 
