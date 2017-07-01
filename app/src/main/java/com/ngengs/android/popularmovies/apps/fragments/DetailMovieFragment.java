@@ -243,9 +243,6 @@ public class DetailMovieFragment extends Fragment {
     }
 
     private void bindData() {
-        if (mListener != null) {
-            mListener.onFragmentShowShare();
-        }
         if (detailView.getVisibility() == View.GONE) detailView.setVisibility(View.VISIBLE);
         if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
 
@@ -450,9 +447,12 @@ public class DetailMovieFragment extends Fragment {
 
     private void bindVideo(List<VideosDetail> video) {
         loadVideoFromServer = true;
-        if (video.size() > 0) cardVideo.setVisibility(View.VISIBLE);
         videoListAdapter.clear();
-        videoListAdapter.add(video);
+        if (video.size() > 0) {
+            if (mListener != null) mListener.onFragmentShowShare();
+            cardVideo.setVisibility(View.VISIBLE);
+            videoListAdapter.add(video);
+        }
     }
 
     private void bindReview(List<ReviewDetail> review) {
@@ -467,7 +467,10 @@ public class DetailMovieFragment extends Fragment {
     }
 
     public String getShareContent() {
-        return getResources().getString(R.string.share_content, data.getTitle(), Values.URL_IMDB_BASE + Values.URL_IMDB_PATH_TITLE + data.getImdbId());
+        String shareUrl = "";
+        if (videoListAdapter.getItemCount() > 0)
+            shareUrl = videoListAdapter.get(0).getYoutubeVideo();
+        return getResources().getString(R.string.share_content, data.getTitle(), shareUrl);
     }
 
     public void onFailure(@NonNull Throwable t) {
