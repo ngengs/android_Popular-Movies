@@ -31,4 +31,6 @@
     <string name="video_image">Video Image</string>
     <string name="videos_title">Videos</string>
     <string name="video_indicator">Video Indicator</string>
+    <string name="review">Review</string>
+    <string name="review_text">"%1$s"</string>
 </resources>

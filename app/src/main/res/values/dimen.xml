@@ -8,4 +8,5 @@
     <dimen name="movie_detail_content_overlay">0dp</dimen>
     <dimen name="margin_card_detail_horizontal">8dp</dimen>
     <dimen name="image_video_thumbnail_max_height">250dp</dimen>
+    <dimen name="detail_end_item_bottom_margin">72dp</dimen>
 </resources>

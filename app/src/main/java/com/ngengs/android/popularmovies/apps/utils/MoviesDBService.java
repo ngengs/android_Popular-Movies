@@ -3,6 +3,7 @@ package com.ngengs.android.popularmovies.apps.utils;
 import com.ngengs.android.popularmovies.apps.BuildConfig;
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.data.MoviesList;
+import com.ngengs.android.popularmovies.apps.data.ReviewList;
 import com.ngengs.android.popularmovies.apps.data.VideosList;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 
@@ -29,5 +30,8 @@ public interface MoviesDBService {
 
     @GET(Values.URL_PATH_VIDEO + "?" + Values.URL_FRAGMENT_KEY_API + "=" + BuildConfig.API_KEY)
     Observable<VideosList> videos(@Path(Values.URL_PATH_VIDEO_PARAM) int id);
+
+    @GET(Values.URL_PATH_REVIEW + "?" + Values.URL_FRAGMENT_KEY_API + "=" + BuildConfig.API_KEY)
+    Observable<ReviewList> reviews(@Path(Values.URL_PATH_REVIEW_PARAM) int id);
 
 }

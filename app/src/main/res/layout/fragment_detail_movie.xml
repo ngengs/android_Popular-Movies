@@ -313,6 +313,8 @@
 
     <include layout="@layout/video_layout" />
 
+    <include layout="@layout/review_layout" />
+
     <RelativeLayout
         android:id="@+id/rootProgressBar"
         android:layout_width="match_parent"

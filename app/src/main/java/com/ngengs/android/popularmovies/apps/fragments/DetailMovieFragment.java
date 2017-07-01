@@ -21,9 +21,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ngengs.android.popularmovies.apps.R;
+import com.ngengs.android.popularmovies.apps.adapters.ReviewListAdapter;
 import com.ngengs.android.popularmovies.apps.adapters.VideoListAdapter;
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.data.ObjectName;
+import com.ngengs.android.popularmovies.apps.data.ReviewDetail;
+import com.ngengs.android.popularmovies.apps.data.ReviewList;
 import com.ngengs.android.popularmovies.apps.data.VideosDetail;
 import com.ngengs.android.popularmovies.apps.data.VideosList;
 import com.ngengs.android.popularmovies.apps.globals.Values;
@@ -94,6 +97,10 @@ public class DetailMovieFragment extends Fragment {
     RecyclerView recyclerVideo;
     @BindView(R.id.cardVideo)
     CardView cardVideo;
+    @BindView(R.id.recyclerReview)
+    RecyclerView recyclerReview;
+    @BindView(R.id.cardReview)
+    CardView cardReview;
     private Snackbar snackbar;
 
     private MoviesDetail data;
@@ -101,12 +108,14 @@ public class DetailMovieFragment extends Fragment {
     private CompositeDisposable disposable = new CompositeDisposable();
     private boolean loadFromServer;
     private boolean loadVideoFromServer;
+    private boolean loadReviewFromServer;
     private Context context;
 
     private Unbinder unbinder;
 
     private OnFragmentInteractionListener mListener;
     private VideoListAdapter videoListAdapter;
+    private ReviewListAdapter reviewListAdapter;
 
     public DetailMovieFragment() {
         // Required empty public constructor
@@ -151,6 +160,7 @@ public class DetailMovieFragment extends Fragment {
             taglineView.setVisibility(View.GONE);
             loadFromServer = false;
             loadVideoFromServer = false;
+            loadReviewFromServer = false;
         }
         return view;
     }
@@ -294,6 +304,7 @@ public class DetailMovieFragment extends Fragment {
         taglineView.setVisibility(View.GONE);
         loadFromServer = false;
         loadVideoFromServer = false;
+        loadReviewFromServer = false;
 
         recyclerVideo.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
         recyclerVideo.setHasFixedSize(true);
@@ -310,6 +321,21 @@ public class DetailMovieFragment extends Fragment {
         });
         recyclerVideo.setAdapter(videoListAdapter);
 
+        recyclerReview.setLayoutManager(new LinearLayoutManager(context));
+        recyclerReview.setHasFixedSize(true);
+        reviewListAdapter = new ReviewListAdapter(context, new ReviewListAdapter.ClickListener() {
+            @Override
+            public void onClickListener(int position) {
+                Log.d(TAG, "onClickListener: " + position);
+                ReviewDetail review = reviewListAdapter.get(position);
+                if (review != null && !TextUtils.isEmpty(review.getUrl())) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(review.getUrl()));
+                    startActivity(intent);
+                }
+            }
+        });
+        recyclerReview.setAdapter(reviewListAdapter);
+
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Values.URL_BASE)
@@ -324,14 +350,16 @@ public class DetailMovieFragment extends Fragment {
             data = savedInstanceState.getParcelable("DATA");
             loadFromServer = savedInstanceState.getBoolean("ALREADY_CONNECT", false);
             loadVideoFromServer = savedInstanceState.getBoolean("ALREADY_VIDEO_CONNECT", false);
-            List<VideosDetail> temp = savedInstanceState.getParcelableArrayList("DATA_VIDEO");
+            loadReviewFromServer = savedInstanceState.getBoolean("ALREADY_REVIEW_CONNECT", false);
+            List<VideosDetail> tempVideo = savedInstanceState.getParcelableArrayList("DATA_VIDEO");
+            List<ReviewDetail> tempReview = savedInstanceState.getParcelableArrayList("DATA_REVIEW");
             Log.d(TAG, "createLayout: loadFromServer: " + loadFromServer);
             bindOldData();
-            if (loadFromServer && loadVideoFromServer) {
+            if (loadFromServer && loadVideoFromServer && loadReviewFromServer) {
                 bindData();
-                bindVideo(temp);
-            }
-            else getDetailMovie();
+                bindVideo(tempVideo);
+                bindReview(tempReview);
+            } else getDetailMovie();
         } else {
             if (data != null) bindOldData();
             getDetailMovie();
@@ -343,8 +371,10 @@ public class DetailMovieFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putParcelable("DATA", data);
         outState.putParcelableArrayList("DATA_VIDEO", new ArrayList<Parcelable>(videoListAdapter.get()));
+        outState.putParcelableArrayList("DATA_REVIEW", new ArrayList<Parcelable>(reviewListAdapter.get()));
         outState.putBoolean("ALREADY_CONNECT", loadFromServer);
         outState.putBoolean("ALREADY_VIDEO_CONNECT", loadVideoFromServer);
+        outState.putBoolean("ALREADY_REVIEW_CONNECT", loadReviewFromServer);
     }
 
     private void getDetailMovie() {
@@ -375,6 +405,15 @@ public class DetailMovieFragment extends Fragment {
                                 public void accept(@io.reactivex.annotations.NonNull VideosList videosList) throws Exception {
                                     onResponseVideo(videosList);
                                 }
+                            }),
+                    moviesDBService.reviews(data.getId())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Consumer<ReviewList>() {
+                                @Override
+                                public void accept(@io.reactivex.annotations.NonNull ReviewList reviewList) throws Exception {
+                                    onResponseReview(reviewList);
+                                }
                             })
             );
         }
@@ -400,7 +439,13 @@ public class DetailMovieFragment extends Fragment {
         if (response.getVideos() != null) {
             bindVideo(response.getVideos());
         }
+    }
 
+    public void onResponseReview(@NonNull ReviewList response) {
+        Log.d(TAG, "onResponseReview: " + response.getReview().size());
+        if (response.getReview() != null) {
+            bindReview(response.getReview());
+        }
     }
 
     private void bindVideo(List<VideosDetail> video) {
@@ -408,6 +453,13 @@ public class DetailMovieFragment extends Fragment {
         if (video.size() > 0) cardVideo.setVisibility(View.VISIBLE);
         videoListAdapter.clear();
         videoListAdapter.add(video);
+    }
+
+    private void bindReview(List<ReviewDetail> review) {
+        loadReviewFromServer = true;
+        if (review.size() > 0) cardReview.setVisibility(View.VISIBLE);
+        reviewListAdapter.clear();
+        reviewListAdapter.add(review);
     }
 
     public boolean getStatusLoadedFromServer() {

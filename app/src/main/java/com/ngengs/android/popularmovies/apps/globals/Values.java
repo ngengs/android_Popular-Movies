@@ -17,6 +17,8 @@ public final class Values {
     public static final String URL_PATH_TOP_RATED = "movie/top_rated";
     public static final String URL_PATH_VIDEO = "movie/{id}/videos";
     public static final String URL_PATH_VIDEO_PARAM = "id";
+    public static final String URL_PATH_REVIEW = "movie/{id}/reviews";
+    public static final String URL_PATH_REVIEW_PARAM = "id";
     public static final String URL_FRAGMENT_KEY_API = "api_key";
     public static final String URL_FRAGMENT_KEY_PAGE = "page";
     public static final String URL_IMAGE = "https://image.tmdb.org/t/p/";

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cardVideo"
+    android:id="@+id/cardReview"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_marginBottom="8dp"
+    android:layout_marginBottom="@dimen/detail_end_item_bottom_margin"
     android:layout_marginEnd="@dimen/margin_card_detail_horizontal"
     android:layout_marginLeft="@dimen/margin_card_detail_horizontal"
     android:layout_marginRight="@dimen/margin_card_detail_horizontal"
@@ -26,18 +26,17 @@
             android:layout_marginBottom="8dp"
             android:background="#87000000"
             android:padding="8dp"
-            android:text="@string/videos_title"
+            android:text="@string/review"
             android:textAllCaps="true"
             android:textSize="18sp"
             android:textStyle="bold" />
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerVideo"
+            android:id="@+id/recyclerReview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:orientation="horizontal"
-            android:scrollbars="horizontal" />
+            android:orientation="vertical"
+            android:scrollbars="vertical" />
 
     </LinearLayout>
 
