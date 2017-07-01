@@ -109,6 +109,7 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:text="@string/empty_string"
+                android:textIsSelectable="true"
                 android:textSize="18sp" />
         </LinearLayout>
 
