@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -43,6 +45,9 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     @BindView(R.id.collapsingToolbar)
     CollapsingToolbarLayout toolbarDetailCollapsing;
     @Nullable
+    @BindView(R.id.appbarDetail)
+    AppBarLayout toolbarDetailAppBar;
+    @Nullable
     @BindView(R.id.toolbarDetail)
     Toolbar toolbarDetail;
     @BindView(R.id.fragmentGrid)
@@ -65,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     @Nullable
     @BindView(R.id.fabFavorite)
     FloatingActionButton fab;
+    @Nullable
+    @BindView(R.id.scrollDetail)
+    NestedScrollView scrollDetail;
     private ActionBar actionBar;
     private Menu menuDetail;
 
@@ -220,6 +228,8 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.replace(detailFragmentLayout.getId(), detailMovieFragment);
                     fragmentTransaction.commit();
+                    if (toolbarDetailAppBar != null) toolbarDetailAppBar.setExpanded(true);
+                    if (scrollDetail != null) scrollDetail.scrollTo(0, 0);
                     moviesFavorite = false;
                 }
             }
