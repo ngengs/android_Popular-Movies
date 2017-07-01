@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     }
 
     @Override
-    public void onFragmentClickMovies(MoviesDetail data) {
+    public void onFragmentClickMovies(int position, MoviesDetail data) {
         if (!isMultiLayout()) {
             Intent intent = new Intent(MainActivity.this, DetailMovieActivity.class);
             intent.putExtra("DATA", data);
@@ -230,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                     fragmentTransaction.commit();
                     if (toolbarDetailAppBar != null) toolbarDetailAppBar.setExpanded(true);
                     if (scrollDetail != null) scrollDetail.scrollTo(0, 0);
+                    gridFragment.scrollToPosition(position);
                     moviesFavorite = false;
                 }
             }

@@ -191,7 +191,7 @@ public class GridFragment extends Fragment {
                 onComplete();
             }
 
-            mListener.onFragmentClickMovies(adapter.get(position));
+            mListener.onFragmentClickMovies(position, adapter.get(position));
         } else throw new UnsupportedOperationException();
 
     }
@@ -309,6 +309,10 @@ public class GridFragment extends Fragment {
         if (layoutManager != null) layoutManager.setSpanCount(span);
         else layoutManager = new GridLayoutManager(context, span);
         rv.setLayoutManager(layoutManager);
+    }
+
+    public void scrollToPosition(int position) {
+        layoutManager.scrollToPosition(position);
     }
 
     private void onResponse(@NonNull MoviesList moviesList) {
@@ -435,7 +439,7 @@ public class GridFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onFragmentClickMovies(MoviesDetail data);
+        void onFragmentClickMovies(int position, MoviesDetail data);
 
         void onFragmentChangeTitle(int sortType);
 
