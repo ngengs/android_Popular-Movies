@@ -150,7 +150,7 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
     }
 
     @Override
-    public void onFragmentChangeFavorite(boolean isFavorite) {
+    public void onFragmentChangeFavorite(MoviesDetail data, boolean isFavorite, boolean isRefresh) {
         if (isFavorite)
             fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
         else

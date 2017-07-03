@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                 Log.d(TAG, "onFragmentClickMovies: can change: " + changeFragment);
                 if (changeFragment) {
                     // Clear button favorite
-                    onFragmentChangeFavorite(false);
+                    onFragmentChangeFavorite(null, false, false);
                     detailMovieFragment = DetailMovieFragment.newInstance(data);
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.replace(detailFragmentLayout.getId(), detailMovieFragment);
@@ -298,15 +298,20 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void onFragmentChangeFavorite(boolean isFavorite) {
+    public void onFragmentChangeFavorite(MoviesDetail data, boolean isFavorite, boolean isRefresh) {
         if (isMultiLayout()) {
             Log.d(TAG, "onFragmentChangeFavorite: now");
             if (isFavorite)
                 fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
             else
                 fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
-            if (gridFragment.getSortType() == Values.TYPE_FAVORITE)
-                gridFragment.changeType(Values.TYPE_FAVORITE);
+            if (gridFragment.getSortType() == Values.TYPE_FAVORITE && isRefresh) {
+//                gridFragment.changeType(Values.TYPE_FAVORITE);
+                if (data != null) {
+                    if (isFavorite) gridFragment.addMovies(data);
+                    else gridFragment.removeMovies(data);
+                }
+            }
         }
     }
 

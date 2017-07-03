@@ -221,7 +221,7 @@ public class DetailMovieFragment extends Fragment {
         else favoriteService.addToFavorites(data);
 
         favoriteMovies = !favoriteMovies;
-        if (mListener != null) mListener.onFragmentChangeFavorite(favoriteMovies);
+        if (mListener != null) mListener.onFragmentChangeFavorite(data, favoriteMovies, true);
     }
 
     private void bindOldData() {
@@ -377,7 +377,7 @@ public class DetailMovieFragment extends Fragment {
             if (data != null) bindOldData();
             getDetailMovie();
         }
-        if (mListener != null) mListener.onFragmentChangeFavorite(favoriteMovies);
+        if (mListener != null) mListener.onFragmentChangeFavorite(data, favoriteMovies, false);
     }
 
     @Override
@@ -532,7 +532,7 @@ public class DetailMovieFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         void onFragmentShowShare();
 
-        void onFragmentChangeFavorite(boolean isFavorite);
+        void onFragmentChangeFavorite(MoviesDetail data, boolean isFavorite, boolean isRefresh);
 
         void onFragmentChangeTitle(@NonNull String title);
 

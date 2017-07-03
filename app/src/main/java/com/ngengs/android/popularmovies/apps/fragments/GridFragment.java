@@ -471,6 +471,14 @@ public class GridFragment extends Fragment {
         else getFavoriteMovies();
     }
 
+    public void addMovies(MoviesDetail item) {
+        adapter.add(item);
+    }
+
+    public void removeMovies(MoviesDetail item) {
+        adapter.deleteById(item.getId());
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
