@@ -25,6 +25,10 @@ public class MoviesList {
     @SerializedName("status_message")
     private String statusMessage;
 
+    public MoviesList(List<MoviesDetail> movies) {
+        this.movies = movies;
+    }
+
     public int getPage() {
         return page;
     }

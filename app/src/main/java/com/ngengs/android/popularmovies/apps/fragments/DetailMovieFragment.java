@@ -29,6 +29,7 @@ import com.ngengs.android.popularmovies.apps.data.ReviewDetail;
 import com.ngengs.android.popularmovies.apps.data.ReviewList;
 import com.ngengs.android.popularmovies.apps.data.VideosDetail;
 import com.ngengs.android.popularmovies.apps.data.VideosList;
+import com.ngengs.android.popularmovies.apps.data.local.services.FavoriteService;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
@@ -109,6 +110,7 @@ public class DetailMovieFragment extends Fragment {
     private boolean loadFromServer;
     private boolean loadVideoFromServer;
     private boolean loadReviewFromServer;
+    private boolean favoriteMovies;
     private Context context;
 
     private Unbinder unbinder;
@@ -116,6 +118,8 @@ public class DetailMovieFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private VideoListAdapter videoListAdapter;
     private ReviewListAdapter reviewListAdapter;
+
+    private FavoriteService favoriteService;
 
     public DetailMovieFragment() {
         // Required empty public constructor
@@ -151,6 +155,7 @@ public class DetailMovieFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_detail_movie, container, false);
         context = view.getContext();
         unbinder = ButterKnife.bind(this, view);
+        favoriteService = new FavoriteService(context);
         if (data != null) {
             Log.d(TAG, "onCreateView: data status: not null");
             createLayout(savedInstanceState);
@@ -161,6 +166,7 @@ public class DetailMovieFragment extends Fragment {
             loadFromServer = false;
             loadVideoFromServer = false;
             loadReviewFromServer = false;
+            favoriteMovies = false;
         }
         return view;
     }
@@ -208,6 +214,14 @@ public class DetailMovieFragment extends Fragment {
             return ResourceHelpers.getColor(context, R.color.colorRatingNormal);
         else
             return ResourceHelpers.getColor(context, R.color.colorRatingBad);
+    }
+
+    public void changeFavorite() {
+        if (favoriteMovies) favoriteService.removeFromFavorites(data.getId());
+        else favoriteService.addToFavorites(data);
+
+        favoriteMovies = !favoriteMovies;
+        if (mListener != null) mListener.onFragmentChangeFavorite(favoriteMovies);
     }
 
     private void bindOldData() {
@@ -348,6 +362,7 @@ public class DetailMovieFragment extends Fragment {
             loadFromServer = savedInstanceState.getBoolean("ALREADY_CONNECT", false);
             loadVideoFromServer = savedInstanceState.getBoolean("ALREADY_VIDEO_CONNECT", false);
             loadReviewFromServer = savedInstanceState.getBoolean("ALREADY_REVIEW_CONNECT", false);
+            favoriteMovies = savedInstanceState.getBoolean("FAVORITED_MOVIES", false);
             List<VideosDetail> tempVideo = savedInstanceState.getParcelableArrayList("DATA_VIDEO");
             List<ReviewDetail> tempReview = savedInstanceState.getParcelableArrayList("DATA_REVIEW");
             Log.d(TAG, "createLayout: loadFromServer: " + loadFromServer);
@@ -358,9 +373,11 @@ public class DetailMovieFragment extends Fragment {
                 bindReview(tempReview);
             } else getDetailMovie();
         } else {
+            favoriteMovies = favoriteService.isFavorite(data.getId());
             if (data != null) bindOldData();
             getDetailMovie();
         }
+        if (mListener != null) mListener.onFragmentChangeFavorite(favoriteMovies);
     }
 
     @Override
@@ -372,6 +389,7 @@ public class DetailMovieFragment extends Fragment {
         outState.putBoolean("ALREADY_CONNECT", loadFromServer);
         outState.putBoolean("ALREADY_VIDEO_CONNECT", loadVideoFromServer);
         outState.putBoolean("ALREADY_REVIEW_CONNECT", loadReviewFromServer);
+        outState.putBoolean("FAVORITED_MOVIES", favoriteMovies);
     }
 
     private void getDetailMovie() {
@@ -382,6 +400,18 @@ public class DetailMovieFragment extends Fragment {
             disposable.addAll(
                     moviesDBService.detail(data.getId())
                             .subscribeOn(Schedulers.io())
+                            .doAfterNext(new Consumer<MoviesDetail>() {
+                                @Override
+                                public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
+                                    Log.d(TAG, "accept: doAfterNext: " + moviesDetail.getId());
+                                }
+                            })
+                            .doOnNext(new Consumer<MoviesDetail>() {
+                                @Override
+                                public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
+                                    Log.d(TAG, "accept: doOnNext: " + moviesDetail.getId());
+                                }
+                            })
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Consumer<MoviesDetail>() {
                                 @Override
@@ -501,6 +531,8 @@ public class DetailMovieFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         void onFragmentShowShare();
+
+        void onFragmentChangeFavorite(boolean isFavorite);
 
         void onFragmentChangeTitle(@NonNull String title);
 

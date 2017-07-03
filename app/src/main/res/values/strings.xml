@@ -33,4 +33,6 @@
     <string name="video_indicator">Video Indicator</string>
     <string name="review">Review</string>
     <string name="review_text">"%1$s"</string>
+    <string name="title_favorite">Favorite Movies</string>
+    <string name="data_empty">Empty Movies</string>
 </resources>

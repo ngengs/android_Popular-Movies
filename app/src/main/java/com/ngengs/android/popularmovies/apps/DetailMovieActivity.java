@@ -29,7 +29,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-@SuppressWarnings("ALL")
+@SuppressWarnings("FieldCanBeLocal")
 public class DetailMovieActivity extends AppCompatActivity implements DetailMovieFragment.OnFragmentInteractionListener {
     private static final String TAG = "DetailMovieActivity";
 
@@ -46,8 +46,6 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
     private FragmentManager fragmentManager;
     private DetailMovieFragment detailMovieFragment;
     private ActionBar actionBar;
-    // TODO: remove temporary favorite detector
-    private boolean moviesFavorite = false;
     private boolean moviesShare = false;
 
     @Override
@@ -130,11 +128,7 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
 
     @OnClick(R.id.fabFavorite)
     void onFavoriteClick() {
-        moviesFavorite = !moviesFavorite;
-        if (moviesFavorite)
-            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
-        else
-            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
+        detailMovieFragment.changeFavorite();
     }
 
     private void shareItem() {
@@ -153,6 +147,14 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
         Log.d(TAG, "onFragmentShowShare: changed");
         moviesShare = true;
         invalidateOptionsMenu();
+    }
+
+    @Override
+    public void onFragmentChangeFavorite(boolean isFavorite) {
+        if (isFavorite)
+            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
+        else
+            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
     }
 
     @Override

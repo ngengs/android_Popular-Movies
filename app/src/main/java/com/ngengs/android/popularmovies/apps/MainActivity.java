@@ -1,6 +1,8 @@
 package com.ngengs.android.popularmovies.apps;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -38,7 +40,7 @@ import butterknife.Optional;
 
 public class MainActivity extends AppCompatActivity implements GridFragment.OnFragmentInteractionListener, DetailMovieFragment.OnFragmentInteractionListener {
     private static final String TAG = "MainActivity";
-
+    private static final int RESULT_DETAIL = 10;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @Nullable
@@ -75,13 +77,11 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     NestedScrollView scrollDetail;
     private ActionBar actionBar;
     private Menu menuDetail;
-
     private GridFragment gridFragment;
     private DetailMovieFragment detailMovieFragment;
     private FragmentManager fragmentManager;
+    private SharedPreferences sharedPref;
     private boolean openDetail = false;
-    // TODO: remove temporary favorite detector
-    private boolean moviesFavorite = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,12 +93,25 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         actionBar = getSupportActionBar();
         Log.d(TAG, "onCreate: now");
 
+        sharedPref = getPreferences(Context.MODE_PRIVATE);
+        int sortType = sharedPref.getInt("SORT_TYPE_NOW", Values.TYPE_POPULAR);
+        switch (sortType) {
+            case Values.TYPE_POPULAR:
+                break;
+            case Values.TYPE_HIGH_RATED:
+                break;
+            case Values.TYPE_FAVORITE:
+                break;
+            default:
+                sortType = Values.TYPE_POPULAR;
+        }
+
         if (fragmentManager == null) fragmentManager = getSupportFragmentManager();
 
         if (gridFragmentLayout != null) {
             if (savedInstanceState == null) {
                 Log.d(TAG, "onCreate: attach fragment");
-                gridFragment = GridFragment.newInstance();
+                gridFragment = GridFragment.newInstance(sortType);
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.add(gridFragmentLayout.getId(), gridFragment);
                 fragmentTransaction.commit();
@@ -193,15 +206,25 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int sortType = -1;
         switch (item.getItemId()) {
             case R.id.menu_sort_by_popular:
-                gridFragment.changeType(Values.TYPE_POPULAR);
+                sortType = Values.TYPE_POPULAR;
                 break;
             case R.id.menu_sort_by_top_rated:
-                gridFragment.changeType(Values.TYPE_HIGH_RATED);
+                sortType = Values.TYPE_HIGH_RATED;
+                break;
+            case R.id.menu_sort_by_favorite:
+                sortType = Values.TYPE_FAVORITE;
                 break;
         }
-        item.setChecked(true);
+        if (sortType > -1) {
+            gridFragment.changeType(sortType);
+            item.setChecked(true);
+            SharedPreferences.Editor shEditor = sharedPref.edit();
+            shEditor.putInt("SORT_TYPE_NOW", sortType);
+            shEditor.apply();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -210,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         if (!isMultiLayout()) {
             Intent intent = new Intent(MainActivity.this, DetailMovieActivity.class);
             intent.putExtra("DATA", data);
-            startActivity(intent);
+            startActivityForResult(intent, RESULT_DETAIL);
         } else {
             showMultiLayout(true);
             if (isMultiLayout() && detailFragmentLayout != null) {
@@ -224,6 +247,8 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                 }
                 Log.d(TAG, "onFragmentClickMovies: can change: " + changeFragment);
                 if (changeFragment) {
+                    // Clear button favorite
+                    onFragmentChangeFavorite(false);
                     detailMovieFragment = DetailMovieFragment.newInstance(data);
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.replace(detailFragmentLayout.getId(), detailMovieFragment);
@@ -231,8 +256,18 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                     if (toolbarDetailAppBar != null) toolbarDetailAppBar.setExpanded(true);
                     if (scrollDetail != null) scrollDetail.scrollTo(0, 0);
                     gridFragment.scrollToPosition(position);
-                    moviesFavorite = false;
                 }
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RESULT_DETAIL) {
+            if (gridFragment.getSortType() == Values.TYPE_FAVORITE) {
+                Log.d(TAG, "onActivityResult: Refresh the favorite");
+                gridFragment.changeType(Values.TYPE_FAVORITE);
             }
         }
     }
@@ -242,8 +277,10 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         if (actionBar != null) {
             if (sortType == Values.TYPE_POPULAR)
                 actionBar.setTitle(getResources().getString(R.string.title_popular));
-            else
+            else if (sortType == Values.TYPE_HIGH_RATED)
                 actionBar.setTitle(getResources().getString(R.string.title_top_rated));
+            else
+                actionBar.setTitle(R.string.title_favorite);
         }
     }
 
@@ -260,15 +297,26 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     }
 
     @SuppressWarnings("ConstantConditions")
+    @Override
+    public void onFragmentChangeFavorite(boolean isFavorite) {
+        if (isMultiLayout()) {
+            Log.d(TAG, "onFragmentChangeFavorite: now");
+            if (isFavorite)
+                fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
+            else
+                fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
+            if (gridFragment.getSortType() == Values.TYPE_FAVORITE)
+                gridFragment.changeType(Values.TYPE_FAVORITE);
+        }
+    }
+
+    @SuppressWarnings("ConstantConditions")
     @Optional
     @OnClick(R.id.fabFavorite)
     void onFavoriteClick() {
         if (isMultiLayout()) {
-            moviesFavorite = !moviesFavorite;
-            if (moviesFavorite)
-                fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
-            else
-                fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
+            Log.d(TAG, "onFavoriteClick: now");
+            detailMovieFragment.changeFavorite();
         }
     }
 

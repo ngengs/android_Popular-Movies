@@ -22,10 +22,13 @@ import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.adapters.MovieListAdapter;
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.data.MoviesList;
+import com.ngengs.android.popularmovies.apps.data.local.services.ListService;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
 import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
+
+import org.reactivestreams.Subscriber;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +37,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
@@ -76,12 +81,6 @@ public class GridFragment extends Fragment {
     private boolean forceRefresh;
     private boolean loading;
     private boolean fromPagination;
-    private final Consumer<MoviesList> moviesListConsumer = new Consumer<MoviesList>() {
-        @Override
-        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
-            onResponse(moviesList);
-        }
-    };
     private boolean changeData;
     private boolean processLoadData = true;
     private final Action actionComplete = new Action() {
@@ -91,6 +90,13 @@ public class GridFragment extends Fragment {
         }
     };
     private Context context;
+    private final Consumer<MoviesList> moviesListConsumer = new Consumer<MoviesList>() {
+        @Override
+        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
+            onResponse(moviesList);
+        }
+    };
+    private ListService listService;
     private final Consumer<Throwable> errorConsumer = new Consumer<Throwable>() {
         @Override
         public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
@@ -111,9 +117,10 @@ public class GridFragment extends Fragment {
      *
      * @return A new instance of fragment GridFragment.
      */
-    public static GridFragment newInstance() {
+    public static GridFragment newInstance(int sort) {
         GridFragment fragment = new GridFragment();
         Bundle args = new Bundle();
+        args.putInt("ARGS_SORT_TYPE", sort);
         fragment.setArguments(args);
         return fragment;
     }
@@ -122,6 +129,9 @@ public class GridFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            sortType = getArguments().getInt("ARGS_SORT_TYPE", Values.TYPE_POPULAR);
+        }
     }
 
     @Override
@@ -131,6 +141,7 @@ public class GridFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_grid, container, false);
         context = view.getContext();
         unbinder = ButterKnife.bind(this, view);
+        listService = new ListService(context);
         createLayout(savedInstanceState);
         if (mListener != null) mListener.onAttachHandler();
         return view;
@@ -252,7 +263,8 @@ public class GridFragment extends Fragment {
                     forceRefresh = false;
                     fromPagination = true;
                     if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                    else getTopRatedMovies();
+                    else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+                    else getFavoriteMovies();
                 }
             }
         });
@@ -266,7 +278,8 @@ public class GridFragment extends Fragment {
                 pageTotal = 1;
                 fromPagination = false;
                 if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else getTopRatedMovies();
+                else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+                else getFavoriteMovies();
             }
         });
 
@@ -277,7 +290,6 @@ public class GridFragment extends Fragment {
                 .build();
         moviesDBService = retrofit.create(MoviesDBService.class);
 
-        sortType = Values.TYPE_POPULAR;
         if (savedInstanceState != null) {
             sortType = savedInstanceState.getInt("SORT_TYPE", Values.TYPE_POPULAR);
             pageNow = savedInstanceState.getInt("PAGE_NOW", 0);
@@ -297,10 +309,13 @@ public class GridFragment extends Fragment {
             if (processLoadData) {
                 if (pageNow == 0) adapter.clear();
                 if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else getTopRatedMovies();
+                else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+                else getFavoriteMovies();
             }
         } else {
-            getPopularMovies();
+            if (sortType == Values.TYPE_POPULAR) getPopularMovies();
+            else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+            else getFavoriteMovies();
             doChangeTitle();
         }
     }
@@ -332,6 +347,11 @@ public class GridFragment extends Fragment {
         List<MoviesDetail> movies = moviesList.getMovies();
         if (moviesList.getStatusMessage() == null && movies.size() > 0) {
             adapter.add(movies);
+        }
+        if (movies.size() == 0) {
+            tools.setVisibility(View.VISIBLE);
+            imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_refresh_white));
+            textMessage.setText(R.string.data_empty);
         }
         Log.d(TAG, "onResponse: finish Response");
     }
@@ -367,7 +387,8 @@ public class GridFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else getTopRatedMovies();
+                else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+                else getFavoriteMovies();
             }
         });
         snackbar.show();
@@ -382,7 +403,8 @@ public class GridFragment extends Fragment {
     @OnClick(R.id.imageTools)
     void imageToolsClick() {
         if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-        else getTopRatedMovies();
+        else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+        else getFavoriteMovies();
     }
 
     private void getPopularMovies() {
@@ -415,6 +437,26 @@ public class GridFragment extends Fragment {
         }
     }
 
+    private void getFavoriteMovies() {
+        Log.d(TAG, "getFavoriteMovies: now");
+        loading = true;
+        processLoadData = true;
+        if (changeData) progressBar.setVisibility(View.VISIBLE);
+        tools.setVisibility(View.GONE);
+
+        disposable = Observable.fromPublisher(new Flowable<MoviesList>() {
+            @Override
+            protected void subscribeActual(Subscriber<? super MoviesList> s) {
+                MoviesList d = listService.getFavorites();
+                s.onNext(d);
+                s.onComplete();
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(moviesListConsumer, errorConsumer, actionComplete);
+    }
+
     public void changeType(int sortType) {
         this.sortType = sortType;
         forceRefresh = true;
@@ -425,7 +467,8 @@ public class GridFragment extends Fragment {
         doChangeTitle();
         if (disposable != null && !disposable.isDisposed()) disposable.dispose();
         if (this.sortType == Values.TYPE_POPULAR) getPopularMovies();
-        else getTopRatedMovies();
+        else if (this.sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+        else getFavoriteMovies();
     }
 
     /**
