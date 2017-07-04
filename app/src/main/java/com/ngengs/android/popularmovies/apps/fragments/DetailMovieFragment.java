@@ -29,7 +29,7 @@ import com.ngengs.android.popularmovies.apps.data.ReviewDetail;
 import com.ngengs.android.popularmovies.apps.data.ReviewList;
 import com.ngengs.android.popularmovies.apps.data.VideosDetail;
 import com.ngengs.android.popularmovies.apps.data.VideosList;
-import com.ngengs.android.popularmovies.apps.data.local.MoviesService;
+import com.ngengs.android.popularmovies.apps.data.local.MoviesProviderHelper;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.MoviesAPI;
 import com.ngengs.android.popularmovies.apps.utils.NetworkHelpers;
@@ -117,7 +117,7 @@ public class DetailMovieFragment extends Fragment {
     private VideoListAdapter videoListAdapter;
     private ReviewListAdapter reviewListAdapter;
 
-    private MoviesService moviesService;
+    private MoviesProviderHelper moviesProviderHelper;
 
     public DetailMovieFragment() {
         // Required empty public constructor
@@ -153,7 +153,7 @@ public class DetailMovieFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_detail_movie, container, false);
         context = view.getContext();
         unbinder = ButterKnife.bind(this, view);
-        moviesService = new MoviesService(context);
+        moviesProviderHelper = new MoviesProviderHelper(context);
         if (data != null) {
             Log.d(TAG, "onCreateView: data status: not null");
             createLayout(savedInstanceState);
@@ -215,8 +215,8 @@ public class DetailMovieFragment extends Fragment {
     }
 
     public void changeFavorite() {
-        if (favoriteMovies) moviesService.removeFromFavorites(data.getId());
-        else moviesService.addToFavorites(data.getId());
+        if (favoriteMovies) moviesProviderHelper.removeFromFavorites(data.getId());
+        else moviesProviderHelper.addToFavorites(data.getId());
 
         favoriteMovies = !favoriteMovies;
         if (mListener != null) mListener.onFragmentChangeFavorite(data, favoriteMovies, true);
@@ -370,7 +370,7 @@ public class DetailMovieFragment extends Fragment {
                 bindReview(tempReview);
             } else getDetailMovie();
         } else {
-            favoriteMovies = moviesService.isFavorite(data.getId());
+            favoriteMovies = moviesProviderHelper.isFavorite(data.getId());
             if (data != null) bindOldData();
             getDetailMovie();
         }
@@ -401,7 +401,7 @@ public class DetailMovieFragment extends Fragment {
                                 @Override
                                 public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
                                     Log.d(TAG, "accept: doOnNext: " + moviesDetail.getId());
-                                    moviesService.saveMovies(moviesDetail);
+                                    moviesProviderHelper.saveMovies(moviesDetail);
                                 }
                             })
                             .observeOn(AndroidSchedulers.mainThread())

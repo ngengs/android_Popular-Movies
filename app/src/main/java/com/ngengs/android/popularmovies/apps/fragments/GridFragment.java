@@ -22,7 +22,7 @@ import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.adapters.MovieListAdapter;
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.data.MoviesList;
-import com.ngengs.android.popularmovies.apps.data.local.MoviesService;
+import com.ngengs.android.popularmovies.apps.data.local.MoviesProviderHelper;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
 import com.ngengs.android.popularmovies.apps.utils.MoviesAPI;
@@ -94,7 +94,7 @@ public class GridFragment extends Fragment {
             onResponse(moviesList);
         }
     };
-    private MoviesService moviesService;
+    private MoviesProviderHelper moviesProviderHelper;
     private final Consumer<Throwable> errorConsumer = new Consumer<Throwable>() {
         @Override
         public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
@@ -139,7 +139,7 @@ public class GridFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_grid, container, false);
         context = view.getContext();
         unbinder = ButterKnife.bind(this, view);
-        moviesService = new MoviesService(context);
+        moviesProviderHelper = new MoviesProviderHelper(context);
         createLayout(savedInstanceState);
         if (mListener != null) mListener.onAttachHandler();
         return view;
@@ -422,10 +422,10 @@ public class GridFragment extends Fragment {
                         @Override
                         public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
                             Log.d(TAG, "getPopularMovies: page: " + pageNow);
-                            moviesService.saveMovies(moviesList.getMovies());
+                            moviesProviderHelper.saveMovies(moviesList.getMovies());
                             if (pageNow == 0) {
-                                moviesService.deletePopular();
-                                moviesService.savePopular(moviesList.getMovies());
+                                moviesProviderHelper.deletePopular();
+                                moviesProviderHelper.savePopular(moviesList.getMovies());
                             }
                         }
                     })
@@ -448,10 +448,10 @@ public class GridFragment extends Fragment {
                         @Override
                         public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
                             Log.d(TAG, "getTopRatedMovies: page: " + pageNow);
-                            moviesService.saveMovies(moviesList.getMovies());
+                            moviesProviderHelper.saveMovies(moviesList.getMovies());
                             if (pageNow == 0) {
-                                moviesService.deleteTopRated();
-                                moviesService.saveTopRated(moviesList.getMovies());
+                                moviesProviderHelper.deleteTopRated();
+                                moviesProviderHelper.saveTopRated(moviesList.getMovies());
                             }
                         }
                     })
@@ -470,7 +470,7 @@ public class GridFragment extends Fragment {
         disposable = Observable.fromPublisher(new Flowable<MoviesList>() {
             @Override
             protected void subscribeActual(Subscriber<? super MoviesList> s) {
-                MoviesList movieList = moviesService.getFavorites();
+                MoviesList movieList = moviesProviderHelper.getFavorites();
                 if (movieList != null) s.onNext(movieList);
                 else s.onError(null);
                 s.onComplete();
@@ -505,8 +505,8 @@ public class GridFragment extends Fragment {
         MoviesList temp = null;
         // Catch Offline data
         Log.d(TAG, "createLayout: catch old data");
-        if (sortType == Values.TYPE_POPULAR) temp = moviesService.getPopular();
-        else if (sortType == Values.TYPE_HIGH_RATED) temp = moviesService.getTopRated();
+        if (sortType == Values.TYPE_POPULAR) temp = moviesProviderHelper.getPopular();
+        else if (sortType == Values.TYPE_HIGH_RATED) temp = moviesProviderHelper.getTopRated();
 
         if (temp != null) onResponse(temp);
     }

@@ -16,10 +16,10 @@ import java.util.List;
  */
 
 @SuppressWarnings("DefaultFileTemplate")
-public class MoviesService {
+public class MoviesProviderHelper {
     private final Context context;
 
-    public MoviesService(Context context) {
+    public MoviesProviderHelper(Context context) {
         this.context = context;
     }
 
