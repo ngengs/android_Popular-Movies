@@ -12,8 +12,8 @@
     android:layout_marginStart="@dimen/margin_card_detail_horizontal"
     android:layout_marginTop="@dimen/margin_default"
     android:visibility="gone"
-    card_view:cardCornerRadius="4dp"
-    card_view:cardElevation="2dp">
+    card_view:cardCornerRadius="@dimen/card_corner_default"
+    card_view:cardElevation="@dimen/card_elevation_default">
 
     <LinearLayout
         android:layout_width="match_parent"
