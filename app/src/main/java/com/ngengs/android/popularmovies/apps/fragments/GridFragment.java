@@ -387,9 +387,7 @@ public class GridFragment extends Fragment {
         snackbar.setAction(R.string.retry, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
-                else getFavoriteMovies();
+                refresh();
             }
         });
         snackbar.show();
@@ -519,6 +517,12 @@ public class GridFragment extends Fragment {
 
     public void removeMovies(MoviesDetail item) {
         adapter.deleteById(item.getId());
+    }
+
+    public void refresh() {
+        if (sortType == Values.TYPE_POPULAR) getPopularMovies();
+        else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+        else getFavoriteMovies();
     }
 
     /**

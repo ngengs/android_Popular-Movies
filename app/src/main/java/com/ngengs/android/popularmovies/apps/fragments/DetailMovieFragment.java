@@ -448,7 +448,7 @@ public class DetailMovieFragment extends Fragment {
         }
     }
 
-    public void onResponse(@NonNull MoviesDetail response) {
+    private void onResponse(@NonNull MoviesDetail response) {
         Log.d(TAG, "onResponse: " + response.toString());
         if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
         if (detailView.getVisibility() == View.GONE) detailView.setVisibility(View.VISIBLE);
@@ -463,14 +463,14 @@ public class DetailMovieFragment extends Fragment {
         bindData();
     }
 
-    public void onResponseVideo(@NonNull VideosList response) {
+    private void onResponseVideo(@NonNull VideosList response) {
         Log.d(TAG, "onResponseVideo: " + response.toString());
         if (response.getVideos() != null) {
             bindVideo(response.getVideos());
         }
     }
 
-    public void onResponseReview(@NonNull ReviewList response) {
+    private void onResponseReview(@NonNull ReviewList response) {
         Log.d(TAG, "onResponseReview: " + response.getReview().size());
         if (response.getReview() != null) {
             bindReview(response.getReview());
@@ -505,7 +505,7 @@ public class DetailMovieFragment extends Fragment {
         return getResources().getString(R.string.share_content, data.getTitle(), shareUrl);
     }
 
-    public void onFailure(@NonNull Throwable t) {
+    private void onFailure(@NonNull Throwable t) {
         if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
         if (detailView.getVisibility() == View.VISIBLE) detailView.setVisibility(View.GONE);
         if (taglineView.getVisibility() == View.VISIBLE) taglineView.setVisibility(View.GONE);
@@ -514,12 +514,16 @@ public class DetailMovieFragment extends Fragment {
         snackbar.setAction(R.string.retry, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bindOldData();
-                getDetailMovie();
+                refresh();
             }
         });
         snackbar.show();
         Log.e(TAG, "onFailure: ", t);
+    }
+
+    public void refresh() {
+        bindOldData();
+        getDetailMovie();
     }
 
     /**

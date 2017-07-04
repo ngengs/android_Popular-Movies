@@ -2,6 +2,7 @@ package com.ngengs.android.popularmovies.apps;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -30,6 +31,7 @@ import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment;
 import com.ngengs.android.popularmovies.apps.fragments.GridFragment;
 import com.ngengs.android.popularmovies.apps.globals.Values;
+import com.ngengs.android.popularmovies.apps.services.NetworkChangeReceiver;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     private FragmentManager fragmentManager;
     private SharedPreferences sharedPref;
     private boolean openDetail = false;
+    private NetworkChangeReceiver networkChangeReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +108,9 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
             default:
                 sortType = Values.TYPE_POPULAR;
         }
+
+        networkChangeReceiver = new NetworkChangeReceiver();
+        registerReceiver(networkChangeReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
         if (fragmentManager == null) fragmentManager = getSupportFragmentManager();
 
@@ -264,6 +270,12 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(networkChangeReceiver);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RESULT_DETAIL) {
@@ -360,6 +372,16 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
             detailHeaderImage.setImageResource(0);
             detailMovieFragment = null;
             showMultiLayout(false);
+        }
+    }
+
+    public void connectionCennected() {
+        Log.d(TAG, "connectionCennected: now");
+        gridFragment.refresh();
+        if (isMultiLayout()) {
+            if (detailMovieFragment != null) {
+                detailMovieFragment.refresh();
+            }
         }
     }
 }
