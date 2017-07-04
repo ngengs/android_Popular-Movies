@@ -117,9 +117,10 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                 fragmentTransaction.commit();
             } else {
                 gridFragment = (GridFragment) fragmentManager.findFragmentById(gridFragmentLayout.getId());
-                //noinspection ConstantConditions
-                if (fragmentManager.findFragmentById(detailFragmentLayout.getId()) != null) {
-                    detailMovieFragment = (DetailMovieFragment) fragmentManager.findFragmentById(detailFragmentLayout.getId());
+                if (detailFragmentLayout != null) {
+                    if (fragmentManager.findFragmentById(detailFragmentLayout.getId()) != null) {
+                        detailMovieFragment = (DetailMovieFragment) fragmentManager.findFragmentById(detailFragmentLayout.getId());
+                    }
                 }
             }
         }
@@ -150,6 +151,12 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                             return true;
                         case R.id.menu_detail_share:
                             Log.d(TAG, "onMenuItemClick: Share");
+                            Intent sendIntent = new Intent();
+                            sendIntent.setAction(Intent.ACTION_SEND);
+                            Log.d(TAG, "onClick: " + detailMovieFragment.getShareContent());
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, detailMovieFragment.getShareContent());
+                            sendIntent.setType("text/plain");
+                            startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
                             return true;
                         default:
                             return false;
@@ -233,6 +240,12 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
             shEditor.apply();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isMultiLayout() && fragmentManager != null) onCloseMultiLayout();
+        else super.onBackPressed();
     }
 
     @Override
