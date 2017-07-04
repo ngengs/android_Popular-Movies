@@ -179,7 +179,6 @@ public class MoviesProvider extends ContentProvider {
             case LocalDatabase.CODE_MOVIE_BY_ID:
                 long id = MoviesEntry.getIdFromUri(uri);
                 rowsDeleted = db.delete(MoviesEntry.TABLE_NAME, MOVIE_ID_SELECTION, new String[]{Long.toString(id)});
-
                 break;
             case LocalDatabase.CODE_POPULAR_MOVIES:
                 rowsDeleted = db.delete(MoviesPopular.TABLE_NAME, selection, selectionArgs);
@@ -230,10 +229,10 @@ public class MoviesProvider extends ContentProvider {
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         final int match = URI_MATCHER.match(uri);
+        int returnCount = 0;
         switch (match) {
             case LocalDatabase.CODE_MOVIES:
                 db.beginTransaction();
-                int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
                         long id = db.insertWithOnConflict(MoviesEntry.TABLE_NAME,
@@ -243,6 +242,38 @@ public class MoviesProvider extends ContentProvider {
                         }
                     }
                     db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                //noinspection ConstantConditions
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            case LocalDatabase.CODE_POPULAR_MOVIES:
+                db.beginTransaction();
+                try {
+                    db.setTransactionSuccessful();
+                    for (ContentValues value : values) {
+                        long id = db.insertWithOnConflict(MoviesPopular.TABLE_NAME, null, value, SQLiteDatabase.CONFLICT_REPLACE);
+                        if (id != -1) {
+                            returnCount++;
+                        }
+                    }
+                } finally {
+                    db.endTransaction();
+                }
+                //noinspection ConstantConditions
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            case LocalDatabase.CODE_TOP_RATED_MOVIES:
+                db.beginTransaction();
+                try {
+                    db.setTransactionSuccessful();
+                    for (ContentValues value : values) {
+                        long id = db.insertWithOnConflict(MoviesTopRated.TABLE_NAME, null, value, SQLiteDatabase.CONFLICT_REPLACE);
+                        if (id != -1) {
+                            returnCount++;
+                        }
+                    }
                 } finally {
                     db.endTransaction();
                 }
@@ -292,7 +323,7 @@ public class MoviesProvider extends ContentProvider {
 
     private void checkColumns(int match, String[] projection) {
         if (projection != null) {
-            HashSet<String> availableColumns = (match == LocalDatabase.CODE_FAVORITES) ? new HashSet<>(Arrays.asList(MoviesEntry.getColumnsWithTable())) : new HashSet<>(Arrays.asList(MoviesEntry.getColumns()));
+            HashSet<String> availableColumns = new HashSet<>(Arrays.asList(MoviesEntry.getColumnsWithTable()));
             HashSet<String> requestedColumns = new HashSet<>(Arrays.asList(projection));
             if (!availableColumns.containsAll(requestedColumns)) {
                 throw new IllegalArgumentException("Unknown columns in projection.");

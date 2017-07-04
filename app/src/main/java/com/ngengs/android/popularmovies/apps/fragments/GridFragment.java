@@ -22,7 +22,7 @@ import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.adapters.MovieListAdapter;
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.data.MoviesList;
-import com.ngengs.android.popularmovies.apps.data.local.services.ListService;
+import com.ngengs.android.popularmovies.apps.data.local.MoviesService;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
 import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
@@ -96,7 +96,7 @@ public class GridFragment extends Fragment {
             onResponse(moviesList);
         }
     };
-    private ListService listService;
+    private MoviesService moviesService;
     private final Consumer<Throwable> errorConsumer = new Consumer<Throwable>() {
         @Override
         public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
@@ -141,7 +141,7 @@ public class GridFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_grid, container, false);
         context = view.getContext();
         unbinder = ButterKnife.bind(this, view);
-        listService = new ListService(context);
+        moviesService = new MoviesService(context);
         createLayout(savedInstanceState);
         if (mListener != null) mListener.onAttachHandler();
         return view;
@@ -313,9 +313,15 @@ public class GridFragment extends Fragment {
                 else getFavoriteMovies();
             }
         } else {
-            if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-            else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
-            else getFavoriteMovies();
+            if (sortType == Values.TYPE_POPULAR) {
+                bindOldData();
+                Log.d(TAG, "createLayout: catch new data");
+                getPopularMovies();
+            } else if (sortType == Values.TYPE_HIGH_RATED) {
+                bindOldData();
+                Log.d(TAG, "createLayout: catch new data");
+                getPopularMovies();
+            } else getFavoriteMovies();
             doChangeTitle();
         }
     }
@@ -353,6 +359,7 @@ public class GridFragment extends Fragment {
             imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_refresh_white));
             textMessage.setText(R.string.data_empty);
         }
+        Log.d(TAG, "onResponse: pageNow: " + pageNow + " pageTotal: " + pageTotal);
         Log.d(TAG, "onResponse: finish Response");
     }
 
@@ -375,11 +382,12 @@ public class GridFragment extends Fragment {
         if (fromPagination) {
             imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_refresh_white));
             textMessage.setText(R.string.error_next_page);
-        } else {
+            tools.setVisibility(View.VISIBLE);
+        } else if (adapter.getItemCount() == 0) {
             imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_cloud_off_white));
             textMessage.setText(R.string.error_no_connection);
+            tools.setVisibility(View.VISIBLE);
         }
-        tools.setVisibility(View.VISIBLE);
 
         if (snackbar != null) snackbar.dismiss();
         snackbar = Snackbar.make(textMessage, R.string.error_cant_get_data_check_connection, BaseTransientBottomBar.LENGTH_INDEFINITE);
@@ -408,6 +416,7 @@ public class GridFragment extends Fragment {
     }
 
     private void getPopularMovies() {
+        Log.d(TAG, "getPopularMovies: pageNow: " + pageNow + " pageTotal: " + pageTotal);
         if (moviesDBService != null && pageNow < pageTotal) {
             Log.d(TAG, "getPopularMovies: now. page: " + pageNow);
             loading = true;
@@ -415,8 +424,20 @@ public class GridFragment extends Fragment {
             if (!forceRefresh || changeData) progressBar.setVisibility(View.VISIBLE);
             tools.setVisibility(View.GONE);
 
+            Log.d(TAG, "getPopularMovies: page: " + pageNow);
             disposable = moviesDBService.listMoviesPopular(pageNow + 1)
                     .subscribeOn(Schedulers.io())
+                    .doOnNext(new Consumer<MoviesList>() {
+                        @Override
+                        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
+                            Log.d(TAG, "getPopularMovies: page: " + pageNow);
+                            moviesService.saveMovies(moviesList.getMovies());
+                            if (pageNow == 0) {
+                                moviesService.deletePopular();
+                                moviesService.savePopular(moviesList.getMovies());
+                            }
+                        }
+                    })
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(moviesListConsumer, errorConsumer, actionComplete);
         }
@@ -432,6 +453,17 @@ public class GridFragment extends Fragment {
 
             disposable = moviesDBService.listMoviesTopRated(pageNow + 1)
                     .subscribeOn(Schedulers.io())
+                    .doOnNext(new Consumer<MoviesList>() {
+                        @Override
+                        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
+                            Log.d(TAG, "getTopRatedMovies: page: " + pageNow);
+                            moviesService.saveMovies(moviesList.getMovies());
+                            if (pageNow == 0) {
+                                moviesService.deleteTopRated();
+                                moviesService.saveTopRated(moviesList.getMovies());
+                            }
+                        }
+                    })
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(moviesListConsumer, errorConsumer, actionComplete);
         }
@@ -447,8 +479,9 @@ public class GridFragment extends Fragment {
         disposable = Observable.fromPublisher(new Flowable<MoviesList>() {
             @Override
             protected void subscribeActual(Subscriber<? super MoviesList> s) {
-                MoviesList d = listService.getFavorites();
-                s.onNext(d);
+                MoviesList movieList = moviesService.getFavorites();
+                if (movieList != null) s.onNext(movieList);
+                else s.onError(null);
                 s.onComplete();
             }
         })
@@ -466,9 +499,25 @@ public class GridFragment extends Fragment {
         changeData = true;
         doChangeTitle();
         if (disposable != null && !disposable.isDisposed()) disposable.dispose();
-        if (this.sortType == Values.TYPE_POPULAR) getPopularMovies();
-        else if (this.sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
-        else getFavoriteMovies();
+        if (this.sortType == Values.TYPE_POPULAR) {
+            bindOldData();
+            Log.d(TAG, "createLayout: catch new data");
+            getPopularMovies();
+        } else if (this.sortType == Values.TYPE_HIGH_RATED) {
+            bindOldData();
+            Log.d(TAG, "createLayout: catch new data");
+            getTopRatedMovies();
+        } else getFavoriteMovies();
+    }
+
+    private void bindOldData() {
+        MoviesList temp = null;
+        // Catch Offline data
+        Log.d(TAG, "createLayout: catch old data");
+        if (sortType == Values.TYPE_POPULAR) temp = moviesService.getPopular();
+        else if (sortType == Values.TYPE_HIGH_RATED) temp = moviesService.getTopRated();
+
+        if (temp != null) onResponse(temp);
     }
 
     public void addMovies(MoviesDetail item) {

@@ -29,7 +29,7 @@ import com.ngengs.android.popularmovies.apps.data.ReviewDetail;
 import com.ngengs.android.popularmovies.apps.data.ReviewList;
 import com.ngengs.android.popularmovies.apps.data.VideosDetail;
 import com.ngengs.android.popularmovies.apps.data.VideosList;
-import com.ngengs.android.popularmovies.apps.data.local.services.FavoriteService;
+import com.ngengs.android.popularmovies.apps.data.local.MoviesService;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
@@ -119,7 +119,7 @@ public class DetailMovieFragment extends Fragment {
     private VideoListAdapter videoListAdapter;
     private ReviewListAdapter reviewListAdapter;
 
-    private FavoriteService favoriteService;
+    private MoviesService moviesService;
 
     public DetailMovieFragment() {
         // Required empty public constructor
@@ -155,7 +155,7 @@ public class DetailMovieFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_detail_movie, container, false);
         context = view.getContext();
         unbinder = ButterKnife.bind(this, view);
-        favoriteService = new FavoriteService(context);
+        moviesService = new MoviesService(context);
         if (data != null) {
             Log.d(TAG, "onCreateView: data status: not null");
             createLayout(savedInstanceState);
@@ -217,8 +217,8 @@ public class DetailMovieFragment extends Fragment {
     }
 
     public void changeFavorite() {
-        if (favoriteMovies) favoriteService.removeFromFavorites(data.getId());
-        else favoriteService.addToFavorites(data);
+        if (favoriteMovies) moviesService.removeFromFavorites(data.getId());
+        else moviesService.addToFavorites(data.getId());
 
         favoriteMovies = !favoriteMovies;
         if (mListener != null) mListener.onFragmentChangeFavorite(data, favoriteMovies, true);
@@ -373,7 +373,7 @@ public class DetailMovieFragment extends Fragment {
                 bindReview(tempReview);
             } else getDetailMovie();
         } else {
-            favoriteMovies = favoriteService.isFavorite(data.getId());
+            favoriteMovies = moviesService.isFavorite(data.getId());
             if (data != null) bindOldData();
             getDetailMovie();
         }
@@ -400,16 +400,11 @@ public class DetailMovieFragment extends Fragment {
             disposable.addAll(
                     moviesDBService.detail(data.getId())
                             .subscribeOn(Schedulers.io())
-                            .doAfterNext(new Consumer<MoviesDetail>() {
-                                @Override
-                                public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
-                                    Log.d(TAG, "accept: doAfterNext: " + moviesDetail.getId());
-                                }
-                            })
                             .doOnNext(new Consumer<MoviesDetail>() {
                                 @Override
                                 public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
                                     Log.d(TAG, "accept: doOnNext: " + moviesDetail.getId());
+                                    moviesService.saveMovies(moviesDetail);
                                 }
                             })
                             .observeOn(AndroidSchedulers.mainThread())
@@ -432,6 +427,11 @@ public class DetailMovieFragment extends Fragment {
                                 public void accept(@io.reactivex.annotations.NonNull VideosList videosList) throws Exception {
                                     onResponseVideo(videosList);
                                 }
+                            }, new Consumer<Throwable>() {
+                                @Override
+                                public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
+                                    Log.e(TAG, "accept: Error Get Videos", throwable);
+                                }
                             }),
                     moviesDBService.reviews(data.getId())
                             .subscribeOn(Schedulers.io())
@@ -440,6 +440,11 @@ public class DetailMovieFragment extends Fragment {
                                 @Override
                                 public void accept(@io.reactivex.annotations.NonNull ReviewList reviewList) throws Exception {
                                     onResponseReview(reviewList);
+                                }
+                            }, new Consumer<Throwable>() {
+                                @Override
+                                public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
+                                    Log.e(TAG, "accept: Error Get Reviews", throwable);
                                 }
                             })
             );
