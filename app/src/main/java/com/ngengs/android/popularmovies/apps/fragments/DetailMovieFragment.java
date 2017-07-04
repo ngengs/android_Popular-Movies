@@ -223,9 +223,6 @@ public class DetailMovieFragment extends Fragment {
     }
 
     private void bindOldData() {
-        if (data.getTitle() != null && mListener != null) {
-            mListener.onFragmentChangeTitle(data.getTitle());
-        }
         if (data.getBackdropPath() != null && mListener != null) {
             mListener.onFragmentChangeHeaderImage(data.getBackdropPath());
         }
@@ -235,6 +232,13 @@ public class DetailMovieFragment extends Fragment {
                     .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white))
                     .resize(getResources().getDimensionPixelSize(R.dimen.image_description_thumbnail_width), 0)
                     .into(imageThumbnail);
+        }
+        bindUpdatedData();
+    }
+
+    private void bindUpdatedData() {
+        if (data.getTitle() != null && mListener != null) {
+            mListener.onFragmentChangeTitle(data.getTitle());
         }
         textRating.setText(getResources().getString(R.string.rating_number, data.getVoteAverage()));
         textRating.setTextColor(getRatingColor(data.getVoteAverage()));
@@ -301,6 +305,7 @@ public class DetailMovieFragment extends Fragment {
             textTagline.setText(data.getTagline());
             taglineView.setVisibility(View.VISIBLE);
         }
+        bindUpdatedData();
     }
 
     public void setData(MoviesDetail data) {
@@ -509,6 +514,7 @@ public class DetailMovieFragment extends Fragment {
         snackbar.setAction(R.string.retry, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                bindOldData();
                 getDetailMovie();
             }
         });
