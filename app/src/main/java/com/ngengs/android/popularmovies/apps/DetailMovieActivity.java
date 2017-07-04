@@ -1,7 +1,6 @@
 package com.ngengs.android.popularmovies.apps;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,7 +22,6 @@ import android.widget.Toast;
 
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment;
-import com.ngengs.android.popularmovies.apps.services.NetworkChangeReceiver;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
@@ -49,7 +47,6 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
     private DetailMovieFragment detailMovieFragment;
     private ActionBar actionBar;
     private boolean moviesShare = false;
-    private NetworkChangeReceiver networkChangeReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +67,6 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
         }
-
-        networkChangeReceiver = new NetworkChangeReceiver();
-        registerReceiver(networkChangeReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
         fragmentManager = getSupportFragmentManager();
 
@@ -101,11 +95,6 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(networkChangeReceiver);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -182,13 +171,6 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
                     .centerCrop()
                     .resize(Resources.getSystem().getDisplayMetrics().widthPixels, getResources().getDimensionPixelSize(R.dimen.image_description_header))
                     .into(imageHeader);
-        }
-    }
-
-    public void connectionCennected() {
-        Log.d(TAG, "connectionCennected: now");
-        if (detailMovieFragment != null) {
-            detailMovieFragment.refresh();
         }
     }
 }
