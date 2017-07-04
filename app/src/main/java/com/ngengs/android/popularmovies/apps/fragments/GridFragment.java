@@ -69,6 +69,7 @@ public class GridFragment extends Fragment {
     @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout swipeRefreshLayout;
     private GridLayoutManager layoutManager;
+    private GridSpacesItemDecoration layoutDecoration;
     private Snackbar snackbar;
     private MoviesAPI moviesAPI;
     private MovieListAdapter adapter;
@@ -235,9 +236,10 @@ public class GridFragment extends Fragment {
             gridSpan = 4;
         else gridSpan = 2;
         layoutManager = new GridLayoutManager(context, gridSpan);
+        layoutDecoration = new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing));
 
         rv.setLayoutManager(layoutManager);
-        rv.addItemDecoration(new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing)));
+        rv.addItemDecoration(layoutDecoration);
         rv.setAdapter(adapter);
         rv.setHasFixedSize(true);
         rv.setNestedScrollingEnabled(false);
@@ -322,6 +324,9 @@ public class GridFragment extends Fragment {
         if (layoutManager != null) layoutManager.setSpanCount(span);
         else layoutManager = new GridLayoutManager(context, span);
         rv.setLayoutManager(layoutManager);
+        rv.removeItemDecoration(layoutDecoration);
+        layoutDecoration = new GridSpacesItemDecoration(span, getResources().getDimensionPixelSize(R.dimen.grid_spacing));
+        rv.addItemDecoration(layoutDecoration);
     }
 
     public void scrollToPosition(int position) {
