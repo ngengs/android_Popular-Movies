@@ -3,7 +3,6 @@ package com.ngengs.android.popularmovies.apps.adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,10 +48,7 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         VideosDetail videos = mData.get(position);
-        Log.d(TAG, "onBindViewHolder: " + position);
-        Log.d(TAG, "onBindViewHolder: " + videos.getType());
         if (videos.isYoutubeVideo()) {
-            Log.d(TAG, "onBindViewHolder: " + videos.getYoutubeThumbnail());
             holder.mItemRoot.setVisibility(View.VISIBLE);
             Picasso.with(mContext)
                     .load(videos.getYoutubeThumbnail())

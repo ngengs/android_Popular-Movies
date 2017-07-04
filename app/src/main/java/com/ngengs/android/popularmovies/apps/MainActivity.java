@@ -147,7 +147,6 @@ public class MainActivity extends AppCompatActivity
     private void createMultiLayout() {
         if (isMultiLayout()) {
             Log.d(TAG, "createMultiLayout: success");
-            Log.d(TAG, "createMultiLayout: gridfragment status: " + (mGridFragment != null));
             mToolbarDetail.inflateMenu(R.menu.menu_detail);
             mMenuDetail = mToolbarDetail.getMenu();
             mMenuDetail.findItem(R.id.menu_detail_close).setVisible(true);
@@ -163,7 +162,6 @@ public class MainActivity extends AppCompatActivity
                             Log.d(TAG, "onMenuItemClick: Share");
                             Intent sendIntent = new Intent();
                             sendIntent.setAction(Intent.ACTION_SEND);
-                            Log.d(TAG, "onClick: " + mDetailMovieFragment.getShareContent());
                             sendIntent.putExtra(Intent.EXTRA_TEXT,
                                                 mDetailMovieFragment.getShareContent());
                             sendIntent.setType("text/plain");
@@ -260,11 +258,11 @@ public class MainActivity extends AppCompatActivity
                     DetailMovieFragment temp =
                             (DetailMovieFragment) mFragmentManager.findFragmentById(
                                     mDetailFragmentLayout.getId());
-                    Log.d(TAG, "onFragmentClickMovies: old id: " + temp.getMoviesId());
-                    Log.d(TAG, "onFragmentClickMovies: new id: " + data.getId());
+                    Log.d(TAG,
+                          "onFragmentClickMovies: old id: " + temp.getMoviesId() + " new id: " +
+                                  data.getId());
                     if (data.getId() == temp.getMoviesId()) changeFragment = false;
                 }
-                Log.d(TAG, "onFragmentClickMovies: can change: " + changeFragment);
                 if (changeFragment) {
                     // Clear button favorite
                     onFragmentChangeFavorite(null, false, false);
@@ -349,11 +347,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFragmentChangeTitle(@NonNull String title) {
-        Log.d(TAG, "onFragmentChangeTitle: start");
         if (isMultiLayout() && mToolbarDetailCollapsing != null) {
             Log.d(TAG, "onFragmentChangeTitle: change to: " + title);
             mToolbarDetailCollapsing.setTitle(title);
-            Log.d(TAG, "onFragmentChangeTitle: changed to: " + mToolbarDetailCollapsing.getTitle());
         }
     }
 

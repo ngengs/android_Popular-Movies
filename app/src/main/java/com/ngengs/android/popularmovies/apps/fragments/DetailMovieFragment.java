@@ -345,7 +345,7 @@ public class DetailMovieFragment extends Fragment {
         mVideoListAdapter = new VideoListAdapter(mContext, new VideoListAdapter.ClickListener() {
             @Override
             public void onClickListener(int position) {
-                Log.d(TAG, "onClickListener: " + position);
+                Log.d(TAG, "onClickListener: Video: " + position);
                 VideosDetail video = mVideoListAdapter.get(position);
                 if (video != null && video.isYoutubeVideo()) {
                     Intent intent =
@@ -361,7 +361,7 @@ public class DetailMovieFragment extends Fragment {
         mReviewListAdapter = new ReviewListAdapter(mContext, new ReviewListAdapter.ClickListener() {
             @Override
             public void onClickListener(int position) {
-                Log.d(TAG, "onClickListener: " + position);
+                Log.d(TAG, "onClickListener: Review: " + position);
                 ReviewDetail review = mReviewListAdapter.get(position);
                 if (review != null && !TextUtils.isEmpty(review.getUrl())) {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(review.getUrl()));
@@ -482,7 +482,6 @@ public class DetailMovieFragment extends Fragment {
         }
         mData = response;
 
-        Log.d(TAG, "onResponse: " + mData.getHomepage());
         mLoadFromServer = true;
         bindData();
     }

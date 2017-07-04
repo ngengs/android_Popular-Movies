@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.ngengs.android.popularmovies.apps.globals.LocalDatabase;
 import com.ngengs.android.popularmovies.apps.utils.DatabaseHelper;
@@ -316,7 +315,6 @@ public class MoviesProvider extends ContentProvider {
                         " ON " + tableName + "." + LocalDatabase.COLUMN_MOVIE_ID_KEY +
                         " = " + MoviesEntry.TABLE_NAME + "." + MoviesEntry._ID
         );
-        Log.d(TAG, "getMoviesFromReferenceTable: " + sqLiteQueryBuilder.toString());
 
         return sqLiteQueryBuilder.query(mdatabaseHelper.getReadableDatabase(),
                                         projection,

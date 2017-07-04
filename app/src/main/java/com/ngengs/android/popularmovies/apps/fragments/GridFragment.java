@@ -303,8 +303,7 @@ public class GridFragment extends Fragment {
             }
             mProcessLoadData = savedInstanceState.getBoolean("PROCESS_LOAD_DATA", false);
             Log.d(TAG, "createLayout: load savedInstanceState: isProcessLoadData value " +
-                    mProcessLoadData);
-            Log.d(TAG, "createLayout: load savedInstanceState: mSortType value " +
+                    mProcessLoadData + ", mSortType is popular: " +
                     (mSortType == Values.TYPE_POPULAR));
             if (mProcessLoadData) {
                 if (mPageNow == 0) mAdapter.clear();
@@ -367,7 +366,6 @@ public class GridFragment extends Fragment {
             mTextMessage.setText(R.string.data_empty);
         }
         Log.d(TAG, "onResponse: mPageNow: " + mPageNow + " mPageTotal: " + mPageTotal);
-        Log.d(TAG, "onResponse: finish Response");
     }
 
     private void onComplete() {
@@ -425,7 +423,6 @@ public class GridFragment extends Fragment {
     private void getPopularMovies() {
         Log.d(TAG, "getPopularMovies: mPageNow: " + mPageNow + " mPageTotal: " + mPageTotal);
         if (mMoviesAPI != null && mPageNow < mPageTotal) {
-            Log.d(TAG, "getPopularMovies: now. page: " + mPageNow);
             mLoading = true;
             mProcessLoadData = true;
 
@@ -433,7 +430,6 @@ public class GridFragment extends Fragment {
 
             mTools.setVisibility(View.GONE);
 
-            Log.d(TAG, "getPopularMovies: page: " + mPageNow);
             mDisposable = mMoviesAPI.listMoviesPopular(mPageNow + 1)
                     .subscribeOn(Schedulers.io())
                     .doOnNext(new Consumer<MoviesList>() {
@@ -441,7 +437,6 @@ public class GridFragment extends Fragment {
                         public void accept(
                                 @io.reactivex.annotations.NonNull MoviesList moviesList) throws
                                 Exception {
-                            Log.d(TAG, "getPopularMovies: page: " + mPageNow);
                             mMoviesProviderHelper.saveMovies(moviesList.getMovies());
                             if (mPageNow == 0) {
                                 mMoviesProviderHelper.deletePopular();
@@ -455,8 +450,8 @@ public class GridFragment extends Fragment {
     }
 
     private void getTopRatedMovies() {
+        Log.d(TAG, "getTopRatedMovies: now. page: " + mPageNow);
         if (mMoviesAPI != null && mPageNow < mPageTotal) {
-            Log.d(TAG, "getTopRatedMovies: now. page: " + mPageNow);
             mLoading = true;
             mProcessLoadData = true;
 
@@ -471,7 +466,6 @@ public class GridFragment extends Fragment {
                         public void accept(
                                 @io.reactivex.annotations.NonNull MoviesList moviesList) throws
                                 Exception {
-                            Log.d(TAG, "getTopRatedMovies: page: " + mPageNow);
                             mMoviesProviderHelper.saveMovies(moviesList.getMovies());
                             if (mPageNow == 0) {
                                 mMoviesProviderHelper.deleteTopRated();
