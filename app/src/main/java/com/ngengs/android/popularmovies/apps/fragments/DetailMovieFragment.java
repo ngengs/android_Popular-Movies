@@ -32,6 +32,7 @@ import com.ngengs.android.popularmovies.apps.data.VideosList;
 import com.ngengs.android.popularmovies.apps.data.local.MoviesService;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.MoviesAPI;
+import com.ngengs.android.popularmovies.apps.utils.NetworkHelpers;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
@@ -47,9 +48,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -347,13 +345,7 @@ public class DetailMovieFragment extends Fragment {
         });
         recyclerReview.setAdapter(reviewListAdapter);
 
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Values.URL_BASE)
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
-                .build();
-        moviesAPI = retrofit.create(MoviesAPI.class);
+        moviesAPI = NetworkHelpers.provideAPI();
 
         Log.d(TAG, "createLayout: savedInstanceState: " + (savedInstanceState == null));
 
