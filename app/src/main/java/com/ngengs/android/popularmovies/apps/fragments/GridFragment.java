@@ -353,7 +353,7 @@ public class GridFragment extends Fragment {
         }
         if (movies.size() == 0) {
             tools.setVisibility(View.VISIBLE);
-            imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_refresh_white));
+            imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_movie_white));
             textMessage.setText(R.string.data_empty);
         }
         Log.d(TAG, "onResponse: pageNow: " + pageNow + " pageTotal: " + pageTotal);
