@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:background="@color/colorAccent"
         android:minWidth="32dp"
-        android:padding="8dp"
+        android:padding="@dimen/margin_default"
         android:textAlignment="center"
-        android:textSize="20sp"/>
+        android:textSize="@dimen/text_size_large_extra" />
 </FrameLayout>

@@ -18,9 +18,9 @@
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/rootDetailView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="0dp"
+        android:layout_width="@dimen/margin_none"
+        android:layout_height="@dimen/margin_none"
+        android:layout_margin="@dimen/margin_none"
         android:fitsSystemWindows="true"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -43,9 +43,9 @@
                 android:fitsSystemWindows="true"
                 app:contentScrim="?attr/colorPrimaryDark"
                 app:expandedTitleGravity="bottom|center"
-                app:expandedTitleMarginBottom="16dp"
-                app:expandedTitleMarginEnd="0dp"
-                app:expandedTitleMarginStart="0dp"
+                app:expandedTitleMarginBottom="@dimen/margin_large"
+                app:expandedTitleMarginEnd="@dimen/margin_none"
+                app:expandedTitleMarginStart="@dimen/margin_none"
                 app:expandedTitleTextAppearance="@style/AppTheme.ExpandedTitleOverlay"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
@@ -64,7 +64,7 @@
                     android:id="@+id/toolbarDetail"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    android:padding="0dp"
+                    android:padding="@dimen/margin_none"
                     android:theme="@style/Base.ThemeOverlay.AppCompat.Dark"
                     app:layout_collapseMode="pin" />
 
@@ -90,15 +90,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
+            android:layout_margin="@dimen/margin_large"
             app:srcCompat="@drawable/ic_favorite_border_white" />
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/rootMainView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="0dp"
+        android:layout_width="@dimen/margin_none"
+        android:layout_height="@dimen/margin_none"
+        android:layout_margin="@dimen/margin_none"
         android:fitsSystemWindows="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

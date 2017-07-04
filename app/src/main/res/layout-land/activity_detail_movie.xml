@@ -22,9 +22,9 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleGravity="bottom|center"
-            app:expandedTitleMarginBottom="16dp"
-            app:expandedTitleMarginEnd="0dp"
-            app:expandedTitleMarginStart="0dp"
+            app:expandedTitleMarginBottom="@dimen/margin_large"
+            app:expandedTitleMarginEnd="@dimen/margin_none"
+            app:expandedTitleMarginStart="@dimen/margin_none"
             app:expandedTitleTextAppearance="@style/AppTheme.ExpandedTitleOverlay"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
@@ -67,8 +67,8 @@
         android:id="@+id/fabFavorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginEnd="@dimen/margin_large"
+        android:layout_marginRight="@dimen/margin_large"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_favorite_border_white" />

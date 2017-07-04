@@ -8,16 +8,16 @@
     android:focusable="true"
     android:foreground="@drawable/ripple"
     android:orientation="vertical"
-    android:paddingTop="8dp">
+    android:paddingTop="@dimen/margin_default">
 
     <TextView
         android:id="@+id/reviewText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="@dimen/margin_default"
+        android:layout_marginLeft="@dimen/margin_default"
+        android:layout_marginRight="@dimen/margin_default"
+        android:layout_marginStart="@dimen/margin_default"
         android:textStyle="italic"
         tools:text="Text Review" />
 
@@ -25,22 +25,22 @@
         android:id="@+id/reviewPeople"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginBottom="@dimen/margin_default"
+        android:layout_marginEnd="@dimen/margin_default"
+        android:layout_marginLeft="@dimen/margin_default"
+        android:layout_marginRight="@dimen/margin_default"
+        android:layout_marginStart="@dimen/margin_default"
+        android:layout_marginTop="@dimen/margin_small"
         android:gravity="end"
         android:textAlignment="textEnd"
-        android:textSize="12sp"
+        android:textSize="@dimen/text_size_small"
         tools:text="Name" />
 
     <View
         android:id="@+id/reviewSeparator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginBottom="4dp"
-        android:background="#32ffffff" />
+        android:layout_marginBottom="@dimen/margin_small"
+        android:background="#32000000" />
 
 </LinearLayout>

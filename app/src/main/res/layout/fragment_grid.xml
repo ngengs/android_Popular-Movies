@@ -9,7 +9,7 @@
         android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="0dp">
+        android:layout_margin="@dimen/margin_none">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -28,17 +28,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="0dp"
+        android:layout_margin="@dimen/margin_none"
         android:background="@color/colorBackground"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="@dimen/margin_large"
         android:visibility="visible">
 
         <ImageView
             android:id="@+id/imageTools"
             android:layout_width="200dp"
             android:layout_height="75dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/margin_large"
             android:contentDescription="@string/image_tools"
             app:srcCompat="@drawable/ic_cloud_off_white" />
 
