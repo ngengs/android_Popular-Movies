@@ -30,23 +30,24 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class DetailMovieActivity extends AppCompatActivity implements DetailMovieFragment.OnFragmentInteractionListener {
+public class DetailMovieActivity extends AppCompatActivity
+        implements DetailMovieFragment.OnFragmentInteractionListener {
     private static final String TAG = "DetailMovieActivity";
 
     @BindView(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
     @BindView(R.id.detailHeaderImage)
-    ImageView imageHeader;
+    ImageView mImageHeader;
     @BindView(R.id.fabFavorite)
-    FloatingActionButton fab;
+    FloatingActionButton mFabFavorite;
     @BindView(R.id.fragmentDetail)
-    FrameLayout detailFragmentLayout;
+    FrameLayout mDetailFragmentLayout;
 
-    private MoviesDetail data;
-    private FragmentManager fragmentManager;
-    private DetailMovieFragment detailMovieFragment;
-    private ActionBar actionBar;
-    private boolean moviesShare = false;
+    private MoviesDetail mData;
+    private FragmentManager mFragmentManager;
+    private DetailMovieFragment mDetailMovieFragment;
+    private ActionBar mActionBar;
+    private boolean mMoviesShare = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,40 +55,35 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
         setContentView(R.layout.activity_detail_movie);
         ButterKnife.bind(this);
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
 
-        data = getIntent().getParcelableExtra("DATA");
-        if (data == null) {
-            Toast.makeText(this, "Something wrong with detail data", Toast.LENGTH_SHORT).show();
+        mData = getIntent().getParcelableExtra("DATA");
+        if (mData == null) {
+            Toast.makeText(this, "Something wrong with detail mData", Toast.LENGTH_SHORT).show();
             finish();
         }
 
-        actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(true);
+        mActionBar = getSupportActionBar();
+        if (mActionBar != null) {
+            mActionBar.setDisplayHomeAsUpEnabled(true);
+            mActionBar.setDisplayShowHomeEnabled(true);
         }
 
-        fragmentManager = getSupportFragmentManager();
+        mFragmentManager = getSupportFragmentManager();
 
-        if (detailFragmentLayout != null) {
+        if (mDetailFragmentLayout != null) {
             if (savedInstanceState == null) {
                 Log.d(TAG, "onCreate: attach fragment");
-                detailMovieFragment = DetailMovieFragment.newInstance(data);
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.add(detailFragmentLayout.getId(), detailMovieFragment);
+                mDetailMovieFragment = DetailMovieFragment.newInstance(mData);
+                FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+                fragmentTransaction.add(mDetailFragmentLayout.getId(), mDetailMovieFragment);
                 fragmentTransaction.commit();
             } else {
-                detailMovieFragment = (DetailMovieFragment) fragmentManager.findFragmentById(detailFragmentLayout.getId());
+                mDetailMovieFragment = (DetailMovieFragment) mFragmentManager.findFragmentById(
+                        mDetailFragmentLayout.getId());
             }
         }
 
-    }
-
-    @SuppressWarnings("EmptyMethod")
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override
@@ -95,6 +91,11 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
         super.onSaveInstanceState(outState);
     }
 
+    @SuppressWarnings("EmptyMethod")
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -107,7 +108,7 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.menu_detail_share).setVisible(moviesShare);
+        menu.findItem(R.id.menu_detail_share).setVisible(mMoviesShare);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -129,38 +130,42 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
 
     @OnClick(R.id.fabFavorite)
     void onFavoriteClick() {
-        detailMovieFragment.changeFavorite();
+        mDetailMovieFragment.changeFavorite();
     }
 
     private void shareItem() {
-        if (detailMovieFragment.getStatusLoadedFromServer()) {
+        if (mDetailMovieFragment.getStatusLoadedFromServer()) {
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
-            Log.d(TAG, "onClick: " + detailMovieFragment.getShareContent());
-            sendIntent.putExtra(Intent.EXTRA_TEXT, detailMovieFragment.getShareContent());
+            Log.d(TAG, "onClick: " + mDetailMovieFragment.getShareContent());
+            sendIntent.putExtra(Intent.EXTRA_TEXT, mDetailMovieFragment.getShareContent());
             sendIntent.setType("text/plain");
-            startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
+            startActivity(
+                    Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
         }
     }
 
     @Override
     public void onFragmentShowShare() {
         Log.d(TAG, "onFragmentShowShare: changed");
-        moviesShare = true;
+        mMoviesShare = true;
         invalidateOptionsMenu();
     }
 
     @Override
     public void onFragmentChangeFavorite(MoviesDetail data, boolean isFavorite, boolean isRefresh) {
-        if (isFavorite)
-            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
-        else
-            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
+        if (isFavorite) {
+            mFabFavorite.setImageDrawable(
+                    ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
+        } else {
+            mFabFavorite.setImageDrawable(
+                    ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
+        }
     }
 
     @Override
     public void onFragmentChangeTitle(@NonNull String title) {
-        if (actionBar != null) actionBar.setTitle(title);
+        if (mActionBar != null) mActionBar.setTitle(title);
     }
 
     @Override
@@ -169,8 +174,9 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
             Picasso.with(this)
                     .load(imageUri)
                     .centerCrop()
-                    .resize(Resources.getSystem().getDisplayMetrics().widthPixels, getResources().getDimensionPixelSize(R.dimen.image_description_header))
-                    .into(imageHeader);
+                    .resize(Resources.getSystem().getDisplayMetrics().widthPixels,
+                            getResources().getDimensionPixelSize(R.dimen.image_description_header))
+                    .into(mImageHeader);
         }
     }
 }

@@ -16,7 +16,8 @@ public final class MoviesTopRated implements BaseColumns {
             .appendPath(LocalDatabase.PATH_TOP_RATED)
             .build();
     public static final String CONTENT_DIR_TYPE =
-            ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + LocalDatabase.CONTENT_AUTHORITY + "/" + LocalDatabase.PATH_MOVIES
+            ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + LocalDatabase.CONTENT_AUTHORITY + "/" +
+                    LocalDatabase.PATH_MOVIES
                     + "/" + LocalDatabase.PATH_TOP_RATED;
 
     public static final String TABLE_NAME = "top_rated_movies";

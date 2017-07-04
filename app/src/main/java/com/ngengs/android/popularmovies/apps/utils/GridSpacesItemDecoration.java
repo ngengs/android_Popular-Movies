@@ -10,25 +10,26 @@ import android.view.View;
 
 @SuppressWarnings("DefaultFileTemplate")
 public class GridSpacesItemDecoration extends RecyclerView.ItemDecoration {
-    private final int spanCount;
-    private final int spacing;
+    private final int mSpanCount;
+    private final int mSpacing;
 
 
     public GridSpacesItemDecoration(int spanCount, int spacing) {
-        this.spanCount = spanCount;
-        this.spacing = spacing;
+        this.mSpanCount = spanCount;
+        this.mSpacing = spacing;
     }
 
     @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                               RecyclerView.State state) {
         int position = parent.getChildAdapterPosition(view);
-        int column = position % spanCount;
+        int column = position % mSpanCount;
 
-        outRect.left = spacing - column * spacing / spanCount;
-        outRect.right = (column + 1) * spacing / spanCount;
+        outRect.left = mSpacing - column * mSpacing / mSpanCount;
+        outRect.right = (column + 1) * mSpacing / mSpanCount;
 
-        if (position < spanCount) outRect.top = spacing;
+        if (position < mSpanCount) outRect.top = mSpacing;
 
-        outRect.bottom = spacing;
+        outRect.bottom = mSpacing;
     }
 }

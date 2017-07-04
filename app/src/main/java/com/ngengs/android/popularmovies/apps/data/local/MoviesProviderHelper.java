@@ -17,14 +17,16 @@ import java.util.List;
 
 @SuppressWarnings("DefaultFileTemplate")
 public class MoviesProviderHelper {
-    private final Context context;
+    private final Context mContext;
 
     public MoviesProviderHelper(Context context) {
-        this.context = context;
+        this.mContext = context;
     }
 
     public MoviesList getFavorites() {
-        Cursor cursor = context.getContentResolver().query(MoviesFavorites.CONTENT_URI, MoviesEntry.getColumnsWithTable(), null, null, null);
+        Cursor cursor = mContext.getContentResolver()
+                .query(MoviesFavorites.CONTENT_URI, MoviesEntry.getColumnsWithTable(), null, null,
+                       null);
         List<MoviesDetail> data = new ArrayList<>();
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -39,7 +41,9 @@ public class MoviesProviderHelper {
     }
 
     public MoviesList getPopular() {
-        Cursor cursor = context.getContentResolver().query(MoviesPopular.CONTENT_URI, MoviesEntry.getColumnsWithTable(), null, null, null);
+        Cursor cursor = mContext.getContentResolver()
+                .query(MoviesPopular.CONTENT_URI, MoviesEntry.getColumnsWithTable(), null, null,
+                       null);
         List<MoviesDetail> data = new ArrayList<>();
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -54,7 +58,7 @@ public class MoviesProviderHelper {
     }
 
     public void deletePopular() {
-        context.getContentResolver().delete(MoviesPopular.CONTENT_URI, null, null);
+        mContext.getContentResolver().delete(MoviesPopular.CONTENT_URI, null, null);
     }
 
     public void savePopular(List<MoviesDetail> movies) {
@@ -65,12 +69,14 @@ public class MoviesProviderHelper {
                 contentValue.put(LocalDatabase.COLUMN_MOVIE_ID_KEY, movies.get(i).getId());
                 contentValues[i] = contentValue;
             }
-            context.getContentResolver().bulkInsert(MoviesPopular.CONTENT_URI, contentValues);
+            mContext.getContentResolver().bulkInsert(MoviesPopular.CONTENT_URI, contentValues);
         }
     }
 
     public MoviesList getTopRated() {
-        Cursor cursor = context.getContentResolver().query(MoviesTopRated.CONTENT_URI, MoviesEntry.getColumnsWithTable(), null, null, null);
+        Cursor cursor = mContext.getContentResolver()
+                .query(MoviesTopRated.CONTENT_URI, MoviesEntry.getColumnsWithTable(), null, null,
+                       null);
         List<MoviesDetail> data = new ArrayList<>();
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -85,7 +91,7 @@ public class MoviesProviderHelper {
     }
 
     public void deleteTopRated() {
-        context.getContentResolver().delete(MoviesTopRated.CONTENT_URI, null, null);
+        mContext.getContentResolver().delete(MoviesTopRated.CONTENT_URI, null, null);
     }
 
     public void saveTopRated(List<MoviesDetail> movies) {
@@ -96,7 +102,7 @@ public class MoviesProviderHelper {
                 contentValue.put(LocalDatabase.COLUMN_MOVIE_ID_KEY, movies.get(i).getId());
                 contentValues[i] = contentValue;
             }
-            context.getContentResolver().bulkInsert(MoviesTopRated.CONTENT_URI, contentValues);
+            mContext.getContentResolver().bulkInsert(MoviesTopRated.CONTENT_URI, contentValues);
         }
     }
 
@@ -106,22 +112,22 @@ public class MoviesProviderHelper {
             for (int i = 0; i < movies.size(); i++) {
                 contentValues[i] = movies.get(i).toContentValues();
             }
-            context.getContentResolver().bulkInsert(MoviesEntry.CONTENT_URI, contentValues);
+            mContext.getContentResolver().bulkInsert(MoviesEntry.CONTENT_URI, contentValues);
         }
     }
 
     public void saveMovies(MoviesDetail movie) {
-        context.getContentResolver().insert(MoviesEntry.CONTENT_URI, movie.toContentValues());
+        mContext.getContentResolver().insert(MoviesEntry.CONTENT_URI, movie.toContentValues());
     }
 
     public void addToFavorites(int movieId) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(LocalDatabase.COLUMN_MOVIE_ID_KEY, movieId);
-        context.getContentResolver().insert(MoviesFavorites.CONTENT_URI, contentValues);
+        mContext.getContentResolver().insert(MoviesFavorites.CONTENT_URI, contentValues);
     }
 
     public void removeFromFavorites(int movieId) {
-        context.getContentResolver().delete(
+        mContext.getContentResolver().delete(
                 MoviesFavorites.CONTENT_URI,
                 LocalDatabase.COLUMN_MOVIE_ID_KEY + " = " + movieId,
                 null
@@ -130,7 +136,7 @@ public class MoviesProviderHelper {
 
     public boolean isFavorite(int movieId) {
         boolean favorite = false;
-        Cursor cursor = context.getContentResolver().query(
+        Cursor cursor = mContext.getContentResolver().query(
                 MoviesFavorites.CONTENT_URI,
                 null,
                 LocalDatabase.COLUMN_MOVIE_ID_KEY + " = " + movieId,

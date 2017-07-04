@@ -61,63 +61,63 @@ public class DetailMovieFragment extends Fragment {
     private static final String TAG = "DetailMovieFragment";
 
     @BindView(R.id.imageDetailThumb)
-    ImageView imageThumbnail;
+    ImageView mImageThumbnail;
     @BindView(R.id.textRating)
-    TextView textRating;
+    TextView mTextRating;
     @BindView(R.id.textMovieOriginalTitle)
-    TextView textOriginalTitle;
+    TextView mTextOriginalTitle;
     @BindView(R.id.textMovieReleaseDate)
-    TextView textReleaseDate;
+    TextView mTextReleaseDate;
     @BindView(R.id.textMovieGenre)
-    TextView textGenre;
+    TextView mTextGenre;
     @BindView(R.id.textMovieBudget)
-    TextView textBudget;
+    TextView mTextBudget;
     @BindView(R.id.textMovieRevenue)
-    TextView textRevenue;
+    TextView mTextRevenue;
     @BindView(R.id.textMovieCompany)
-    TextView textCompany;
+    TextView mTextCompany;
     @BindView(R.id.textMovieCountry)
-    TextView textCountry;
+    TextView mTextCountry;
     @BindView(R.id.textMovieLanguage)
-    TextView textLanguage;
+    TextView mTextLanguage;
     @BindView(R.id.textMovieStatus)
-    TextView textStatus;
+    TextView mTextStatus;
     @BindView(R.id.textMovieTagline)
-    TextView textTagline;
+    TextView mTextTagline;
     @BindView(R.id.textMovieSynopsis)
-    TextView textSynopsis;
+    TextView mTextSynopsis;
     @BindView(R.id.taglineView)
-    View taglineView;
+    View mTaglineView;
     @BindView(R.id.detailView)
-    View detailView;
+    View mDetailView;
     @BindView(R.id.rootProgressBar)
-    View rootProgress;
+    View mRootProgress;
     @BindView(R.id.recyclerVideo)
-    RecyclerView recyclerVideo;
+    RecyclerView mRecyclerVideo;
     @BindView(R.id.cardVideo)
-    CardView cardVideo;
+    CardView mCardVideo;
     @BindView(R.id.recyclerReview)
-    RecyclerView recyclerReview;
+    RecyclerView mRecyclerReview;
     @BindView(R.id.cardReview)
-    CardView cardReview;
-    private Snackbar snackbar;
+    CardView mCardReview;
+    private Snackbar mSnackbar;
 
-    private MoviesDetail data;
-    private MoviesAPI moviesAPI;
-    private CompositeDisposable disposable = new CompositeDisposable();
-    private boolean loadFromServer;
-    private boolean loadVideoFromServer;
-    private boolean loadReviewFromServer;
-    private boolean favoriteMovies;
-    private Context context;
+    private MoviesDetail mData;
+    private MoviesAPI mMoviesAPI;
+    private CompositeDisposable mDisposable = new CompositeDisposable();
+    private boolean mLoadFromServer;
+    private boolean mLoadVideoFromServer;
+    private boolean mLoadReviewFromServer;
+    private boolean mFavoritedMovies;
+    private Context mContext;
 
-    private Unbinder unbinder;
+    private Unbinder mUnbinder;
 
     private OnFragmentInteractionListener mListener;
-    private VideoListAdapter videoListAdapter;
-    private ReviewListAdapter reviewListAdapter;
+    private VideoListAdapter mVideoListAdapter;
+    private ReviewListAdapter mReviewListAdapter;
 
-    private MoviesProviderHelper moviesProviderHelper;
+    private MoviesProviderHelper mMoviesProviderHelper;
 
     public DetailMovieFragment() {
         // Required empty public constructor
@@ -127,7 +127,7 @@ public class DetailMovieFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param params MovieDetail data.
+     * @param params MovieDetail mData.
      * @return A new instance of fragment DetailMovieFragment.
      */
     public static DetailMovieFragment newInstance(MoviesDetail params) {
@@ -139,11 +139,20 @@ public class DetailMovieFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                                               + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            data = getArguments().getParcelable("DATA");
-        }
+        if (getArguments() != null) mData = getArguments().getParcelable("DATA");
     }
 
     @Override
@@ -151,22 +160,36 @@ public class DetailMovieFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_detail_movie, container, false);
-        context = view.getContext();
-        unbinder = ButterKnife.bind(this, view);
-        moviesProviderHelper = new MoviesProviderHelper(context);
-        if (data != null) {
-            Log.d(TAG, "onCreateView: data status: not null");
+        mContext = view.getContext();
+        mUnbinder = ButterKnife.bind(this, view);
+        mMoviesProviderHelper = new MoviesProviderHelper(mContext);
+        if (mData != null) {
+            Log.d(TAG, "onCreateView: mData status: not null");
             createLayout(savedInstanceState);
         } else {
-            Log.d(TAG, "onCreateView: data status: null");
-            detailView.setVisibility(View.GONE);
-            taglineView.setVisibility(View.GONE);
-            loadFromServer = false;
-            loadVideoFromServer = false;
-            loadReviewFromServer = false;
-            favoriteMovies = false;
+            Log.d(TAG, "onCreateView: mData status: null");
+            mDetailView.setVisibility(View.GONE);
+            mTaglineView.setVisibility(View.GONE);
+            mLoadFromServer = false;
+            mLoadVideoFromServer = false;
+            mLoadReviewFromServer = false;
+            mFavoritedMovies = false;
         }
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("DATA", mData);
+        outState.putParcelableArrayList("DATA_VIDEO",
+                                        new ArrayList<Parcelable>(mVideoListAdapter.get()));
+        outState.putParcelableArrayList("DATA_REVIEW",
+                                        new ArrayList<Parcelable>(mReviewListAdapter.get()));
+        outState.putBoolean("ALREADY_CONNECT", mLoadFromServer);
+        outState.putBoolean("ALREADY_VIDEO_CONNECT", mLoadVideoFromServer);
+        outState.putBoolean("ALREADY_REVIEW_CONNECT", mLoadReviewFromServer);
+        outState.putBoolean("FAVORITED_MOVIES", mFavoritedMovies);
     }
 
     @SuppressWarnings("EmptyMethod")
@@ -176,273 +199,272 @@ public class DetailMovieFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.dispose();
+        if (mDisposable != null && !mDisposable.isDisposed()) {
+            mDisposable.dispose();
         }
-        if (unbinder != null) unbinder.unbind();
+        if (mUnbinder != null) mUnbinder.unbind();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.dispose();
+        if (mDisposable != null && !mDisposable.isDisposed()) {
+            mDisposable.dispose();
         }
     }
 
     private int getRatingColor(double score) {
         if (score >= Values.RATING_SCORE_PERFECT)
-            return ResourceHelpers.getColor(context, R.color.colorRatingPerfect);
+            return ResourceHelpers.getColor(mContext, R.color.colorRatingPerfect);
         else if (score < Values.RATING_SCORE_PERFECT && score >= Values.RATING_SCORE_GOOD)
-            return ResourceHelpers.getColor(context, R.color.colorRatingGood);
+            return ResourceHelpers.getColor(mContext, R.color.colorRatingGood);
         else if (score < Values.RATING_SCORE_GOOD && score >= Values.RATING_SCORE_NORMAL)
-            return ResourceHelpers.getColor(context, R.color.colorRatingNormal);
+            return ResourceHelpers.getColor(mContext, R.color.colorRatingNormal);
         else
-            return ResourceHelpers.getColor(context, R.color.colorRatingBad);
+            return ResourceHelpers.getColor(mContext, R.color.colorRatingBad);
     }
 
     public void changeFavorite() {
-        if (favoriteMovies) moviesProviderHelper.removeFromFavorites(data.getId());
-        else moviesProviderHelper.addToFavorites(data.getId());
+        if (mFavoritedMovies) mMoviesProviderHelper.removeFromFavorites(mData.getId());
+        else mMoviesProviderHelper.addToFavorites(mData.getId());
 
-        favoriteMovies = !favoriteMovies;
-        if (mListener != null) mListener.onFragmentChangeFavorite(data, favoriteMovies, true);
+        mFavoritedMovies = !mFavoritedMovies;
+        if (mListener != null) mListener.onFragmentChangeFavorite(mData, mFavoritedMovies, true);
     }
 
     private void bindOldData() {
-        if (data.getBackdropPath() != null && mListener != null) {
-            mListener.onFragmentChangeHeaderImage(data.getBackdropPath());
+        if (mData.getBackdropPath() != null && mListener != null) {
+            mListener.onFragmentChangeHeaderImage(mData.getBackdropPath());
         }
-        if (data.getPosterPath(3) != null) {
-            Picasso.with(context)
-                    .load(data.getPosterPath(3))
-                    .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white))
-                    .resize(getResources().getDimensionPixelSize(R.dimen.image_description_thumbnail_width), 0)
-                    .into(imageThumbnail);
+        if (mData.getPosterPath(3) != null) {
+            Picasso.with(mContext)
+                    .load(mData.getPosterPath(3))
+                    .placeholder(
+                            ResourceHelpers.getDrawable(mContext, R.drawable.ic_collections_white))
+                    .resize(getResources().getDimensionPixelSize(
+                            R.dimen.image_description_thumbnail_width), 0)
+                    .into(mImageThumbnail);
         }
         bindUpdatedData();
     }
 
     private void bindUpdatedData() {
-        if (data.getTitle() != null && mListener != null) {
-            mListener.onFragmentChangeTitle(data.getTitle());
+        if (mData.getTitle() != null && mListener != null) {
+            mListener.onFragmentChangeTitle(mData.getTitle());
         }
-        textRating.setText(getResources().getString(R.string.rating_number, data.getVoteAverage()));
-        textRating.setTextColor(getRatingColor(data.getVoteAverage()));
-        if (data.getOriginalTitle() != null) textOriginalTitle.setText(data.getOriginalTitle());
-        if (data.getReleaseDate() != null) {
-            DateFormat dateFormat = android.text.format.DateFormat.getLongDateFormat(context);
-            String stringDate = dateFormat.format(data.getReleaseDate());
+        mTextRating.setText(
+                getResources().getString(R.string.rating_number, mData.getVoteAverage()));
+        mTextRating.setTextColor(getRatingColor(mData.getVoteAverage()));
+        if (mData.getOriginalTitle() != null) mTextOriginalTitle.setText(mData.getOriginalTitle());
+        if (mData.getReleaseDate() != null) {
+            DateFormat dateFormat = android.text.format.DateFormat.getLongDateFormat(mContext);
+            String stringDate = dateFormat.format(mData.getReleaseDate());
 
-            textReleaseDate.setText(getResources().getString(R.string.release_date, stringDate));
+            mTextReleaseDate.setText(getResources().getString(R.string.release_date, stringDate));
         }
 
-        if (data.getOverview() != null) textSynopsis.setText(data.getOverview());
+        if (mData.getOverview() != null) mTextSynopsis.setText(mData.getOverview());
     }
 
     public int getMoviesId() {
-        if (data != null) return data.getId();
+        if (mData != null) return mData.getId();
         else return -1;
     }
 
     private void bindData() {
-        if (detailView.getVisibility() == View.GONE) detailView.setVisibility(View.VISIBLE);
-        if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
+        if (mDetailView.getVisibility() == View.GONE) mDetailView.setVisibility(View.VISIBLE);
+        if (mRootProgress.getVisibility() == View.VISIBLE) mRootProgress.setVisibility(View.GONE);
 
-        if (data.getGenres() != null && data.getGenres().size() > 0) {
+        if (mData.getGenres() != null && mData.getGenres().size() > 0) {
             List<String> genre = new ArrayList<>();
-            for (ObjectName item : data.getGenres()) {
+            for (ObjectName item : mData.getGenres()) {
                 genre.add(item.getName());
             }
-            textGenre.setText(TextUtils.join(", ", genre));
+            mTextGenre.setText(TextUtils.join(", ", genre));
         }
-        if (data.getBudget() >= 0) {
-            String budgetCurrencyString = NumberFormat.getCurrencyInstance().format(data.getRevenue());
+        if (mData.getBudget() >= 0) {
+            String budgetCurrencyString =
+                    NumberFormat.getCurrencyInstance().format(mData.getRevenue());
             budgetCurrencyString = budgetCurrencyString.replaceAll("\\.00", "");
-            textBudget.setText(budgetCurrencyString);
+            mTextBudget.setText(budgetCurrencyString);
         }
-        if (data.getRevenue() >= 0) {
-            String revenueCurrencyString = NumberFormat.getCurrencyInstance().format(data.getRevenue());
+        if (mData.getRevenue() >= 0) {
+            String revenueCurrencyString =
+                    NumberFormat.getCurrencyInstance().format(mData.getRevenue());
             revenueCurrencyString = revenueCurrencyString.replaceAll("\\.00", "");
-            textRevenue.setText(revenueCurrencyString);
+            mTextRevenue.setText(revenueCurrencyString);
         }
-        if (data.getProductionCompanies() != null && data.getProductionCompanies().size() > 0) {
+        if (mData.getProductionCompanies() != null && mData.getProductionCompanies().size() > 0) {
             List<String> companies = new ArrayList<>();
-            for (ObjectName item : data.getProductionCompanies()) {
+            for (ObjectName item : mData.getProductionCompanies()) {
                 companies.add(item.getName());
             }
-            textCompany.setText(TextUtils.join(", ", companies));
+            mTextCompany.setText(TextUtils.join(", ", companies));
         }
-        if (data.getProductionCountries() != null && data.getProductionCountries().size() > 0) {
+        if (mData.getProductionCountries() != null && mData.getProductionCountries().size() > 0) {
             List<String> country = new ArrayList<>();
-            for (ObjectName item : data.getProductionCountries()) {
+            for (ObjectName item : mData.getProductionCountries()) {
                 country.add(item.getName());
             }
-            textCountry.setText(TextUtils.join(", ", country));
+            mTextCountry.setText(TextUtils.join(", ", country));
         }
-        if (data.getSpokenLanguages() != null && data.getSpokenLanguages().size() > 0) {
+        if (mData.getSpokenLanguages() != null && mData.getSpokenLanguages().size() > 0) {
             List<String> spokenLanguage = new ArrayList<>();
-            for (ObjectName item : data.getSpokenLanguages()) {
+            for (ObjectName item : mData.getSpokenLanguages()) {
                 spokenLanguage.add(item.getName());
             }
-            textLanguage.setText(TextUtils.join(", ", spokenLanguage));
+            mTextLanguage.setText(TextUtils.join(", ", spokenLanguage));
         }
-        if (data.getStatus() != null) textStatus.setText(data.getStatus());
-        if (!TextUtils.isEmpty(data.getTagline())) {
-            textTagline.setText(data.getTagline());
-            taglineView.setVisibility(View.VISIBLE);
+        if (mData.getStatus() != null) mTextStatus.setText(mData.getStatus());
+        if (!TextUtils.isEmpty(mData.getTagline())) {
+            mTextTagline.setText(mData.getTagline());
+            mTaglineView.setVisibility(View.VISIBLE);
         }
         bindUpdatedData();
     }
 
     @SuppressWarnings("unused")
-    public void setData(MoviesDetail data) {
-        this.data = data;
+    public void setmData(MoviesDetail mData) {
+        this.mData = mData;
         createLayout(null);
     }
 
     private void createLayout(Bundle savedInstanceState) {
-        detailView.setVisibility(View.GONE);
-        taglineView.setVisibility(View.GONE);
-        loadFromServer = false;
-        loadVideoFromServer = false;
-        loadReviewFromServer = false;
+        mDetailView.setVisibility(View.GONE);
+        mTaglineView.setVisibility(View.GONE);
+        mLoadFromServer = false;
+        mLoadVideoFromServer = false;
+        mLoadReviewFromServer = false;
 
-        recyclerVideo.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
-        recyclerVideo.setHasFixedSize(true);
-        videoListAdapter = new VideoListAdapter(context, new VideoListAdapter.ClickListener() {
+        mRecyclerVideo.setLayoutManager(
+                new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        mRecyclerVideo.setHasFixedSize(true);
+        mVideoListAdapter = new VideoListAdapter(mContext, new VideoListAdapter.ClickListener() {
             @Override
             public void onClickListener(int position) {
                 Log.d(TAG, "onClickListener: " + position);
-                VideosDetail video = videoListAdapter.get(position);
+                VideosDetail video = mVideoListAdapter.get(position);
                 if (video != null && video.isYoutubeVideo()) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(video.getYoutubeVideo()));
+                    Intent intent =
+                            new Intent(Intent.ACTION_VIEW, Uri.parse(video.getYoutubeVideo()));
                     startActivity(intent);
                 }
             }
         });
-        recyclerVideo.setAdapter(videoListAdapter);
+        mRecyclerVideo.setAdapter(mVideoListAdapter);
 
-        recyclerReview.setLayoutManager(new LinearLayoutManager(context));
-        recyclerReview.setHasFixedSize(true);
-        reviewListAdapter = new ReviewListAdapter(context, new ReviewListAdapter.ClickListener() {
+        mRecyclerReview.setLayoutManager(new LinearLayoutManager(mContext));
+        mRecyclerReview.setHasFixedSize(true);
+        mReviewListAdapter = new ReviewListAdapter(mContext, new ReviewListAdapter.ClickListener() {
             @Override
             public void onClickListener(int position) {
                 Log.d(TAG, "onClickListener: " + position);
-                ReviewDetail review = reviewListAdapter.get(position);
+                ReviewDetail review = mReviewListAdapter.get(position);
                 if (review != null && !TextUtils.isEmpty(review.getUrl())) {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(review.getUrl()));
                     startActivity(intent);
                 }
             }
         });
-        recyclerReview.setAdapter(reviewListAdapter);
+        mRecyclerReview.setAdapter(mReviewListAdapter);
 
-        moviesAPI = NetworkHelpers.provideAPI();
+        mMoviesAPI = NetworkHelpers.provideAPI();
 
         Log.d(TAG, "createLayout: savedInstanceState: " + (savedInstanceState == null));
 
         if (savedInstanceState != null) {
-            data = savedInstanceState.getParcelable("DATA");
-            loadFromServer = savedInstanceState.getBoolean("ALREADY_CONNECT", false);
-            loadVideoFromServer = savedInstanceState.getBoolean("ALREADY_VIDEO_CONNECT", false);
-            loadReviewFromServer = savedInstanceState.getBoolean("ALREADY_REVIEW_CONNECT", false);
-            favoriteMovies = savedInstanceState.getBoolean("FAVORITED_MOVIES", false);
+            mData = savedInstanceState.getParcelable("DATA");
+            mLoadFromServer = savedInstanceState.getBoolean("ALREADY_CONNECT", false);
+            mLoadVideoFromServer = savedInstanceState.getBoolean("ALREADY_VIDEO_CONNECT", false);
+            mLoadReviewFromServer = savedInstanceState.getBoolean("ALREADY_REVIEW_CONNECT", false);
+            mFavoritedMovies = savedInstanceState.getBoolean("FAVORITED_MOVIES", false);
             List<VideosDetail> tempVideo = savedInstanceState.getParcelableArrayList("DATA_VIDEO");
-            List<ReviewDetail> tempReview = savedInstanceState.getParcelableArrayList("DATA_REVIEW");
-            Log.d(TAG, "createLayout: loadFromServer: " + loadFromServer);
+            List<ReviewDetail> tempReview =
+                    savedInstanceState.getParcelableArrayList("DATA_REVIEW");
+            Log.d(TAG, "createLayout: mLoadFromServer: " + mLoadFromServer);
             bindOldData();
-            if (loadFromServer && loadVideoFromServer && loadReviewFromServer) {
+            if (mLoadFromServer && mLoadVideoFromServer && mLoadReviewFromServer) {
                 bindData();
                 bindVideo(tempVideo);
                 bindReview(tempReview);
             } else getDetailMovie();
         } else {
-            favoriteMovies = moviesProviderHelper.isFavorite(data.getId());
-            if (data != null) bindOldData();
+            mFavoritedMovies = mMoviesProviderHelper.isFavorite(mData.getId());
+            if (mData != null) bindOldData();
             getDetailMovie();
         }
-        if (mListener != null) mListener.onFragmentChangeFavorite(data, favoriteMovies, false);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable("DATA", data);
-        outState.putParcelableArrayList("DATA_VIDEO", new ArrayList<Parcelable>(videoListAdapter.get()));
-        outState.putParcelableArrayList("DATA_REVIEW", new ArrayList<Parcelable>(reviewListAdapter.get()));
-        outState.putBoolean("ALREADY_CONNECT", loadFromServer);
-        outState.putBoolean("ALREADY_VIDEO_CONNECT", loadVideoFromServer);
-        outState.putBoolean("ALREADY_REVIEW_CONNECT", loadReviewFromServer);
-        outState.putBoolean("FAVORITED_MOVIES", favoriteMovies);
+        if (mListener != null) mListener.onFragmentChangeFavorite(mData, mFavoritedMovies, false);
     }
 
     private void getDetailMovie() {
-        if (moviesAPI != null) {
-            rootProgress.setVisibility(View.VISIBLE);
-            taglineView.setVisibility(View.GONE);
-            detailView.setVisibility(View.GONE);
-            disposable.addAll(
-                    moviesAPI.detail(data.getId())
+        if (mMoviesAPI != null) {
+            mRootProgress.setVisibility(View.VISIBLE);
+            mTaglineView.setVisibility(View.GONE);
+            mDetailView.setVisibility(View.GONE);
+            mDisposable.addAll(
+                    mMoviesAPI.detail(mData.getId())
                             .subscribeOn(Schedulers.io())
                             .doOnNext(new Consumer<MoviesDetail>() {
                                 @Override
-                                public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
+                                public void accept(
+                                        @io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws
+                                        Exception {
                                     Log.d(TAG, "accept: doOnNext: " + moviesDetail.getId());
-                                    moviesProviderHelper.saveMovies(moviesDetail);
+                                    mMoviesProviderHelper.saveMovies(moviesDetail);
                                 }
                             })
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Consumer<MoviesDetail>() {
                                 @Override
-                                public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
+                                public void accept(
+                                        @io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws
+                                        Exception {
                                     onResponse(moviesDetail);
                                 }
                             }, new Consumer<Throwable>() {
                                 @Override
-                                public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
+                                public void accept(
+                                        @io.reactivex.annotations.NonNull Throwable throwable) throws
+                                        Exception {
                                     onFailure(throwable);
                                 }
                             }),
-                    moviesAPI.videos(data.getId())
+                    mMoviesAPI.videos(mData.getId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Consumer<VideosList>() {
                                 @Override
-                                public void accept(@io.reactivex.annotations.NonNull VideosList videosList) throws Exception {
+                                public void accept(
+                                        @io.reactivex.annotations.NonNull VideosList videosList) throws
+                                        Exception {
                                     onResponseVideo(videosList);
                                 }
                             }, new Consumer<Throwable>() {
                                 @Override
-                                public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
+                                public void accept(
+                                        @io.reactivex.annotations.NonNull Throwable throwable) throws
+                                        Exception {
                                     Log.e(TAG, "accept: Error Get Videos", throwable);
                                 }
                             }),
-                    moviesAPI.reviews(data.getId())
+                    mMoviesAPI.reviews(mData.getId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Consumer<ReviewList>() {
                                 @Override
-                                public void accept(@io.reactivex.annotations.NonNull ReviewList reviewList) throws Exception {
+                                public void accept(
+                                        @io.reactivex.annotations.NonNull ReviewList reviewList) throws
+                                        Exception {
                                     onResponseReview(reviewList);
                                 }
                             }, new Consumer<Throwable>() {
                                 @Override
-                                public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
+                                public void accept(
+                                        @io.reactivex.annotations.NonNull Throwable throwable) throws
+                                        Exception {
                                     Log.e(TAG, "accept: Error Get Reviews", throwable);
                                 }
                             })
@@ -452,16 +474,16 @@ public class DetailMovieFragment extends Fragment {
 
     public void onResponse(@NonNull MoviesDetail response) {
         Log.d(TAG, "onResponse: " + response.toString());
-        if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
-        if (detailView.getVisibility() == View.GONE) detailView.setVisibility(View.VISIBLE);
-        if (snackbar != null) {
-            snackbar.dismiss();
-            snackbar = null;
+        if (mRootProgress.getVisibility() == View.VISIBLE) mRootProgress.setVisibility(View.GONE);
+        if (mDetailView.getVisibility() == View.GONE) mDetailView.setVisibility(View.VISIBLE);
+        if (mSnackbar != null) {
+            mSnackbar.dismiss();
+            mSnackbar = null;
         }
-        data = response;
+        mData = response;
 
-        Log.d(TAG, "onResponse: " + data.getHomepage());
-        loadFromServer = true;
+        Log.d(TAG, "onResponse: " + mData.getHomepage());
+        mLoadFromServer = true;
         bindData();
     }
 
@@ -480,47 +502,48 @@ public class DetailMovieFragment extends Fragment {
     }
 
     private void bindVideo(List<VideosDetail> video) {
-        loadVideoFromServer = true;
-        videoListAdapter.clear();
+        mLoadVideoFromServer = true;
+        mVideoListAdapter.clear();
         if (video.size() > 0) {
             if (mListener != null) mListener.onFragmentShowShare();
-            cardVideo.setVisibility(View.VISIBLE);
-            videoListAdapter.add(video);
+            mCardVideo.setVisibility(View.VISIBLE);
+            mVideoListAdapter.add(video);
         }
     }
 
     private void bindReview(List<ReviewDetail> review) {
-        loadReviewFromServer = true;
-        if (review.size() > 0) cardReview.setVisibility(View.VISIBLE);
-        reviewListAdapter.clear();
-        reviewListAdapter.add(review);
+        mLoadReviewFromServer = true;
+        if (review.size() > 0) mCardReview.setVisibility(View.VISIBLE);
+        mReviewListAdapter.clear();
+        mReviewListAdapter.add(review);
     }
 
     public boolean getStatusLoadedFromServer() {
-        return loadFromServer;
+        return mLoadFromServer;
     }
 
     public String getShareContent() {
         String shareUrl = "";
-        if (videoListAdapter.getItemCount() > 0)
-            shareUrl = videoListAdapter.get(0).getYoutubeVideo();
-        return getResources().getString(R.string.share_content, data.getTitle(), shareUrl);
+        if (mVideoListAdapter.getItemCount() > 0)
+            shareUrl = mVideoListAdapter.get(0).getYoutubeVideo();
+        return getResources().getString(R.string.share_content, mData.getTitle(), shareUrl);
     }
 
     public void onFailure(@NonNull Throwable t) {
-        if (rootProgress.getVisibility() == View.VISIBLE) rootProgress.setVisibility(View.GONE);
-        if (detailView.getVisibility() == View.VISIBLE) detailView.setVisibility(View.GONE);
-        if (taglineView.getVisibility() == View.VISIBLE) taglineView.setVisibility(View.GONE);
-        if (snackbar != null) snackbar.dismiss();
-        snackbar = Snackbar.make(rootProgress, R.string.error_cant_get_data_check_connection, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+        if (mRootProgress.getVisibility() == View.VISIBLE) mRootProgress.setVisibility(View.GONE);
+        if (mDetailView.getVisibility() == View.VISIBLE) mDetailView.setVisibility(View.GONE);
+        if (mTaglineView.getVisibility() == View.VISIBLE) mTaglineView.setVisibility(View.GONE);
+        if (mSnackbar != null) mSnackbar.dismiss();
+        mSnackbar = Snackbar.make(mRootProgress, R.string.error_cant_get_data_check_connection,
+                                  Snackbar.LENGTH_INDEFINITE);
+        mSnackbar.setAction(R.string.retry, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 bindOldData();
                 getDetailMovie();
             }
         });
-        snackbar.show();
+        mSnackbar.show();
         Log.e(TAG, "onFailure: ", t);
     }
 

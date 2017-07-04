@@ -57,46 +57,47 @@ import io.reactivex.schedulers.Schedulers;
 public class GridFragment extends Fragment {
     private static final String TAG = "GridFragment";
     @BindView(R.id.recyclerView)
-    RecyclerView rv;
+    RecyclerView mMoviesRecycler;
     @BindView(R.id.progressBar)
-    ProgressBar progressBar;
+    ProgressBar mProgressBar;
     @BindView(R.id.textTools)
-    TextView textMessage;
+    TextView mTextMessage;
     @BindView(R.id.imageTools)
-    ImageView imageTools;
+    ImageView mImageTools;
     @BindView(R.id.tools)
-    View tools;
+    View mTools;
     @BindView(R.id.swipeRefresh)
-    SwipeRefreshLayout swipeRefreshLayout;
-    private GridLayoutManager layoutManager;
-    private GridSpacesItemDecoration layoutDecoration;
-    private Snackbar snackbar;
-    private MoviesAPI moviesAPI;
-    private MovieListAdapter adapter;
-    private Disposable disposable;
-    private int sortType;
-    private int pageTotal = 1;
-    private int pageNow = 0;
-    private boolean forceRefresh;
-    private boolean loading;
-    private boolean fromPagination;
-    private boolean changeData;
-    private boolean processLoadData = true;
-    private final Action actionComplete = new Action() {
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    private GridLayoutManager mLayoutManager;
+    private GridSpacesItemDecoration mLayoutDecoration;
+    private Snackbar mSnackbar;
+    private MoviesAPI mMoviesAPI;
+    private MovieListAdapter mAdapter;
+    private Disposable mDisposable;
+    private int mSortType;
+    private int mPageTotal = 1;
+    private int mPageNow = 0;
+    private boolean mForceRefresh;
+    private boolean mLoading;
+    private boolean mFromPagination;
+    private boolean mChangeData;
+    private boolean mProcessLoadData = true;
+    private final Action mActionComplete = new Action() {
         @Override
         public void run() throws Exception {
             onComplete();
         }
     };
-    private Context context;
-    private final Consumer<MoviesList> moviesListConsumer = new Consumer<MoviesList>() {
+    private Context mContext;
+    private final Consumer<MoviesList> mMoviesListConsumer = new Consumer<MoviesList>() {
         @Override
-        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
+        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws
+                Exception {
             onResponse(moviesList);
         }
     };
-    private MoviesProviderHelper moviesProviderHelper;
-    private final Consumer<Throwable> errorConsumer = new Consumer<Throwable>() {
+    private MoviesProviderHelper mMoviesProviderHelper;
+    private final Consumer<Throwable> mErrorConsumer = new Consumer<Throwable>() {
         @Override
         public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
             onFailure(throwable);
@@ -104,7 +105,7 @@ public class GridFragment extends Fragment {
     };
     private OnFragmentInteractionListener mListener;
 
-    private Unbinder unbinder;
+    private Unbinder mUnbinder;
 
     public GridFragment() {
         // Required empty public constructor
@@ -124,12 +125,23 @@ public class GridFragment extends Fragment {
         return fragment;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                                               + " must implement OnFragmentInteractionListener");
+        }
+    }
+
     @SuppressWarnings("EmptyMethod")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            sortType = getArguments().getInt("ARGS_SORT_TYPE", Values.TYPE_POPULAR);
+            mSortType = getArguments().getInt("ARGS_SORT_TYPE", Values.TYPE_POPULAR);
         }
     }
 
@@ -138,92 +150,81 @@ public class GridFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_grid, container, false);
-        context = view.getContext();
-        unbinder = ButterKnife.bind(this, view);
-        moviesProviderHelper = new MoviesProviderHelper(context);
+        mContext = view.getContext();
+        mUnbinder = ButterKnife.bind(this, view);
+        mMoviesProviderHelper = new MoviesProviderHelper(mContext);
         createLayout(savedInstanceState);
         if (mListener != null) mListener.onAttachHandler();
         return view;
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mAdapter.getItemCount() > 0) {
+            List<MoviesDetail> data = mAdapter.get();
+            outState.putParcelableArrayList("DATA", new ArrayList<>(data));
+            outState.putInt("PAGE_NOW", mPageNow);
+            outState.putInt("PAGE_TOTAL", mPageTotal);
+            outState.putInt("SORT_TYPE", mSortType);
+            outState.putBoolean("PROCESS_LOAD_DATA", mProcessLoadData);
         }
+    }
+
+    @SuppressWarnings("EmptyMethod")
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mDisposable != null && !mDisposable.isDisposed()) mDisposable.dispose();
+        if (mUnbinder != null) mUnbinder.unbind();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.dispose();
-        }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.dispose();
-        }
-        if (unbinder != null) unbinder.unbind();
+        if (mDisposable != null && !mDisposable.isDisposed()) mDisposable.dispose();
     }
 
     public int getSortType() {
-        return sortType;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (adapter.getItemCount() > 0) {
-            List<MoviesDetail> data = adapter.get();
-            outState.putParcelableArrayList("DATA", new ArrayList<>(data));
-            outState.putInt("PAGE_NOW", pageNow);
-            outState.putInt("PAGE_TOTAL", pageTotal);
-            outState.putInt("SORT_TYPE", sortType);
-            outState.putBoolean("PROCESS_LOAD_DATA", processLoadData);
-        }
+        return mSortType;
     }
 
     private void doMoviePressed(int position) {
         Log.d(TAG, "doMoviePressed: " + position);
         if (mListener != null) {
-            if (disposable != null && !disposable.isDisposed()) {
-                disposable.dispose();
-                disposable = null;
+            if (mDisposable != null && !mDisposable.isDisposed()) {
+                mDisposable.dispose();
+                mDisposable = null;
                 onComplete();
             }
 
-            mListener.onFragmentClickMovies(position, adapter.get(position));
+            mListener.onFragmentClickMovies(position, mAdapter.get(position));
         } else throw new UnsupportedOperationException();
-
     }
 
     private void doChangeTitle() {
-        Log.d(TAG, "doChangeTitle: " + sortType);
-        if (mListener != null) {
-            mListener.onFragmentChangeTitle(sortType);
-        } else throw new UnsupportedOperationException();
+        Log.d(TAG, "doChangeTitle: " + mSortType);
+        if (mListener != null) mListener.onFragmentChangeTitle(mSortType);
+        else throw new UnsupportedOperationException();
     }
 
     private void createLayout(Bundle savedInstanceState) {
         Log.d(TAG, "createLayout: now");
-        loading = false;
-        fromPagination = false;
-        changeData = true;
+        mLoading = false;
+        mFromPagination = false;
+        mChangeData = true;
 
         // Make sure all view not visible
-        rv.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        mMoviesRecycler.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
 
-        adapter = new MovieListAdapter(context, new MovieListAdapter.ClickListener() {
+        mAdapter = new MovieListAdapter(mContext, new MovieListAdapter.ClickListener() {
             @Override
             public void OnClickListener(int position) {
                 doMoviePressed(position);
@@ -232,18 +233,20 @@ public class GridFragment extends Fragment {
 
 
         int gridSpan;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             gridSpan = 4;
-        else gridSpan = 2;
-        layoutManager = new GridLayoutManager(context, gridSpan);
-        layoutDecoration = new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing));
+        } else gridSpan = 2;
+        mLayoutManager = new GridLayoutManager(mContext, gridSpan);
+        mLayoutDecoration = new GridSpacesItemDecoration(gridSpan,
+                                                         getResources().getDimensionPixelSize(
+                                                                 R.dimen.grid_spacing));
 
-        rv.setLayoutManager(layoutManager);
-        rv.addItemDecoration(layoutDecoration);
-        rv.setAdapter(adapter);
-        rv.setHasFixedSize(true);
-        rv.setNestedScrollingEnabled(false);
-        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mMoviesRecycler.setLayoutManager(mLayoutManager);
+        mMoviesRecycler.addItemDecoration(mLayoutDecoration);
+        mMoviesRecycler.setAdapter(mAdapter);
+        mMoviesRecycler.setHasFixedSize(true);
+        mMoviesRecycler.setNestedScrollingEnabled(false);
+        mMoviesRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @SuppressWarnings("EmptyMethod")
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -253,65 +256,68 @@ public class GridFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                int visibleItemCount = layoutManager.getChildCount();
-                int totalItemCount = layoutManager.getItemCount();
-                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                boolean endHasBeenReached = (firstVisibleItemPosition + visibleItemCount + 5) >= totalItemCount;
+                int visibleItemCount = mLayoutManager.getChildCount();
+                int totalItemCount = mLayoutManager.getItemCount();
+                int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
+                boolean endHasBeenReached =
+                        (firstVisibleItemPosition + visibleItemCount + 5) >= totalItemCount;
 
-                if (!loading && pageNow < pageTotal && endHasBeenReached && !processLoadData) {
+                if (!mLoading && mPageNow < mPageTotal && endHasBeenReached && !mProcessLoadData) {
                     Log.d(TAG, "onScrolled: CatchData");
-                    forceRefresh = false;
-                    fromPagination = true;
-                    if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                    else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+                    mForceRefresh = false;
+                    mFromPagination = true;
+                    if (mSortType == Values.TYPE_POPULAR) getPopularMovies();
+                    else if (mSortType == Values.TYPE_TOP_RATED) getTopRatedMovies();
                 }
             }
         });
 
-        forceRefresh = false;
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mForceRefresh = false;
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                forceRefresh = true;
-                pageNow = 0;
-                pageTotal = 1;
-                fromPagination = false;
-                if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+                mForceRefresh = true;
+                mPageNow = 0;
+                mPageTotal = 1;
+                mFromPagination = false;
+                if (mSortType == Values.TYPE_POPULAR) getPopularMovies();
+                else if (mSortType == Values.TYPE_TOP_RATED) getTopRatedMovies();
                 else getFavoriteMovies();
             }
         });
 
-        moviesAPI = NetworkHelpers.provideAPI();
+        mMoviesAPI = NetworkHelpers.provideAPI();
 
         if (savedInstanceState != null) {
-            sortType = savedInstanceState.getInt("SORT_TYPE", Values.TYPE_POPULAR);
-            pageNow = savedInstanceState.getInt("PAGE_NOW", 0);
-            pageTotal = savedInstanceState.getInt("PAGE_TOTAL", 1);
+            mSortType = savedInstanceState.getInt("SORT_TYPE", Values.TYPE_POPULAR);
+            mPageNow = savedInstanceState.getInt("PAGE_NOW", 0);
+            mPageTotal = savedInstanceState.getInt("PAGE_TOTAL", 1);
             List<MoviesDetail> temp = savedInstanceState.getParcelableArrayList("DATA");
             if (temp != null) {
-                adapter.clear();
-                adapter.add(temp);
-                rv.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.GONE);
-                tools.setVisibility(View.GONE);
+                mAdapter.clear();
+                mAdapter.add(temp);
+                mMoviesRecycler.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.GONE);
+                mTools.setVisibility(View.GONE);
                 doChangeTitle();
             }
-            processLoadData = savedInstanceState.getBoolean("PROCESS_LOAD_DATA", false);
-            Log.d(TAG, "createLayout: load savedInstanceState: isProcessLoadData value " + processLoadData);
-            Log.d(TAG, "createLayout: load savedInstanceState: sortType value " + (sortType == Values.TYPE_POPULAR));
-            if (processLoadData) {
-                if (pageNow == 0) adapter.clear();
-                if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+            mProcessLoadData = savedInstanceState.getBoolean("PROCESS_LOAD_DATA", false);
+            Log.d(TAG, "createLayout: load savedInstanceState: isProcessLoadData value " +
+                    mProcessLoadData);
+            Log.d(TAG, "createLayout: load savedInstanceState: mSortType value " +
+                    (mSortType == Values.TYPE_POPULAR));
+            if (mProcessLoadData) {
+                if (mPageNow == 0) mAdapter.clear();
+                if (mSortType == Values.TYPE_POPULAR) getPopularMovies();
+                else if (mSortType == Values.TYPE_TOP_RATED) getTopRatedMovies();
                 else getFavoriteMovies();
             }
         } else {
-            if (sortType == Values.TYPE_POPULAR) {
+            if (mSortType == Values.TYPE_POPULAR) {
                 bindOldData();
                 Log.d(TAG, "createLayout: catch new data");
                 getPopularMovies();
-            } else if (sortType == Values.TYPE_HIGH_RATED) {
+            } else if (mSortType == Values.TYPE_TOP_RATED) {
                 bindOldData();
                 Log.d(TAG, "createLayout: catch new data");
                 getPopularMovies();
@@ -321,163 +327,176 @@ public class GridFragment extends Fragment {
     }
 
     public void updateSpanColumn(int span) {
-        if (layoutManager != null) layoutManager.setSpanCount(span);
-        else layoutManager = new GridLayoutManager(context, span);
-        rv.setLayoutManager(layoutManager);
-        rv.removeItemDecoration(layoutDecoration);
-        layoutDecoration = new GridSpacesItemDecoration(span, getResources().getDimensionPixelSize(R.dimen.grid_spacing));
-        rv.addItemDecoration(layoutDecoration);
+        if (mLayoutManager != null) mLayoutManager.setSpanCount(span);
+        else mLayoutManager = new GridLayoutManager(mContext, span);
+        mMoviesRecycler.setLayoutManager(mLayoutManager);
+        mMoviesRecycler.removeItemDecoration(mLayoutDecoration);
+        mLayoutDecoration = new GridSpacesItemDecoration(span, getResources().getDimensionPixelSize(
+                R.dimen.grid_spacing));
+        mMoviesRecycler.addItemDecoration(mLayoutDecoration);
     }
 
     public void scrollToPosition(int position) {
-        layoutManager.scrollToPosition(position);
+        mLayoutManager.scrollToPosition(position);
     }
 
     private void onResponse(@NonNull MoviesList moviesList) {
-        if (rv.getVisibility() == View.GONE) rv.setVisibility(View.VISIBLE);
-
-        if (forceRefresh) adapter.clear();
-
-
-        if (snackbar != null) {
-            snackbar.dismiss();
-            snackbar = null;
+        if (mMoviesRecycler.getVisibility() == View.GONE) {
+            mMoviesRecycler.setVisibility(View.VISIBLE);
         }
-        if (tools.getVisibility() == View.VISIBLE) tools.setVisibility(View.GONE);
-        fromPagination = false;
-        pageTotal = moviesList.getTotalPage();
-        pageNow = moviesList.getPage();
+
+        if (mForceRefresh) mAdapter.clear();
+
+
+        if (mSnackbar != null) {
+            mSnackbar.dismiss();
+            mSnackbar = null;
+        }
+        if (mTools.getVisibility() == View.VISIBLE) mTools.setVisibility(View.GONE);
+        mFromPagination = false;
+        mPageTotal = moviesList.getTotalPage();
+        mPageNow = moviesList.getPage();
         List<MoviesDetail> movies = moviesList.getMovies();
         if (moviesList.getStatusMessage() == null && movies.size() > 0) {
-            adapter.add(movies);
+            mAdapter.add(movies);
         }
         if (movies.size() == 0) {
-            tools.setVisibility(View.VISIBLE);
-            imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_movie_white));
-            textMessage.setText(R.string.data_empty);
+            mTools.setVisibility(View.VISIBLE);
+            mImageTools.setImageDrawable(
+                    ResourceHelpers.getDrawable(mContext, R.drawable.ic_movie_white));
+            mTextMessage.setText(R.string.data_empty);
         }
-        Log.d(TAG, "onResponse: pageNow: " + pageNow + " pageTotal: " + pageTotal);
+        Log.d(TAG, "onResponse: mPageNow: " + mPageNow + " mPageTotal: " + mPageTotal);
         Log.d(TAG, "onResponse: finish Response");
     }
 
     private void onComplete() {
-        if (progressBar.getVisibility() == View.VISIBLE) progressBar.setVisibility(View.GONE);
-        if (swipeRefreshLayout.isRefreshing()) swipeRefreshLayout.setRefreshing(false);
-        if (forceRefresh) forceRefresh = false;
+        if (mProgressBar.getVisibility() == View.VISIBLE) mProgressBar.setVisibility(View.GONE);
+        if (mSwipeRefreshLayout.isRefreshing()) mSwipeRefreshLayout.setRefreshing(false);
+        if (mForceRefresh) mForceRefresh = false;
 
-        processLoadData = false;
-        changeData = false;
-        loading = false;
+        mProcessLoadData = false;
+        mChangeData = false;
+        mLoading = false;
         Log.d(TAG, "onComplete: finish complete");
     }
 
     private void onFailure(@NonNull Throwable t) {
-        if (progressBar.getVisibility() == View.VISIBLE) progressBar.setVisibility(View.GONE);
-        if (rv.getVisibility() == View.VISIBLE && adapter.getItemCount() == 0)
-            rv.setVisibility(View.GONE);
-
-        if (fromPagination) {
-            imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_refresh_white));
-            textMessage.setText(R.string.error_next_page);
-            tools.setVisibility(View.VISIBLE);
-        } else if (adapter.getItemCount() == 0) {
-            imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_cloud_off_white));
-            textMessage.setText(R.string.error_no_connection);
-            tools.setVisibility(View.VISIBLE);
+        if (mProgressBar.getVisibility() == View.VISIBLE) mProgressBar.setVisibility(View.GONE);
+        if (mMoviesRecycler.getVisibility() == View.VISIBLE && mAdapter.getItemCount() == 0) {
+            mMoviesRecycler.setVisibility(View.GONE);
         }
 
-        if (snackbar != null) snackbar.dismiss();
-        snackbar = Snackbar.make(textMessage, R.string.error_cant_get_data_check_connection, BaseTransientBottomBar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+        if (mFromPagination) {
+            mImageTools.setImageDrawable(
+                    ResourceHelpers.getDrawable(mContext, R.drawable.ic_refresh_white));
+            mTextMessage.setText(R.string.error_next_page);
+            mTools.setVisibility(View.VISIBLE);
+        } else if (mAdapter.getItemCount() == 0) {
+            mImageTools.setImageDrawable(
+                    ResourceHelpers.getDrawable(mContext, R.drawable.ic_cloud_off_white));
+            mTextMessage.setText(R.string.error_no_connection);
+            mTools.setVisibility(View.VISIBLE);
+        }
+
+        if (mSnackbar != null) mSnackbar.dismiss();
+
+        mSnackbar = Snackbar.make(mTextMessage, R.string.error_cant_get_data_check_connection,
+                                  BaseTransientBottomBar.LENGTH_INDEFINITE);
+        mSnackbar.setAction(R.string.retry, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+                if (mSortType == Values.TYPE_POPULAR) getPopularMovies();
+                else if (mSortType == Values.TYPE_TOP_RATED) getTopRatedMovies();
                 else getFavoriteMovies();
             }
         });
-        snackbar.show();
+        mSnackbar.show();
         Log.e(TAG, "onFailure: ", t);
-    }
-
-    @SuppressWarnings("EmptyMethod")
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 
     @OnClick(R.id.imageTools)
     void imageToolsClick() {
-        if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-        else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+        if (mSortType == Values.TYPE_POPULAR) getPopularMovies();
+        else if (mSortType == Values.TYPE_TOP_RATED) getTopRatedMovies();
         else getFavoriteMovies();
     }
 
     private void getPopularMovies() {
-        Log.d(TAG, "getPopularMovies: pageNow: " + pageNow + " pageTotal: " + pageTotal);
-        if (moviesAPI != null && pageNow < pageTotal) {
-            Log.d(TAG, "getPopularMovies: now. page: " + pageNow);
-            loading = true;
-            processLoadData = true;
-            if (!forceRefresh || changeData) progressBar.setVisibility(View.VISIBLE);
-            tools.setVisibility(View.GONE);
+        Log.d(TAG, "getPopularMovies: mPageNow: " + mPageNow + " mPageTotal: " + mPageTotal);
+        if (mMoviesAPI != null && mPageNow < mPageTotal) {
+            Log.d(TAG, "getPopularMovies: now. page: " + mPageNow);
+            mLoading = true;
+            mProcessLoadData = true;
 
-            Log.d(TAG, "getPopularMovies: page: " + pageNow);
-            disposable = moviesAPI.listMoviesPopular(pageNow + 1)
+            if (!mForceRefresh || mChangeData) mProgressBar.setVisibility(View.VISIBLE);
+
+            mTools.setVisibility(View.GONE);
+
+            Log.d(TAG, "getPopularMovies: page: " + mPageNow);
+            mDisposable = mMoviesAPI.listMoviesPopular(mPageNow + 1)
                     .subscribeOn(Schedulers.io())
                     .doOnNext(new Consumer<MoviesList>() {
                         @Override
-                        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
-                            Log.d(TAG, "getPopularMovies: page: " + pageNow);
-                            moviesProviderHelper.saveMovies(moviesList.getMovies());
-                            if (pageNow == 0) {
-                                moviesProviderHelper.deletePopular();
-                                moviesProviderHelper.savePopular(moviesList.getMovies());
+                        public void accept(
+                                @io.reactivex.annotations.NonNull MoviesList moviesList) throws
+                                Exception {
+                            Log.d(TAG, "getPopularMovies: page: " + mPageNow);
+                            mMoviesProviderHelper.saveMovies(moviesList.getMovies());
+                            if (mPageNow == 0) {
+                                mMoviesProviderHelper.deletePopular();
+                                mMoviesProviderHelper.savePopular(moviesList.getMovies());
                             }
                         }
                     })
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(moviesListConsumer, errorConsumer, actionComplete);
+                    .subscribe(mMoviesListConsumer, mErrorConsumer, mActionComplete);
         }
     }
 
     private void getTopRatedMovies() {
-        if (moviesAPI != null && pageNow < pageTotal) {
-            Log.d(TAG, "getTopRatedMovies: now. page: " + pageNow);
-            loading = true;
-            processLoadData = true;
-            if (!forceRefresh || changeData) progressBar.setVisibility(View.VISIBLE);
-            tools.setVisibility(View.GONE);
+        if (mMoviesAPI != null && mPageNow < mPageTotal) {
+            Log.d(TAG, "getTopRatedMovies: now. page: " + mPageNow);
+            mLoading = true;
+            mProcessLoadData = true;
 
-            disposable = moviesAPI.listMoviesTopRated(pageNow + 1)
+            if (!mForceRefresh || mChangeData) mProgressBar.setVisibility(View.VISIBLE);
+
+            mTools.setVisibility(View.GONE);
+
+            mDisposable = mMoviesAPI.listMoviesTopRated(mPageNow + 1)
                     .subscribeOn(Schedulers.io())
                     .doOnNext(new Consumer<MoviesList>() {
                         @Override
-                        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
-                            Log.d(TAG, "getTopRatedMovies: page: " + pageNow);
-                            moviesProviderHelper.saveMovies(moviesList.getMovies());
-                            if (pageNow == 0) {
-                                moviesProviderHelper.deleteTopRated();
-                                moviesProviderHelper.saveTopRated(moviesList.getMovies());
+                        public void accept(
+                                @io.reactivex.annotations.NonNull MoviesList moviesList) throws
+                                Exception {
+                            Log.d(TAG, "getTopRatedMovies: page: " + mPageNow);
+                            mMoviesProviderHelper.saveMovies(moviesList.getMovies());
+                            if (mPageNow == 0) {
+                                mMoviesProviderHelper.deleteTopRated();
+                                mMoviesProviderHelper.saveTopRated(moviesList.getMovies());
                             }
                         }
                     })
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(moviesListConsumer, errorConsumer, actionComplete);
+                    .subscribe(mMoviesListConsumer, mErrorConsumer, mActionComplete);
         }
     }
 
     private void getFavoriteMovies() {
         Log.d(TAG, "getFavoriteMovies: now");
-        loading = true;
-        processLoadData = true;
-        if (changeData) progressBar.setVisibility(View.VISIBLE);
-        tools.setVisibility(View.GONE);
+        mLoading = true;
+        mProcessLoadData = true;
 
-        disposable = Observable.fromPublisher(new Flowable<MoviesList>() {
+        if (mChangeData) mProgressBar.setVisibility(View.VISIBLE);
+
+        mTools.setVisibility(View.GONE);
+
+        mDisposable = Observable.fromPublisher(new Flowable<MoviesList>() {
             @Override
             protected void subscribeActual(Subscriber<? super MoviesList> s) {
-                MoviesList movieList = moviesProviderHelper.getFavorites();
+                MoviesList movieList = mMoviesProviderHelper.getFavorites();
                 if (movieList != null) s.onNext(movieList);
                 else s.onError(null);
                 s.onComplete();
@@ -485,23 +504,23 @@ public class GridFragment extends Fragment {
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(moviesListConsumer, errorConsumer, actionComplete);
+                .subscribe(mMoviesListConsumer, mErrorConsumer, mActionComplete);
     }
 
     public void changeType(int sortType) {
-        this.sortType = sortType;
-        forceRefresh = true;
-        pageNow = 0;
-        pageTotal = 1;
-        loading = false;
-        changeData = true;
+        this.mSortType = sortType;
+        mForceRefresh = true;
+        mPageNow = 0;
+        mPageTotal = 1;
+        mLoading = false;
+        mChangeData = true;
         doChangeTitle();
-        if (disposable != null && !disposable.isDisposed()) disposable.dispose();
-        if (this.sortType == Values.TYPE_POPULAR) {
+        if (mDisposable != null && !mDisposable.isDisposed()) mDisposable.dispose();
+        if (this.mSortType == Values.TYPE_POPULAR) {
             bindOldData();
             Log.d(TAG, "createLayout: catch new data");
             getPopularMovies();
-        } else if (this.sortType == Values.TYPE_HIGH_RATED) {
+        } else if (this.mSortType == Values.TYPE_TOP_RATED) {
             bindOldData();
             Log.d(TAG, "createLayout: catch new data");
             getTopRatedMovies();
@@ -512,18 +531,18 @@ public class GridFragment extends Fragment {
         MoviesList temp = null;
         // Catch Offline data
         Log.d(TAG, "createLayout: catch old data");
-        if (sortType == Values.TYPE_POPULAR) temp = moviesProviderHelper.getPopular();
-        else if (sortType == Values.TYPE_HIGH_RATED) temp = moviesProviderHelper.getTopRated();
+        if (mSortType == Values.TYPE_POPULAR) temp = mMoviesProviderHelper.getPopular();
+        else if (mSortType == Values.TYPE_TOP_RATED) temp = mMoviesProviderHelper.getTopRated();
 
         if (temp != null) onResponse(temp);
     }
 
     public void addMovies(MoviesDetail item) {
-        adapter.add(item);
+        mAdapter.add(item);
     }
 
     public void removeMovies(MoviesDetail item) {
-        adapter.deleteById(item.getId());
+        mAdapter.deleteById(item.getId());
     }
 
     /**

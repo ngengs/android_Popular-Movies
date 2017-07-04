@@ -154,7 +154,8 @@ public class MoviesDetail implements Parcelable {
                 cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_ORIGINAL_TITLE)));
         movie.setOverview(
                 cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_OVERVIEW)));
-        String releaseString = cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_RELEASE_DATE));
+        String releaseString =
+                cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_RELEASE_DATE));
         Date date = null;
         if (releaseString != null && !releaseString.equals("")) {
             SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");

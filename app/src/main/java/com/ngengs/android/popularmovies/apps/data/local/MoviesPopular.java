@@ -16,7 +16,8 @@ public final class MoviesPopular implements BaseColumns {
             .appendPath(LocalDatabase.PATH_POPULAR)
             .build();
     public static final String CONTENT_DIR_TYPE =
-            ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + LocalDatabase.CONTENT_AUTHORITY + "/" + LocalDatabase.PATH_MOVIES
+            ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + LocalDatabase.CONTENT_AUTHORITY + "/" +
+                    LocalDatabase.PATH_MOVIES
                     + "/" + LocalDatabase.PATH_POPULAR;
 
     public static final String TABLE_NAME = "popular_movies";

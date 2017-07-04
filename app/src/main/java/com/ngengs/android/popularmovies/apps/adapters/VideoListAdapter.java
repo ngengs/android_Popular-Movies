@@ -30,64 +30,65 @@ import butterknife.OnClick;
 public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.ViewHolder> {
     private static final String TAG = "VideoListAdapter";
 
-    private final List<VideosDetail> data;
-    private final Context context;
-    private final VideoListAdapter.ClickListener clickListener;
+    private final List<VideosDetail> mData;
+    private final Context mContext;
+    private final VideoListAdapter.ClickListener mClickListener;
 
     public VideoListAdapter(@NonNull Context context, @NonNull ClickListener clickListener) {
-        this.context = context;
-        this.clickListener = clickListener;
-        this.data = new ArrayList<>();
+        this.mContext = context;
+        this.mClickListener = clickListener;
+        this.mData = new ArrayList<>();
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_video_list, parent, false));
+                                      .inflate(R.layout.item_video_list, parent, false));
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        VideosDetail videos = data.get(position);
+        VideosDetail videos = mData.get(position);
         Log.d(TAG, "onBindViewHolder: " + position);
         Log.d(TAG, "onBindViewHolder: " + videos.getType());
         if (videos.isYoutubeVideo()) {
             Log.d(TAG, "onBindViewHolder: " + videos.getYoutubeThumbnail());
-            holder.itemRoot.setVisibility(View.VISIBLE);
-            Picasso.with(context)
+            holder.mItemRoot.setVisibility(View.VISIBLE);
+            Picasso.with(mContext)
                     .load(videos.getYoutubeThumbnail())
                     .noFade()
-                    .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white))
-                    .into(holder.imageVideo);
+                    .placeholder(
+                            ResourceHelpers.getDrawable(mContext, R.drawable.ic_collections_white))
+                    .into(holder.mImageVideo);
 
         } else {
-            holder.itemRoot.setVisibility(View.GONE);
+            holder.mItemRoot.setVisibility(View.GONE);
         }
     }
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return mData.size();
     }
 
     public void add(List<VideosDetail> data) {
         int oldSize = getItemCount();
-        this.data.addAll(data);
+        this.mData.addAll(data);
         notifyItemRangeInserted(oldSize, data.size());
     }
 
     public void clear() {
         int lastSize = getItemCount();
-        data.clear();
+        mData.clear();
         notifyItemRangeRemoved(0, lastSize);
     }
 
     public VideosDetail get(int position) {
-        return data.get(position);
+        return mData.get(position);
     }
 
     public List<VideosDetail> get() {
-        return data;
+        return mData;
     }
 
     public interface ClickListener {
@@ -96,9 +97,9 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 
     class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.imageVideo)
-        ImageView imageVideo;
+        ImageView mImageVideo;
         @BindView(R.id.itemRoot)
-        FrameLayout itemRoot;
+        FrameLayout mItemRoot;
 
         ViewHolder(View view) {
             super(view);
@@ -107,7 +108,7 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 
         @OnClick(R.id.itemRoot)
         void itemClick() {
-            clickListener.onClickListener(getAdapterPosition());
+            mClickListener.onClickListener(getAdapterPosition());
         }
     }
 }
