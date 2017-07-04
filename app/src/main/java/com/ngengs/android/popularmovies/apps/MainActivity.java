@@ -199,8 +199,10 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         inflater.inflate(R.menu.menu_popular, menu);
         if (gridFragment.getSortType() == Values.TYPE_POPULAR)
             menu.findItem(R.id.menu_sort_by_popular).setChecked(true);
-        else
+        else if (gridFragment.getSortType() == Values.TYPE_HIGH_RATED)
             menu.findItem(R.id.menu_sort_by_top_rated).setChecked(true);
+        else
+            menu.findItem(R.id.menu_sort_by_favorite).setChecked(true);
         return super.onCreateOptionsMenu(menu);
     }
 
