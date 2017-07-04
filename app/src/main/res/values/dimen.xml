@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="margin_default">8dp</dimen>
+    <dimen name="margin_large">16dp</dimen>
+    <dimen name="margin_small">4dp</dimen>
+    <dimen name="margin_none">0dp</dimen>
     <dimen name="grid_spacing">8dp</dimen>
     <dimen name="image_max_height">500dp</dimen>
     <dimen name="image_description_header">250dp</dimen>
     <dimen name="image_description_thumbnail_width">160dp</dimen>
     <dimen name="image_description_thumbnail_min_height">200dp</dimen>
+    <dimen name="movie_detail_content_overlay">0dp</dimen>
+    <dimen name="margin_card_detail_horizontal">8dp</dimen>
+    <dimen name="image_video_thumbnail_max_height">250dp</dimen>
+    <dimen name="detail_end_item_bottom_margin">72dp</dimen>
+    <dimen name="card_corner_default">4dp</dimen>
+    <dimen name="card_elevation_default">2dp</dimen>
+    <dimen name="card_corner_none">0dp</dimen>
+    <dimen name="card_elevation_none">0dp</dimen>
+
+    <!--Text Size-->
+    <dimen name="text_size_default">14sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_large">18sp</dimen>
+    <dimen name="text_size_large_extra">20sp</dimen>
+    <dimen name="text_size_title">@dimen/text_size_large_extra</dimen>
+    <dimen name="text_size_vote">48sp</dimen>
 </resources>

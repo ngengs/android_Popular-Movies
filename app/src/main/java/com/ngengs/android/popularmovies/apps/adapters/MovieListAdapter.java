@@ -2,6 +2,7 @@ package com.ngengs.android.popularmovies.apps.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +62,23 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         int lastSize = getItemCount();
         this.data.addAll(data);
         notifyItemRangeInserted(lastSize, data.size());
+    }
+
+    public void add(MoviesDetail item) {
+        data.add(item);
+        notifyItemInserted(getItemCount());
+    }
+
+    public void deleteById(int movieId) {
+        int position = 0;
+        for (MoviesDetail item : data) {
+            if (item.getId() == movieId) break;
+            position++;
+        }
+        notifyItemRemoved(position);
+        data.remove(position);
+        Log.d(TAG, "deleteById: position: " + position + " itemCount: " + getItemCount());
+        if (position < getItemCount()) notifyItemRangeChanged(position, getItemCount() - position);
     }
 
     public MoviesDetail get(int position) {

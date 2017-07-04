@@ -7,6 +7,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#45000000"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="@drawable/ripple"
     android:orientation="vertical"
     tools:ignore="Overdraw">
 
@@ -27,7 +30,7 @@
         android:layout_height="wrap_content"
         android:background="@color/colorAccent"
         android:minWidth="32dp"
-        android:padding="8dp"
+        android:padding="@dimen/margin_default"
         android:textAlignment="center"
-        android:textSize="20sp"/>
+        android:textSize="@dimen/text_size_large_extra" />
 </FrameLayout>

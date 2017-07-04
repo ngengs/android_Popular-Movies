@@ -49,11 +49,11 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/scrollDetail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:behavior_overlapTop="@dimen/movie_detail_content_overlay"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <FrameLayout
@@ -67,8 +67,10 @@
         android:id="@+id/fabFavorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/margin_large"
+        android:layout_marginEnd="@dimen/margin_large"
+        android:layout_marginRight="@dimen/margin_large"
+        app:layout_anchor="@id/appbar"
+        app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_favorite_border_white" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -1,4 +1,4 @@
-# Popular Movies (Stage 1)
+# Popular Movies (Stage 1, Stage 2)
 
 This is simple app to show popular movies from [TMDb](https://www.themoviedb.org/) for [Udacity](https://www.udacity.com/) course Project.
 

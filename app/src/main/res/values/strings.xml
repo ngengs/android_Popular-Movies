@@ -25,5 +25,14 @@
     <string name="rating_number">%1$.1f</string>
     <string name="background_image">Background Image</string>
     <string name="send_to">Send to</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_close">Close</string>
     <string name="share_content">I recommend this movie. %1$s %2$s #Udacity #PopularMovies @ngengs</string>
+    <string name="video_image">Video Image</string>
+    <string name="videos_title">Videos</string>
+    <string name="video_indicator">Video Indicator</string>
+    <string name="review">Review</string>
+    <string name="review_text">"%1$s"</string>
+    <string name="title_favorite">Favorite Movies</string>
+    <string name="data_empty">Empty Movies</string>
 </resources>

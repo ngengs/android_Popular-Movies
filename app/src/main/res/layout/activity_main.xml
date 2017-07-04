@@ -26,60 +26,10 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefresh"
+    <FrameLayout
+        android:id="@+id/fragmentGrid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="0dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"
-            android:visibility="visible"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-
-    </android.support.v4.widget.SwipeRefreshLayout>
-
-
-    <LinearLayout
-        android:id="@+id/tools"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="0dp"
-        android:background="@color/colorBackground"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:visibility="visible">
-
-        <ImageView
-            android:id="@+id/imageTools"
-            android:layout_width="200dp"
-            android:layout_height="75dp"
-            android:layout_marginBottom="16dp"
-            android:contentDescription="@string/image_tools"
-            app:srcCompat="@drawable/ic_cloud_off_white" />
-
-        <TextView
-            android:id="@+id/textTools"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/error_no_connection"
-            android:textAlignment="center" />
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="@style/Base.Widget.AppCompat.ProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="visible" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </android.support.design.widget.CoordinatorLayout>

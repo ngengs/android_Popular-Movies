@@ -1,11 +1,18 @@
 package com.ngengs.android.popularmovies.apps.data;
 
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
+import com.ngengs.android.popularmovies.apps.data.local.MoviesEntry;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +20,7 @@ import java.util.List;
  * Created by ngengs on 6/15/2017.
  */
 
-@SuppressWarnings({"SameParameterValue", "unused", "DefaultFileTemplate"})
+@SuppressWarnings({"SameParameterValue", "unused", "DefaultFileTemplate", "WeakerAccess"})
 public class MoviesDetail implements Parcelable {
     public static final Creator<MoviesDetail> CREATOR = new Creator<MoviesDetail>() {
         @Override
@@ -107,6 +114,68 @@ public class MoviesDetail implements Parcelable {
         statusCode = in.readInt();
         statusMessage = in.readString();
         releaseDate = new Date(in.readLong());
+    }
+
+    public MoviesDetail(int id) {
+        this.id = id;
+        adult = false;
+        backdropPath = null;
+        budget = 0;
+        genres = null;
+        homepage = null;
+        imdbId = null;
+        originalLanguage = null;
+        originalTitle = null;
+        overview = null;
+        popularity = 0;
+        posterPath = null;
+        productionCompanies = null;
+        productionCountries = null;
+        revenue = 0;
+        runtime = 0;
+        spokenLanguages = null;
+        status = null;
+        tagline = null;
+        title = null;
+        video = false;
+        voteAverage = 0;
+        voteCount = 0;
+        statusCode = 0;
+        statusMessage = null;
+        releaseDate = null;
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public static MoviesDetail fromCursor(Cursor cursor) {
+        int id = cursor.getInt(cursor.getColumnIndex(MoviesEntry._ID));
+        MoviesDetail movie = new MoviesDetail(id);
+        movie.setTitle(cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_TITLE)));
+        movie.setOriginalTitle(
+                cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_ORIGINAL_TITLE)));
+        movie.setOverview(
+                cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_OVERVIEW)));
+        String releaseString = cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_RELEASE_DATE));
+        Date date = null;
+        if (releaseString != null && !releaseString.equals("")) {
+            SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
+            try {
+                date = formatter.parse(releaseString);
+            } catch (ParseException e) {
+                Log.e("MoviesDetail", "fromCursor: ", e);
+            }
+        }
+        movie.setReleaseDate(date);
+        movie.setPosterPath(
+                cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_POSTER_PATH)));
+        movie.setPopularity(
+                cursor.getDouble(cursor.getColumnIndex(MoviesEntry.COLUMN_POPULARITY)));
+        movie.setVoteAverage(
+                cursor.getDouble(cursor.getColumnIndex(MoviesEntry.COLUMN_AVERAGE_VOTE)));
+        movie.setVoteCount(
+                cursor.getInt(cursor.getColumnIndex(MoviesEntry.COLUMN_VOTE_COUNT)));
+        movie.setBackdropPath(
+                cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_BACKDROP_PATH)));
+        return movie;
     }
 
     public String getPosterPath(int sizeType) {
@@ -368,5 +437,20 @@ public class MoviesDetail implements Parcelable {
         dest.writeInt(statusCode);
         dest.writeString(statusMessage);
         dest.writeLong(releaseDate.getTime());
+    }
+
+    public ContentValues toContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(MoviesEntry._ID, id);
+        values.put(MoviesEntry.COLUMN_ORIGINAL_TITLE, originalTitle);
+        values.put(MoviesEntry.COLUMN_OVERVIEW, overview);
+        values.put(MoviesEntry.COLUMN_RELEASE_DATE, releaseDate.toString());
+        values.put(MoviesEntry.COLUMN_POSTER_PATH, posterPath);
+        values.put(MoviesEntry.COLUMN_POPULARITY, popularity);
+        values.put(MoviesEntry.COLUMN_TITLE, title);
+        values.put(MoviesEntry.COLUMN_AVERAGE_VOTE, voteAverage);
+        values.put(MoviesEntry.COLUMN_VOTE_COUNT, voteCount);
+        values.put(MoviesEntry.COLUMN_BACKDROP_PATH, backdropPath);
+        return values;
     }
 }
