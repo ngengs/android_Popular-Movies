@@ -25,7 +25,7 @@ import com.ngengs.android.popularmovies.apps.data.MoviesList;
 import com.ngengs.android.popularmovies.apps.data.local.MoviesService;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
-import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
+import com.ngengs.android.popularmovies.apps.utils.MoviesAPI;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 
 import org.reactivestreams.Subscriber;
@@ -72,7 +72,7 @@ public class GridFragment extends Fragment {
     SwipeRefreshLayout swipeRefreshLayout;
     private GridLayoutManager layoutManager;
     private Snackbar snackbar;
-    private MoviesDBService moviesDBService;
+    private MoviesAPI moviesAPI;
     private MovieListAdapter adapter;
     private Disposable disposable;
     private int sortType;
@@ -288,7 +288,7 @@ public class GridFragment extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
                 .build();
-        moviesDBService = retrofit.create(MoviesDBService.class);
+        moviesAPI = retrofit.create(MoviesAPI.class);
 
         if (savedInstanceState != null) {
             sortType = savedInstanceState.getInt("SORT_TYPE", Values.TYPE_POPULAR);
@@ -417,7 +417,7 @@ public class GridFragment extends Fragment {
 
     private void getPopularMovies() {
         Log.d(TAG, "getPopularMovies: pageNow: " + pageNow + " pageTotal: " + pageTotal);
-        if (moviesDBService != null && pageNow < pageTotal) {
+        if (moviesAPI != null && pageNow < pageTotal) {
             Log.d(TAG, "getPopularMovies: now. page: " + pageNow);
             loading = true;
             processLoadData = true;
@@ -425,7 +425,7 @@ public class GridFragment extends Fragment {
             tools.setVisibility(View.GONE);
 
             Log.d(TAG, "getPopularMovies: page: " + pageNow);
-            disposable = moviesDBService.listMoviesPopular(pageNow + 1)
+            disposable = moviesAPI.listMoviesPopular(pageNow + 1)
                     .subscribeOn(Schedulers.io())
                     .doOnNext(new Consumer<MoviesList>() {
                         @Override
@@ -444,14 +444,14 @@ public class GridFragment extends Fragment {
     }
 
     private void getTopRatedMovies() {
-        if (moviesDBService != null && pageNow < pageTotal) {
+        if (moviesAPI != null && pageNow < pageTotal) {
             Log.d(TAG, "getTopRatedMovies: now. page: " + pageNow);
             loading = true;
             processLoadData = true;
             if (!forceRefresh || changeData) progressBar.setVisibility(View.VISIBLE);
             tools.setVisibility(View.GONE);
 
-            disposable = moviesDBService.listMoviesTopRated(pageNow + 1)
+            disposable = moviesAPI.listMoviesTopRated(pageNow + 1)
                     .subscribeOn(Schedulers.io())
                     .doOnNext(new Consumer<MoviesList>() {
                         @Override

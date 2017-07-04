@@ -17,7 +17,7 @@ import retrofit2.http.Query;
  */
 
 @SuppressWarnings("DefaultFileTemplate")
-public interface MoviesDBService {
+public interface MoviesAPI {
 
     @GET(Values.URL_PATH_POPULAR + "?" + Values.URL_FRAGMENT_KEY_API + "=" + BuildConfig.API_KEY)
     Observable<MoviesList> listMoviesPopular(@Query(Values.URL_FRAGMENT_KEY_PAGE) int page);

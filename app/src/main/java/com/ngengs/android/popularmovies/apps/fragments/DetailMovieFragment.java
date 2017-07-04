@@ -31,7 +31,7 @@ import com.ngengs.android.popularmovies.apps.data.VideosDetail;
 import com.ngengs.android.popularmovies.apps.data.VideosList;
 import com.ngengs.android.popularmovies.apps.data.local.MoviesService;
 import com.ngengs.android.popularmovies.apps.globals.Values;
-import com.ngengs.android.popularmovies.apps.utils.MoviesDBService;
+import com.ngengs.android.popularmovies.apps.utils.MoviesAPI;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
@@ -105,7 +105,7 @@ public class DetailMovieFragment extends Fragment {
     private Snackbar snackbar;
 
     private MoviesDetail data;
-    private MoviesDBService moviesDBService;
+    private MoviesAPI moviesAPI;
     private CompositeDisposable disposable = new CompositeDisposable();
     private boolean loadFromServer;
     private boolean loadVideoFromServer;
@@ -353,7 +353,7 @@ public class DetailMovieFragment extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
                 .build();
-        moviesDBService = retrofit.create(MoviesDBService.class);
+        moviesAPI = retrofit.create(MoviesAPI.class);
 
         Log.d(TAG, "createLayout: savedInstanceState: " + (savedInstanceState == null));
 
@@ -393,12 +393,12 @@ public class DetailMovieFragment extends Fragment {
     }
 
     private void getDetailMovie() {
-        if (moviesDBService != null) {
+        if (moviesAPI != null) {
             rootProgress.setVisibility(View.VISIBLE);
             taglineView.setVisibility(View.GONE);
             detailView.setVisibility(View.GONE);
             disposable.addAll(
-                    moviesDBService.detail(data.getId())
+                    moviesAPI.detail(data.getId())
                             .subscribeOn(Schedulers.io())
                             .doOnNext(new Consumer<MoviesDetail>() {
                                 @Override
@@ -419,7 +419,7 @@ public class DetailMovieFragment extends Fragment {
                                     onFailure(throwable);
                                 }
                             }),
-                    moviesDBService.videos(data.getId())
+                    moviesAPI.videos(data.getId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Consumer<VideosList>() {
@@ -433,7 +433,7 @@ public class DetailMovieFragment extends Fragment {
                                     Log.e(TAG, "accept: Error Get Videos", throwable);
                                 }
                             }),
-                    moviesDBService.reviews(data.getId())
+                    moviesAPI.reviews(data.getId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Consumer<ReviewList>() {
