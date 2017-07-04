@@ -192,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         }
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     protected void onPause() {
         super.onPause();
@@ -365,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     }
 
     @SuppressWarnings("ConstantConditions")
-    void onCloseMultiLayout() {
+    private void onCloseMultiLayout() {
         if (isMultiLayout()) {
             if (detailMovieFragment == null)
                 detailMovieFragment = (DetailMovieFragment) fragmentManager.findFragmentById(R.id.fragmentDetail);

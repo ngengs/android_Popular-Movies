@@ -148,8 +148,8 @@ public class MoviesDetail implements Parcelable {
     @SuppressLint("SimpleDateFormat")
     public static MoviesDetail fromCursor(Cursor cursor) {
         int id = cursor.getInt(cursor.getColumnIndex(MoviesEntry._ID));
-        String title = cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_TITLE));
         MoviesDetail movie = new MoviesDetail(id);
+        movie.setTitle(cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_TITLE)));
         movie.setOriginalTitle(
                 cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_ORIGINAL_TITLE)));
         movie.setOverview(

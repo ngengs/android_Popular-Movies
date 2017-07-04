@@ -90,6 +90,7 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
 
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     protected void onPause() {
         super.onPause();

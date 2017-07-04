@@ -27,9 +27,9 @@ import butterknife.OnClick;
 public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.ViewHolder> {
     private static final String TAG = "ReviewListAdapter";
 
-    private Context context;
-    private List<ReviewDetail> data;
-    private ReviewListAdapter.ClickListener clickListener;
+    private final Context context;
+    private final List<ReviewDetail> data;
+    private final ReviewListAdapter.ClickListener clickListener;
 
     public ReviewListAdapter(Context context, ClickListener clickListener) {
         this.context = context;

@@ -169,6 +169,7 @@ public class DetailMovieFragment extends Fragment {
         return view;
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onPause() {
         super.onPause();
@@ -308,6 +309,7 @@ public class DetailMovieFragment extends Fragment {
         bindUpdatedData();
     }
 
+    @SuppressWarnings("unused")
     public void setData(MoviesDetail data) {
         this.data = data;
         createLayout(null);

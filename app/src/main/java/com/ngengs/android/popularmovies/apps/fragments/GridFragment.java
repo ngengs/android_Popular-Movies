@@ -262,7 +262,6 @@ public class GridFragment extends Fragment {
                     fromPagination = true;
                     if (sortType == Values.TYPE_POPULAR) getPopularMovies();
                     else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
-                    else getFavoriteMovies();
                 }
             }
         });
@@ -394,6 +393,7 @@ public class GridFragment extends Fragment {
         Log.e(TAG, "onFailure: ", t);
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onPause() {
         super.onPause();

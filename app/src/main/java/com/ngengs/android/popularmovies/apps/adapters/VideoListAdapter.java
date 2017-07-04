@@ -30,9 +30,9 @@ import butterknife.OnClick;
 public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.ViewHolder> {
     private static final String TAG = "VideoListAdapter";
 
-    private List<VideosDetail> data;
-    private Context context;
-    private VideoListAdapter.ClickListener clickListener;
+    private final List<VideosDetail> data;
+    private final Context context;
+    private final VideoListAdapter.ClickListener clickListener;
 
     public VideoListAdapter(@NonNull Context context, @NonNull ClickListener clickListener) {
         this.context = context;
