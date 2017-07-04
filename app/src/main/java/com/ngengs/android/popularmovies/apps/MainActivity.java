@@ -123,6 +123,10 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                 fragmentTransaction.commit();
             } else {
                 gridFragment = (GridFragment) fragmentManager.findFragmentById(gridFragmentLayout.getId());
+                //noinspection ConstantConditions
+                if (fragmentManager.findFragmentById(detailFragmentLayout.getId()) != null) {
+                    detailMovieFragment = (DetailMovieFragment) fragmentManager.findFragmentById(detailFragmentLayout.getId());
+                }
             }
         }
         if (savedInstanceState != null) {
@@ -335,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     void onFavoriteClick() {
         if (isMultiLayout()) {
             Log.d(TAG, "onFavoriteClick: now");
-            detailMovieFragment.changeFavorite();
+            if (detailMovieFragment != null) detailMovieFragment.changeFavorite();
         }
     }
 
