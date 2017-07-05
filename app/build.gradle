@@ -60,13 +60,14 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             debuggable false
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
             }
             buildConfigField 'String', 'API_KEY', API_KEY_RELEASE
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
+            proguardFiles fileTree(include: ['*.pro'], dir: 'proguards').asList().toArray()
             applicationVariants.all { variant ->
                 variant.outputs.each { output ->
                     def newName = output.outputFile.name
@@ -191,7 +192,7 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:support-v4:25.4.0'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
 }

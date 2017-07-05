@@ -23,3 +23,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Don't note duplicate definition (Legacy Apche Http Client)
+-dontnote android.net.http.*
+-dontnote org.apache.http.**
+
+-dontnote sun.misc.Unsafe
+
+-keep class com.ngengs.android.popularmovies.apps.data.remote.** { *; }
+-keep class com.ngengs.android.popularmovies.apps.utils.networks.MoviesAPI { *; }
