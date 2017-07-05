@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ngengs.android.popularmovies.apps.R;
-import com.ngengs.android.popularmovies.apps.data.ReviewDetail;
+import com.ngengs.android.popularmovies.apps.data.remote.ReviewDetail;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
-import com.ngengs.android.popularmovies.apps.data.MoviesList;
+import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.data.remote.MoviesList;
 import com.ngengs.android.popularmovies.apps.globals.LocalDatabase;
 
 import java.util.ArrayList;

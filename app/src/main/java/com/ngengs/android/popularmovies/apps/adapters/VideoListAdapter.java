@@ -10,7 +10,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.ngengs.android.popularmovies.apps.R;
-import com.ngengs.android.popularmovies.apps.data.VideosDetail;
+import com.ngengs.android.popularmovies.apps.data.remote.VideosDetail;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 

@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.apps.data;
+package com.ngengs.android.popularmovies.apps.data.remote;
 
 import com.google.gson.annotations.SerializedName;
 

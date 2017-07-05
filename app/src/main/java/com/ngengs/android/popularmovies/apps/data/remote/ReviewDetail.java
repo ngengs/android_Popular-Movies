@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.apps.data;
+package com.ngengs.android.popularmovies.apps.data.remote;
 
 import android.os.Parcel;
 import android.os.Parcelable;

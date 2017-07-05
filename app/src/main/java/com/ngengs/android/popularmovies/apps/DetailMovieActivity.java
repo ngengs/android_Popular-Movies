@@ -20,7 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;

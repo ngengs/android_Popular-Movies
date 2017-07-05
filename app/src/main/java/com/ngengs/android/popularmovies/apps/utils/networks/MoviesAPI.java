@@ -1,10 +1,10 @@
-package com.ngengs.android.popularmovies.apps.utils;
+package com.ngengs.android.popularmovies.apps.utils.networks;
 
 import com.ngengs.android.popularmovies.apps.BuildConfig;
-import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
-import com.ngengs.android.popularmovies.apps.data.MoviesList;
-import com.ngengs.android.popularmovies.apps.data.ReviewList;
-import com.ngengs.android.popularmovies.apps.data.VideosList;
+import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.data.remote.MoviesList;
+import com.ngengs.android.popularmovies.apps.data.remote.ReviewList;
+import com.ngengs.android.popularmovies.apps.data.remote.VideosList;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 
 import io.reactivex.Observable;

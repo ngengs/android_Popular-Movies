@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.apps.data;
+package com.ngengs.android.popularmovies.apps.data.remote;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;

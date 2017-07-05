@@ -20,14 +20,14 @@ import android.widget.TextView;
 
 import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.adapters.MovieListAdapter;
-import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
-import com.ngengs.android.popularmovies.apps.data.MoviesList;
 import com.ngengs.android.popularmovies.apps.data.local.MoviesProviderHelper;
+import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.data.remote.MoviesList;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
-import com.ngengs.android.popularmovies.apps.utils.MoviesAPI;
-import com.ngengs.android.popularmovies.apps.utils.NetworkHelpers;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
+import com.ngengs.android.popularmovies.apps.utils.networks.MoviesAPI;
+import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers;
 
 import org.reactivestreams.Subscriber;
 

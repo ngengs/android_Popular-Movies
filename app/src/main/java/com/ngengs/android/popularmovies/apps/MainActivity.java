@@ -26,7 +26,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment;
 import com.ngengs.android.popularmovies.apps.fragments.GridFragment;
 import com.ngengs.android.popularmovies.apps.globals.Values;

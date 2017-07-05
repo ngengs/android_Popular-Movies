@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.apps.utils;
+package com.ngengs.android.popularmovies.apps.utils.networks;
 
 import com.ngengs.android.popularmovies.apps.globals.Values;
 
