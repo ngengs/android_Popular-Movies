@@ -24,21 +24,22 @@ public class NetworkHelpers {
     private static final int WRITE_TIMEOUT = 60;
     private static final int TIMEOUT = 60;
 
-    public static Retrofit provideRetrofit(Application application) {
+    public static OkHttpClient provideOkHttp(Application application) {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         Cache cache = new Cache(application.getCacheDir(), CACHE_SIZE);
 
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+        return new OkHttpClient.Builder()
                 .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .addInterceptor(loggingInterceptor)
                 .cache(cache)
                 .build();
+    }
 
-
+    public static Retrofit provideRetrofit(OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
                 .baseUrl(Values.URL_BASE)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -48,6 +49,6 @@ public class NetworkHelpers {
     }
 
     public static MoviesAPI provideAPI(Application application) {
-        return provideRetrofit(application).create(MoviesAPI.class);
+        return provideRetrofit(provideOkHttp(application)).create(MoviesAPI.class);
     }
 }
