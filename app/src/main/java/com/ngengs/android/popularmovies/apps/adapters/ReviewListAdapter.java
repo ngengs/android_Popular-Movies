@@ -2,7 +2,6 @@ package com.ngengs.android.popularmovies.apps.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +45,6 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Vi
 
     @Override
     public void onBindViewHolder(ReviewListAdapter.ViewHolder holder, int position) {
-        Log.d(TAG, "onBindViewHolder: position: " + position + " size: " + getItemCount());
         ReviewDetail review = mData.get(position);
         holder.mReviewPeople.setText(review.getAuthor());
         holder.mReviewText.setText(mContext.getString(R.string.review_text, review.getContent()));

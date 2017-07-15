@@ -286,7 +286,7 @@ public class GridFragment extends Fragment {
             }
         });
 
-        mMoviesAPI = NetworkHelpers.provideAPI();
+        mMoviesAPI = NetworkHelpers.provideAPI(getActivity().getApplication());
 
         if (savedInstanceState != null) {
             mSortType = savedInstanceState.getInt("SORT_TYPE", Values.TYPE_POPULAR);

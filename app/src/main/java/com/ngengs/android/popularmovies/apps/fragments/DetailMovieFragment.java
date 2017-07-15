@@ -371,7 +371,7 @@ public class DetailMovieFragment extends Fragment {
         });
         mRecyclerReview.setAdapter(mReviewListAdapter);
 
-        mMoviesAPI = NetworkHelpers.provideAPI();
+        mMoviesAPI = NetworkHelpers.provideAPI(getActivity().getApplication());
 
         Log.d(TAG, "createLayout: savedInstanceState: " + (savedInstanceState == null));
 
