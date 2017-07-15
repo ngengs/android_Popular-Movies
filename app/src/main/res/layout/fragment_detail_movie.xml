@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <ImageView
+            <com.ngengs.android.popularmovies.apps.utils.ui.PosterImageView
                 android:id="@+id/imageDetailThumb"
                 android:layout_width="@dimen/image_description_thumbnail_width"
                 android:layout_height="match_parent"

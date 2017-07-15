@@ -5,7 +5,6 @@
     <dimen name="margin_small">4dp</dimen>
     <dimen name="margin_none">0dp</dimen>
     <dimen name="grid_spacing">8dp</dimen>
-    <dimen name="image_max_height">500dp</dimen>
     <dimen name="image_description_header">250dp</dimen>
     <dimen name="image_description_thumbnail_width">160dp</dimen>
     <dimen name="image_description_thumbnail_min_height">200dp</dimen>

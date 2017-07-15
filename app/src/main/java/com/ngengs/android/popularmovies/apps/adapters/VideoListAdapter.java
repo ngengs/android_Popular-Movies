@@ -9,10 +9,10 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.data.remote.VideosDetail;
-import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,6 @@ import butterknife.OnClick;
 
 @SuppressWarnings("DefaultFileTemplate")
 public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.ViewHolder> {
-    private static final String TAG = "VideoListAdapter";
 
     private final List<VideosDetail> mData;
     private final Context mContext;
@@ -50,15 +49,16 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
         VideosDetail videos = mData.get(position);
         if (videos.isYoutubeVideo()) {
             holder.mItemRoot.setVisibility(View.VISIBLE);
-            Picasso.with(mContext)
+            Glide.with(mContext)
                     .load(videos.getYoutubeThumbnail())
-                    .noFade()
-                    .placeholder(
-                            ResourceHelpers.getDrawable(mContext, R.drawable.ic_collections_white))
+                    .asBitmap()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .crossFade()
+                    .thumbnail(0.05f)
                     .into(holder.mImageVideo);
-
         } else {
             holder.mItemRoot.setVisibility(View.GONE);
+            Glide.clear(holder.mImageVideo);
         }
     }
 

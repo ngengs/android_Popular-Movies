@@ -32,3 +32,4 @@
 
 -keep class com.ngengs.android.popularmovies.apps.data.remote.** { *; }
 -keep class com.ngengs.android.popularmovies.apps.utils.networks.MoviesAPI { *; }
+-keep class com.ngengs.android.popularmovies.apps.utils.ui.PosterImageView { *; }

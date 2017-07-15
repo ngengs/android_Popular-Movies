@@ -9,10 +9,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail;
-import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,12 +49,15 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
     public void onBindViewHolder(ViewHolder holder, int position) {
         String imageUrl = mData.get(position).getPosterPath();
         if (imageUrl != null) {
-            Picasso.with(mContext)
+            Glide.with(mContext)
                     .load(imageUrl)
-                    .noFade()
-                    .placeholder(
-                            ResourceHelpers.getDrawable(mContext, R.drawable.ic_collections_white))
+                    .asBitmap()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .thumbnail(0.05f)
+                    .crossFade()
                     .into(holder.mImage);
+        } else {
+            Glide.clear(holder.mImage);
         }
         holder.mRankPosition.setText(
                 mContext.getResources().getString(R.string.movie_position, (position + 1)));

@@ -319,7 +319,7 @@ public class GridFragment extends Fragment {
             } else if (mSortType == Values.TYPE_TOP_RATED) {
                 bindOldData();
                 Log.d(TAG, "createLayout: catch new data");
-                getPopularMovies();
+                getTopRatedMovies();
             } else getFavoriteMovies();
             doChangeTitle();
         }
@@ -352,6 +352,7 @@ public class GridFragment extends Fragment {
             mSnackbar = null;
         }
         if (mTools.getVisibility() == View.VISIBLE) mTools.setVisibility(View.GONE);
+        if (mPageTotal == 1) mAdapter.clear();
         mFromPagination = false;
         mPageTotal = moviesList.getTotalPage();
         mPageNow = moviesList.getPage();
@@ -502,7 +503,7 @@ public class GridFragment extends Fragment {
     }
 
     public void changeType(int sortType) {
-        this.mSortType = sortType;
+        mSortType = sortType;
         mForceRefresh = true;
         mPageNow = 0;
         mPageTotal = 1;
@@ -510,13 +511,13 @@ public class GridFragment extends Fragment {
         mChangeData = true;
         doChangeTitle();
         if (mDisposable != null && !mDisposable.isDisposed()) mDisposable.dispose();
-        if (this.mSortType == Values.TYPE_POPULAR) {
+        if (mSortType == Values.TYPE_POPULAR) {
             bindOldData();
-            Log.d(TAG, "createLayout: catch new data");
+            Log.d(TAG, "changeType: catch new data popular");
             getPopularMovies();
-        } else if (this.mSortType == Values.TYPE_TOP_RATED) {
+        } else if (mSortType == Values.TYPE_TOP_RATED) {
             bindOldData();
-            Log.d(TAG, "createLayout: catch new data");
+            Log.d(TAG, "changeType: catch new data top rated");
             getTopRatedMovies();
         } else getFavoriteMovies();
     }
@@ -524,7 +525,7 @@ public class GridFragment extends Fragment {
     private void bindOldData() {
         MoviesList temp = null;
         // Catch Offline data
-        Log.d(TAG, "createLayout: catch old data");
+        Log.d(TAG, "bindOldData: catch old data with sortType=" + mSortType);
         if (mSortType == Values.TYPE_POPULAR) temp = mMoviesProviderHelper.getPopular();
         else if (mSortType == Values.TYPE_TOP_RATED) temp = mMoviesProviderHelper.getTopRated();
 

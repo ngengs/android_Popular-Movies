@@ -34,6 +34,7 @@
         android:maxWidth="@dimen/image_video_thumbnail_max_height"
         android:minHeight="50dp"
         android:minWidth="50dp"
+        android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_play_circle_outline_white" />
 
 </FrameLayout>

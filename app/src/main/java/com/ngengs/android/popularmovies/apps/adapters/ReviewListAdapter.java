@@ -24,7 +24,6 @@ import butterknife.OnClick;
 
 @SuppressWarnings("DefaultFileTemplate")
 public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.ViewHolder> {
-    private static final String TAG = "ReviewListAdapter";
 
     private final Context mContext;
     private final List<ReviewDetail> mData;

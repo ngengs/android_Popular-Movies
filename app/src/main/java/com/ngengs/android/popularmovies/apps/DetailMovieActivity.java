@@ -1,7 +1,6 @@
 package com.ngengs.android.popularmovies.apps;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,10 +19,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
-import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -171,11 +171,13 @@ public class DetailMovieActivity extends AppCompatActivity
     @Override
     public void onFragmentChangeHeaderImage(@Nullable String imageUri) {
         if (!TextUtils.isEmpty(imageUri)) {
-            Picasso.with(this)
+            Glide.with(this)
                     .load(imageUri)
+                    .asBitmap()
+                    .thumbnail(0.05f)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
-                    .resize(Resources.getSystem().getDisplayMetrics().widthPixels,
-                            getResources().getDimensionPixelSize(R.dimen.image_description_header))
+                    .crossFade()
                     .into(mImageHeader);
         }
     }

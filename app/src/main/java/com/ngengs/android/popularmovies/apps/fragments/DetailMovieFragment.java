@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.adapters.ReviewListAdapter;
 import com.ngengs.android.popularmovies.apps.adapters.VideoListAdapter;
@@ -34,7 +36,6 @@ import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.ngengs.android.popularmovies.apps.utils.networks.MoviesAPI;
 import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers;
-import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -59,7 +60,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class DetailMovieFragment extends Fragment {
     private static final String TAG = "DetailMovieFragment";
-
+    private final CompositeDisposable mDisposable = new CompositeDisposable();
     @BindView(R.id.imageDetailThumb)
     ImageView mImageThumbnail;
     @BindView(R.id.textRating)
@@ -101,10 +102,8 @@ public class DetailMovieFragment extends Fragment {
     @BindView(R.id.cardReview)
     CardView mCardReview;
     private Snackbar mSnackbar;
-
     private MoviesDetail mData;
     private MoviesAPI mMoviesAPI;
-    private CompositeDisposable mDisposable = new CompositeDisposable();
     private boolean mLoadFromServer;
     private boolean mLoadVideoFromServer;
     private boolean mLoadReviewFromServer;
@@ -201,7 +200,7 @@ public class DetailMovieFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mDisposable != null && !mDisposable.isDisposed()) {
+        if (!mDisposable.isDisposed()) {
             mDisposable.dispose();
         }
         if (mUnbinder != null) mUnbinder.unbind();
@@ -211,7 +210,7 @@ public class DetailMovieFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        if (mDisposable != null && !mDisposable.isDisposed()) {
+        if (!mDisposable.isDisposed()) {
             mDisposable.dispose();
         }
     }
@@ -240,13 +239,15 @@ public class DetailMovieFragment extends Fragment {
             mListener.onFragmentChangeHeaderImage(mData.getBackdropPath());
         }
         if (mData.getPosterPath(3) != null) {
-            Picasso.with(mContext)
+            Glide.with(mContext)
                     .load(mData.getPosterPath(3))
-                    .placeholder(
-                            ResourceHelpers.getDrawable(mContext, R.drawable.ic_collections_white))
-                    .resize(getResources().getDimensionPixelSize(
-                            R.dimen.image_description_thumbnail_width), 0)
+                    .asBitmap()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .thumbnail(0.05f)
+                    .crossFade()
                     .into(mImageThumbnail);
+        } else {
+            Glide.clear(mImageThumbnail);
         }
         bindUpdatedData();
     }
@@ -472,7 +473,7 @@ public class DetailMovieFragment extends Fragment {
         }
     }
 
-    public void onResponse(@NonNull MoviesDetail response) {
+    private void onResponse(@NonNull MoviesDetail response) {
         Log.d(TAG, "onResponse: " + response.toString());
         if (mRootProgress.getVisibility() == View.VISIBLE) mRootProgress.setVisibility(View.GONE);
         if (mDetailView.getVisibility() == View.GONE) mDetailView.setVisibility(View.VISIBLE);
@@ -486,14 +487,14 @@ public class DetailMovieFragment extends Fragment {
         bindData();
     }
 
-    public void onResponseVideo(@NonNull VideosList response) {
+    private void onResponseVideo(@NonNull VideosList response) {
         Log.d(TAG, "onResponseVideo: " + response.toString());
         if (response.getVideos() != null) {
             bindVideo(response.getVideos());
         }
     }
 
-    public void onResponseReview(@NonNull ReviewList response) {
+    private void onResponseReview(@NonNull ReviewList response) {
         Log.d(TAG, "onResponseReview: " + response.getReview().size());
         if (response.getReview() != null) {
             bindReview(response.getReview());
@@ -528,7 +529,7 @@ public class DetailMovieFragment extends Fragment {
         return getResources().getString(R.string.share_content, mData.getTitle(), shareUrl);
     }
 
-    public void onFailure(@NonNull Throwable t) {
+    private void onFailure(@NonNull Throwable t) {
         if (mRootProgress.getVisibility() == View.VISIBLE) mRootProgress.setVisibility(View.GONE);
         if (mDetailView.getVisibility() == View.VISIBLE) mDetailView.setVisibility(View.GONE);
         if (mTaglineView.getVisibility() == View.VISIBLE) mTaglineView.setVisibility(View.GONE);

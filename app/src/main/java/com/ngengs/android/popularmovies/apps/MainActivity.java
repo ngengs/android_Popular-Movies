@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,12 +25,13 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment;
 import com.ngengs.android.popularmovies.apps.fragments.GridFragment;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
-import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -308,7 +308,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if (isMultiLayout() && mFragmentManager != null) onCloseMultiLayout();
+        if (isMultiLayout() && mDetailRoot != null && mDetailRoot.getVisibility() == View.VISIBLE)
+            onCloseMultiLayout();
         else super.onBackPressed();
     }
 
@@ -356,11 +357,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFragmentChangeHeaderImage(@Nullable String imageUri) {
         if (isMultiLayout()) {
-            Picasso.with(this)
+            //noinspection ConstantConditions
+            Glide.with(this)
                     .load(imageUri)
+                    .asBitmap()
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .thumbnail(0.05f)
                     .centerCrop()
-                    .resize(Resources.getSystem().getDisplayMetrics().widthPixels,
-                            getResources().getDimensionPixelSize(R.dimen.image_description_header))
                     .into(mDetailHeaderImage);
         }
     }
@@ -375,18 +379,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void onCloseMultiLayout() {
         if (isMultiLayout()) {
+            if (mFragmentManager == null) mFragmentManager = getSupportFragmentManager();
             if (mDetailMovieFragment == null)
                 mDetailMovieFragment = (DetailMovieFragment) mFragmentManager.findFragmentById(
                         R.id.fragmentDetail);
 
-            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-            fragmentTransaction.remove(mDetailMovieFragment);
-            fragmentTransaction.commit();
-            mDetailHeaderImage.setImageResource(0);
-            mDetailMovieFragment = null;
+            if (mDetailMovieFragment != null) {
+                FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+                fragmentTransaction.remove(mDetailMovieFragment);
+                fragmentTransaction.commit();
+                //noinspection ConstantConditions
+                Glide.clear(mDetailHeaderImage);
+                mDetailMovieFragment = null;
+            }
             showMultiLayout(false);
         }
     }

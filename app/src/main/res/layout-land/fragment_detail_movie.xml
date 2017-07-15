@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
+            <com.ngengs.android.popularmovies.apps.utils.ui.PosterImageView
                 android:id="@+id/imageDetailThumb"
                 android:layout_width="@dimen/image_description_thumbnail_width"
                 android:layout_height="match_parent"
@@ -35,7 +35,7 @@
                 android:contentDescription="@string/poster_image"
                 android:minHeight="@dimen/image_description_thumbnail_min_height"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/ic_collections_white" />
+                app:srcCompat="@drawable/ic_collections_white"/>
 
             <TextView
                 android:id="@+id/textMovieOriginalTitle"
@@ -50,7 +50,7 @@
                 android:maxLines="3"
                 android:text="@string/empty_string"
                 android:textSize="@dimen/text_size_title"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/textRating"
@@ -63,7 +63,7 @@
                 android:fontFamily="sans-serif-light"
                 android:maxLines="1"
                 android:text="@string/empty_string"
-                android:textSize="@dimen/text_size_vote" />
+                android:textSize="@dimen/text_size_vote"/>
 
             <TextView
                 android:id="@+id/textMovieReleaseDate"
@@ -73,7 +73,7 @@
                 android:layout_margin="@dimen/margin_default"
                 android:layout_toEndOf="@id/imageDetailThumb"
                 android:layout_toRightOf="@id/imageDetailThumb"
-                android:text="@string/empty_string" />
+                android:text="@string/empty_string"/>
 
 
         </RelativeLayout>
