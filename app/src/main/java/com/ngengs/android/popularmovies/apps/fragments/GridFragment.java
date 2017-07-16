@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,7 +32,6 @@ import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers;
 
 import org.reactivestreams.Subscriber;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -96,6 +96,7 @@ public class GridFragment extends Fragment {
             onResponse(moviesList);
         }
     };
+    private DataFragment mDataFragment;
     private MoviesProviderHelper mMoviesProviderHelper;
     private final Consumer<Throwable> mErrorConsumer = new Consumer<Throwable>() {
         @Override
@@ -153,6 +154,13 @@ public class GridFragment extends Fragment {
         mContext = view.getContext();
         mUnbinder = ButterKnife.bind(this, view);
         mMoviesProviderHelper = new MoviesProviderHelper(mContext);
+        FragmentManager fragmentManager = getFragmentManager();
+        mDataFragment = (DataFragment) fragmentManager.findFragmentByTag("DATA");
+        if (mDataFragment == null) {
+            mDataFragment = new DataFragment();
+            mDataFragment.setTargetFragment(this, 0);
+            fragmentManager.beginTransaction().add(mDataFragment, "DATA").commit();
+        }
         createLayout(savedInstanceState);
         if (mListener != null) mListener.onAttachHandler();
         return view;
@@ -163,7 +171,7 @@ public class GridFragment extends Fragment {
         super.onSaveInstanceState(outState);
         if (mAdapter.getItemCount() > 0) {
             List<MoviesDetail> data = mAdapter.get();
-            outState.putParcelableArrayList("DATA", new ArrayList<>(data));
+            mDataFragment.setMoviesDetailList(data);
             outState.putInt("PAGE_NOW", mPageNow);
             outState.putInt("PAGE_TOTAL", mPageTotal);
             outState.putInt("SORT_TYPE", mSortType);
@@ -292,7 +300,11 @@ public class GridFragment extends Fragment {
             mSortType = savedInstanceState.getInt("SORT_TYPE", Values.TYPE_POPULAR);
             mPageNow = savedInstanceState.getInt("PAGE_NOW", 0);
             mPageTotal = savedInstanceState.getInt("PAGE_TOTAL", 1);
-            List<MoviesDetail> temp = savedInstanceState.getParcelableArrayList("DATA");
+            List<MoviesDetail> temp = null;
+            if (mDataFragment != null) {
+                Log.d(TAG, "createLayout: mDataFragment is not null");
+                temp = mDataFragment.getMoviesDetailList();
+            }
             if (temp != null) {
                 mAdapter.clear();
                 mAdapter.add(temp);
