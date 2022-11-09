@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootConstrain"
@@ -9,7 +9,7 @@
     tools:context="com.ngengs.android.popularmovies.apps.MainActivity"
     tools:ignore="InconsistentLayout">
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -18,7 +18,7 @@
         tools:ignore="InconsistentLayout" />
 
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/rootDetailView"
         android:layout_width="@dimen/margin_none"
         android:layout_height="@dimen/margin_none"
@@ -31,7 +31,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="InconsistentLayout">
 
-        <android.support.design.widget.AppBarLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbarDetail"
             android:layout_width="match_parent"
             android:layout_height="@dimen/image_description_header"
@@ -40,7 +40,7 @@
             android:theme="@style/AppTheme.AppBarOverlay"
             tools:ignore="InconsistentLayout">
 
-            <android.support.design.widget.CollapsingToolbarLayout
+            <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:id="@+id/collapsingToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -66,7 +66,7 @@
                     app:layout_collapseParallaxMultiplier="0.7"
                     tools:ignore="InconsistentLayout" />
 
-                <android.support.v7.widget.Toolbar
+                <androidx.appcompat.widget.Toolbar
                     android:id="@+id/toolbarDetail"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
@@ -75,11 +75,11 @@
                     app:layout_collapseMode="pin"
                     tools:ignore="InconsistentLayout" />
 
-            </android.support.design.widget.CollapsingToolbarLayout>
-        </android.support.design.widget.AppBarLayout>
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
 
-        <android.support.v4.widget.NestedScrollView
+        <androidx.core.widget.NestedScrollView
             android:id="@+id/scrollDetail"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -93,9 +93,9 @@
                 android:layout_height="match_parent"
                 tools:ignore="InconsistentLayout" />
 
-        </android.support.v4.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabFavorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -104,9 +104,9 @@
             app:layout_anchorGravity="bottom|end"
             app:srcCompat="@drawable/ic_favorite_border_white"
             tools:ignore="InconsistentLayout" />
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/rootMainView"
         android:layout_width="@dimen/margin_none"
         android:layout_height="@dimen/margin_none"
@@ -118,7 +118,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
 
-        <android.support.design.widget.AppBarLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
             android:fitsSystemWindows="true"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
@@ -134,7 +134,7 @@
                 android:theme="@style/Base.ThemeOverlay.AppCompat.Dark"
                 app:layout_scrollFlags="scroll|enterAlways" />
 
-        </android.support.design.widget.AppBarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
         <FrameLayout
             android:id="@+id/fragmentGrid"
@@ -142,7 +142,7 @@
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

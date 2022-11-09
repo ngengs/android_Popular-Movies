@@ -1,4 +1,7 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-parcelize'
 
 // Signing definition
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -24,17 +27,20 @@ int versionPatch = versionProperties['VERSION_PATCH'] as int
 int versionBuild = versionProperties['VERSION_BUILD'] as int // always bump build number.
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "26"
+    compileSdkVersion rootProject.compileSdkVersion
     defaultConfig {
         applicationId "com.ngengs.android.popularmovies.apps"
-        minSdkVersion 16
+        minSdkVersion rootProject.minSdkVersion
         //noinspection OldTargetApi
-        targetSdkVersion 25
+        targetSdkVersion rootProject.targetSdkVersion
         versionCode((versionMajor * 10000000) + (versionMinor * 100000) + (versionPatch * 100) + versionBuild)
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         vectorDrawables.useSupportLibrary = true
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 
     signingConfigs {
@@ -69,11 +75,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt')
             proguardFiles fileTree(include: ['*.pro'], dir: 'proguards').asList().toArray()
             applicationVariants.all { variant ->
-                variant.outputs.each { output ->
+                variant.outputs.all { output ->
                     def newName = output.outputFile.name
                     newName = newName.replace("app-", applicationId + "-")
                     newName = newName.replace("-release", "-v" + versionName + "-build." + getBuildDate() + "-release")
-                    output.outputFile = new File(output.outputFile.parent, newName)
+                    outputFileName = newName
                 }
             }
         }
@@ -86,6 +92,16 @@ android {
                 signingConfig signingConfigs.debug
             }
         }
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
+    packagingOptions {
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
     }
 
     lintOptions {
@@ -175,27 +191,24 @@ VERSION_BUILD=${build}
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile 'com.android.support:cardview-v7:25.4.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:design:25.4.0'
-    compile 'com.android.support:recyclerview-v7:25.4.0'
-    compile 'com.google.code.gson:gson:2.8.1'
-    compile 'com.github.bumptech.glide:glide:3.8.0'
-    compile 'com.github.bumptech.glide:okhttp3-integration:1.5.0@aar'
-    compile 'com.jakewharton:butterknife:8.6.0'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'io.reactivex.rxjava2:rxjava:2.1.1'
-    compile 'com.squareup.okhttp3:okhttp:3.8.1'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.8.1'
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
-    compile 'com.android.support:support-v4:25.4.0'
-    testCompile 'junit:junit:4.12'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+    implementation 'com.squareup.picasso:picasso:2.8'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    testImplementation 'junit:junit:4.13.2'
 }

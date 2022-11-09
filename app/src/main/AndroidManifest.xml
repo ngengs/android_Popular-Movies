@@ -16,6 +16,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
+            android:exported="true"
             android:name="com.ngengs.android.popularmovies.apps.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
