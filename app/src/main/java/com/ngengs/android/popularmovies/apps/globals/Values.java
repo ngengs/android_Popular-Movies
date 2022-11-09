@@ -4,7 +4,7 @@ package com.ngengs.android.popularmovies.apps.globals;
  * Created by ngengs on 6/15/2017.
  */
 
-@SuppressWarnings({"unused", "DefaultFileTemplate"})
+@SuppressWarnings({"unused"})
 public final class Values {
 
     /**

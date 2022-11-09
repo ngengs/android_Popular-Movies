@@ -8,7 +8,7 @@ import java.util.List;
  * Created by ngengs on 6/15/2017.
  */
 
-@SuppressWarnings({"unused", "DefaultFileTemplate"})
+@SuppressWarnings({"unused"})
 public class MoviesList {
     @SerializedName("page")
     private int page;

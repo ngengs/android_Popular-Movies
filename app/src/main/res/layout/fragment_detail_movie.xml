@@ -8,7 +8,7 @@
     tools:context="com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment">
 
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardMainDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -76,9 +76,9 @@
 
         </RelativeLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -113,9 +113,9 @@
                 android:textSize="@dimen/text_size_large" />
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/taglineView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -150,9 +150,9 @@
                 android:textSize="@dimen/text_size_large" />
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/detailView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -310,7 +310,7 @@
                 android:textSize="@dimen/text_size_large" />
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
     <include android:id="@+id/videoLayout" layout="@layout/video_layout" />
 

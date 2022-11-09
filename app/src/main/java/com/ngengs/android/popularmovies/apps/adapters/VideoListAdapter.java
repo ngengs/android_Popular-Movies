@@ -1,8 +1,8 @@
 package com.ngengs.android.popularmovies.apps.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,21 +35,22 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
         this.data = new ArrayList<>();
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemVideoListBinding binding = ItemVideoListBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new ViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         VideosDetail videos = data.get(position);
         Log.d(TAG, "onBindViewHolder: " + position);
         Log.d(TAG, "onBindViewHolder: " + videos.getType());
         if (videos.isYoutubeVideo()) {
             Log.d(TAG, "onBindViewHolder: " + videos.getYoutubeThumbnail());
             holder.binding.itemRoot.setVisibility(View.VISIBLE);
-            Picasso.with(context)
+            Picasso.get()
                     .load(videos.getYoutubeThumbnail())
                     .noFade()
                     .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white))
@@ -58,7 +59,7 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
         } else {
             holder.binding.itemRoot.setVisibility(View.GONE);
         }
-        holder.binding.itemRoot.setOnClickListener(view -> holder.itemClick());
+        holder.binding.itemRoot.setOnClickListener(view -> clickListener.onClickListener(position));
     }
 
     @Override
@@ -96,10 +97,6 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
         ViewHolder(ItemVideoListBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-        }
-
-        void itemClick() {
-            clickListener.onClickListener(getAdapterPosition());
         }
     }
 }

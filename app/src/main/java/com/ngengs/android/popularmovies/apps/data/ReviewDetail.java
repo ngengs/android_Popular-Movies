@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by ngengs on 7/1/2017.
  */
 
-@SuppressWarnings({"DefaultFileTemplate", "WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class ReviewDetail implements Parcelable {
     public static final Creator<ReviewDetail> CREATOR = new Creator<ReviewDetail>() {
         @Override

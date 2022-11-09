@@ -6,14 +6,13 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,9 +55,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         int sortType = sharedPref.getInt("SORT_TYPE_NOW", Values.TYPE_POPULAR);
         switch (sortType) {
             case Values.TYPE_POPULAR:
-                break;
             case Values.TYPE_HIGH_RATED:
-                break;
             case Values.TYPE_FAVORITE:
                 break;
             default:
@@ -107,32 +104,27 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
             menuDetail = binding.toolbarDetail.getMenu();
             menuDetail.findItem(R.id.menu_detail_close).setVisible(true);
             menuDetail.findItem(R.id.menu_detail_share).setVisible(false);
-            binding.toolbarDetail.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.menu_detail_close:
-                            onCloseMultiLayout();
-                            return true;
-                        case R.id.menu_detail_share:
-                            Log.d(TAG, "onMenuItemClick: Share");
-                            Intent sendIntent = new Intent();
-                            sendIntent.setAction(Intent.ACTION_SEND);
-                            Log.d(TAG, "onClick: " + detailMovieFragment.getShareContent());
-                            sendIntent.putExtra(Intent.EXTRA_TEXT, detailMovieFragment.getShareContent());
-                            sendIntent.setType("text/plain");
-                            startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
-                            return true;
-                        default:
-                            return false;
-                    }
+            binding.toolbarDetail.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.menu_detail_close) {
+                    onCloseMultiLayout();
+                    return true;
+                } else if (item.getItemId() == R.id.menu_detail_share) {
+                    Log.d(TAG, "onMenuItemClick: Share");
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    Log.d(TAG, "onClick: " + detailMovieFragment.getShareContent());
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, detailMovieFragment.getShareContent());
+                    sendIntent.setType("text/plain");
+                    startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
+                    return true;
+                } else {
+                    return false;
                 }
             });
             showMultiLayout(openDetail);
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void showMultiLayout(boolean show) {
         if (isMultiLayout()) {
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.guideline.getLayoutParams();
@@ -161,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("OPEN_DETAIL", openDetail);
     }
@@ -182,16 +174,12 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int sortType = -1;
-        switch (item.getItemId()) {
-            case R.id.menu_sort_by_popular:
-                sortType = Values.TYPE_POPULAR;
-                break;
-            case R.id.menu_sort_by_top_rated:
-                sortType = Values.TYPE_HIGH_RATED;
-                break;
-            case R.id.menu_sort_by_favorite:
-                sortType = Values.TYPE_FAVORITE;
-                break;
+        if (item.getItemId() == R.id.menu_sort_by_popular) {
+            sortType = Values.TYPE_POPULAR;
+        } else if (item.getItemId() == R.id.menu_sort_by_top_rated) {
+            sortType = Values.TYPE_HIGH_RATED;
+        } else if (item.getItemId() == R.id.menu_sort_by_favorite) {
+            sortType = Values.TYPE_FAVORITE;
         }
         if (sortType > -1) {
             gridFragment.changeType(sortType);
@@ -222,9 +210,10 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
                 if (detailMovieFragment != null) {
                     // Check is fragment same as the clicked data
                     DetailMovieFragment temp = (DetailMovieFragment) fragmentManager.findFragmentById(binding.fragmentDetail.getId());
-                    Log.d(TAG, "onFragmentClickMovies: old id: " + temp.getMoviesId());
+                    int tempMoviesId = temp != null ? temp.getMoviesId() : -1;
+                    Log.d(TAG, "onFragmentClickMovies: old id: " + tempMoviesId);
                     Log.d(TAG, "onFragmentClickMovies: new id: " + data.getId());
-                    if (data.getId() == temp.getMoviesId()) changeFragment = false;
+                    if (data.getId() == tempMoviesId) changeFragment = false;
                 }
                 Log.d(TAG, "onFragmentClickMovies: can change: " + changeFragment);
                 if (changeFragment) {
@@ -287,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
             else
                 binding.fabFavorite.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
             if (gridFragment.getSortType() == Values.TYPE_FAVORITE && isRefresh) {
-//                gridFragment.changeType(Values.TYPE_FAVORITE);
                 if (data != null) {
                     if (isFavorite) gridFragment.addMovies(data);
                     else gridFragment.removeMovies(data);
@@ -296,7 +284,6 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     void onFavoriteClick() {
         if (isMultiLayout()) {
             Log.d(TAG, "onFavoriteClick: now");
@@ -317,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements GridFragment.OnFr
     @Override
     public void onFragmentChangeHeaderImage(@Nullable String imageUri) {
         if (isMultiLayout()) {
-            Picasso.with(this)
+            Picasso.get()
                     .load(imageUri)
                     .centerCrop()
                     .resize(Resources.getSystem().getDisplayMetrics().widthPixels, getResources().getDimensionPixelSize(R.dimen.image_description_header))

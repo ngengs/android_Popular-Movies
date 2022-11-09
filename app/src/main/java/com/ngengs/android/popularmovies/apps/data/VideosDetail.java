@@ -10,7 +10,7 @@ import com.ngengs.android.popularmovies.apps.globals.Values;
  * Created by ngengs on 6/30/2017.
  */
 
-@SuppressWarnings({"DefaultFileTemplate", "WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class VideosDetail implements Parcelable {
     public static final Creator<VideosDetail> CREATOR = new Creator<VideosDetail>() {
         @Override

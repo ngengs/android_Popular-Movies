@@ -6,7 +6,7 @@ import android.net.Uri;
  * Created by ngengs on 7/3/2017.
  */
 
-@SuppressWarnings({"WeakerAccess", "DefaultFileTemplate", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class LocalDatabase {
 
     public static final String CONTENT_AUTHORITY = "com.ngengs.android.popularmovies.apps";

@@ -11,7 +11,7 @@ import java.util.List;
  * Created by ngengs on 6/30/2017.
  */
 
-@SuppressWarnings({"DefaultFileTemplate", "unused", "WeakerAccess"})
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class VideosList implements Parcelable {
     public static final Creator<VideosList> CREATOR = new Creator<VideosList>() {
         @Override

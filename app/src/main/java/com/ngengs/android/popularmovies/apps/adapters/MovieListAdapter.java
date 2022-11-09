@@ -1,8 +1,8 @@
 package com.ngengs.android.popularmovies.apps.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -20,7 +20,6 @@ import java.util.List;
  * Created by ngengs on 6/15/2017.
  */
 
-@SuppressWarnings("DefaultFileTemplate")
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.ViewHolder> {
     @SuppressWarnings("unused")
     private static final String TAG = "MovieListAdapter";
@@ -45,8 +44,8 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String imageUrl = data.get(position).getPosterPath();
         if (imageUrl != null)
-            Picasso.with(context).load(imageUrl).noFade().placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white)).into(holder.binding.imagePoster);
-        holder.binding.imagePoster.setOnClickListener(view -> holder.itemClick());
+            Picasso.get().load(imageUrl).noFade().placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white)).into(holder.binding.imagePoster);
+        holder.binding.imagePoster.setOnClickListener(view -> clickListener.OnClickListener(position));
         holder.binding.rankPosition.setText(context.getResources().getString(R.string.movie_position, (position + 1)));
     }
 
@@ -102,10 +101,6 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         ViewHolder(ItemMovieListBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-        }
-
-        void itemClick() {
-            clickListener.OnClickListener(getAdapterPosition());
         }
     }
 }

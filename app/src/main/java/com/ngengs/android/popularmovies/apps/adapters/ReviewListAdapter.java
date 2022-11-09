@@ -1,8 +1,8 @@
 package com.ngengs.android.popularmovies.apps.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +19,6 @@ import java.util.List;
  * Created by ngengs on 7/1/2017.
  */
 
-@SuppressWarnings("DefaultFileTemplate")
 public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.ViewHolder> {
     private static final String TAG = "ReviewListAdapter";
 
@@ -48,7 +47,7 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Vi
         holder.binding.reviewText.setText(context.getString(R.string.review_text, review.getContent()));
         if (position == (getItemCount() - 1)) holder.binding.reviewSeparator.setVisibility(View.GONE);
         else holder.binding.reviewSeparator.setVisibility(View.VISIBLE);
-        holder.binding.rootReview.setOnClickListener(view -> holder.itemClick());
+        holder.binding.rootReview.setOnClickListener(view -> clickListener.onClickListener(position));
     }
 
     @Override
@@ -86,10 +85,6 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Vi
         ViewHolder(ItemReviewListBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-        }
-
-        void itemClick() {
-            clickListener.onClickListener(getAdapterPosition());
         }
     }
 }

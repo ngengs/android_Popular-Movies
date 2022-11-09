@@ -3,20 +3,16 @@ package com.ngengs.android.popularmovies.apps.fragments;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BaseTransientBottomBar;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.adapters.MovieListAdapter;
@@ -54,18 +50,6 @@ import io.reactivex.schedulers.Schedulers;
 public class GridFragment extends Fragment {
     private static final String TAG = "GridFragment";
     FragmentGridBinding binding;
-//    @BindView(R.id.recyclerView)
-//    RecyclerView rv;
-//    @BindView(R.id.progressBar)
-//    ProgressBar progressBar;
-//    @BindView(R.id.textTools)
-//    TextView textMessage;
-//    @BindView(R.id.imageTools)
-//    ImageView imageTools;
-//    @BindView(R.id.tools)
-//    View tools;
-//    @BindView(R.id.swipeRefresh)
-//    SwipeRefreshLayout swipeRefreshLayout;
     private GridLayoutManager layoutManager;
     private GridSpacesItemDecoration layoutDecoration;
     private Snackbar snackbar;
@@ -80,26 +64,11 @@ public class GridFragment extends Fragment {
     private boolean fromPagination;
     private boolean changeData;
     private boolean processLoadData = true;
-    private final Action actionComplete = new Action() {
-        @Override
-        public void run() throws Exception {
-            onComplete();
-        }
-    };
+    private final Action actionComplete = this::onComplete;
     private Context context;
-    private final Consumer<MoviesList> moviesListConsumer = new Consumer<MoviesList>() {
-        @Override
-        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
-            onResponse(moviesList);
-        }
-    };
+    private final Consumer<MoviesList> moviesListConsumer = this::onResponse;
     private MoviesProviderHelper moviesProviderHelper;
-    private final Consumer<Throwable> errorConsumer = new Consumer<Throwable>() {
-        @Override
-        public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
-            onFailure(throwable);
-        }
-    };
+    private final Consumer<Throwable> errorConsumer = this::onFailure;
     private OnFragmentInteractionListener mListener;
 
     public GridFragment() {
@@ -130,7 +99,7 @@ public class GridFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentGridBinding.inflate(inflater, container, false);
@@ -148,13 +117,12 @@ public class GridFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+            throw new RuntimeException(context + " must implement OnFragmentInteractionListener");
         }
     }
 
@@ -181,7 +149,7 @@ public class GridFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (adapter.getItemCount() > 0) {
             List<MoviesDetail> data = adapter.get();
@@ -224,12 +192,7 @@ public class GridFragment extends Fragment {
         binding.recyclerView.setVisibility(View.GONE);
         binding.progressBar.setVisibility(View.GONE);
 
-        adapter = new MovieListAdapter(context, new MovieListAdapter.ClickListener() {
-            @Override
-            public void OnClickListener(int position) {
-                doMoviePressed(position);
-            }
-        });
+        adapter = new MovieListAdapter(context, this::doMoviePressed);
 
 
         int gridSpan;
@@ -247,12 +210,12 @@ public class GridFragment extends Fragment {
         binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @SuppressWarnings("EmptyMethod")
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
             }
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int visibleItemCount = layoutManager.getChildCount();
                 int totalItemCount = layoutManager.getItemCount();
@@ -386,13 +349,10 @@ public class GridFragment extends Fragment {
 
         if (snackbar != null) snackbar.dismiss();
         snackbar = Snackbar.make(binding.textTools, R.string.error_cant_get_data_check_connection, BaseTransientBottomBar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.retry, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
-                else getFavoriteMovies();
-            }
+        snackbar.setAction(R.string.retry, v -> {
+            if (sortType == Values.TYPE_POPULAR) getPopularMovies();
+            else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+            else getFavoriteMovies();
         });
         snackbar.show();
         Log.e(TAG, "onFailure: ", t);
@@ -422,15 +382,12 @@ public class GridFragment extends Fragment {
             Log.d(TAG, "getPopularMovies: page: " + pageNow);
             disposable = moviesAPI.listMoviesPopular(pageNow + 1)
                     .subscribeOn(Schedulers.io())
-                    .doOnNext(new Consumer<MoviesList>() {
-                        @Override
-                        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
-                            Log.d(TAG, "getPopularMovies: page: " + pageNow);
-                            moviesProviderHelper.saveMovies(moviesList.getMovies());
-                            if (pageNow == 0) {
-                                moviesProviderHelper.deletePopular();
-                                moviesProviderHelper.savePopular(moviesList.getMovies());
-                            }
+                    .doOnNext(moviesList -> {
+                        Log.d(TAG, "getPopularMovies: page: " + pageNow);
+                        moviesProviderHelper.saveMovies(moviesList.getMovies());
+                        if (pageNow == 0) {
+                            moviesProviderHelper.deletePopular();
+                            moviesProviderHelper.savePopular(moviesList.getMovies());
                         }
                     })
                     .observeOn(AndroidSchedulers.mainThread())

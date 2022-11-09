@@ -14,7 +14,7 @@ import com.ngengs.android.popularmovies.apps.data.local.MoviesTopRated;
  * Created by ngengs on 7/3/2017.
  */
 
-@SuppressWarnings({"WeakerAccess", "unused", "DefaultFileTemplate"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "popularMovies.db";
     private static final int DATABASE_VERSION = 1;

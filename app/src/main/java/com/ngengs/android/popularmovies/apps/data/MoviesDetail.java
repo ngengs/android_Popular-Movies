@@ -20,7 +20,7 @@ import java.util.List;
  * Created by ngengs on 6/15/2017.
  */
 
-@SuppressWarnings({"SameParameterValue", "unused", "DefaultFileTemplate", "WeakerAccess"})
+@SuppressWarnings({"SameParameterValue", "unused", "WeakerAccess"})
 public class MoviesDetail implements Parcelable {
     public static final Creator<MoviesDetail> CREATOR = new Creator<MoviesDetail>() {
         @Override

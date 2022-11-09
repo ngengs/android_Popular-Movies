@@ -5,11 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,7 +40,6 @@ import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -59,7 +58,7 @@ public class DetailMovieFragment extends Fragment {
 
     private MoviesDetail data;
     private MoviesAPI moviesAPI;
-    private CompositeDisposable disposable = new CompositeDisposable();
+    private final CompositeDisposable disposable = new CompositeDisposable();
     private boolean loadFromServer;
     private boolean loadVideoFromServer;
     private boolean loadReviewFromServer;
@@ -100,7 +99,7 @@ public class DetailMovieFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentDetailMovieBinding.inflate(inflater, container, false);
@@ -129,20 +128,19 @@ public class DetailMovieFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+            throw new RuntimeException(context + " must implement OnFragmentInteractionListener");
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (disposable != null && !disposable.isDisposed()) {
+        if (!disposable.isDisposed()) {
             disposable.dispose();
         }
         binding = null;
@@ -152,7 +150,7 @@ public class DetailMovieFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        if (disposable != null && !disposable.isDisposed()) {
+        if (!disposable.isDisposed()) {
             disposable.dispose();
         }
     }
@@ -181,7 +179,7 @@ public class DetailMovieFragment extends Fragment {
             mListener.onFragmentChangeHeaderImage(data.getBackdropPath());
         }
         if (data.getPosterPath(3) != null) {
-            Picasso.with(context)
+            Picasso.get()
                     .load(data.getPosterPath(3))
                     .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white))
                     .resize(getResources().getDimensionPixelSize(R.dimen.image_description_thumbnail_width), 0)
@@ -327,7 +325,7 @@ public class DetailMovieFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable("DATA", data);
         outState.putParcelableArrayList("DATA_VIDEO", new ArrayList<Parcelable>(videoListAdapter.get()));
@@ -346,53 +344,20 @@ public class DetailMovieFragment extends Fragment {
             disposable.addAll(
                     moviesAPI.detail(data.getId())
                             .subscribeOn(Schedulers.io())
-                            .doOnNext(new Consumer<MoviesDetail>() {
-                                @Override
-                                public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
-                                    Log.d(TAG, "accept: doOnNext: " + moviesDetail.getId());
-                                    moviesProviderHelper.saveMovies(moviesDetail);
-                                }
+                            .doOnNext(moviesDetail -> {
+                                Log.d(TAG, "accept: doOnNext: " + moviesDetail.getId());
+                                moviesProviderHelper.saveMovies(moviesDetail);
                             })
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Consumer<MoviesDetail>() {
-                                @Override
-                                public void accept(@io.reactivex.annotations.NonNull MoviesDetail moviesDetail) throws Exception {
-                                    onResponse(moviesDetail);
-                                }
-                            }, new Consumer<Throwable>() {
-                                @Override
-                                public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
-                                    onFailure(throwable);
-                                }
-                            }),
+                            .subscribe(this::onResponse, this::onFailure),
                     moviesAPI.videos(data.getId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Consumer<VideosList>() {
-                                @Override
-                                public void accept(@io.reactivex.annotations.NonNull VideosList videosList) throws Exception {
-                                    onResponseVideo(videosList);
-                                }
-                            }, new Consumer<Throwable>() {
-                                @Override
-                                public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
-                                    Log.e(TAG, "accept: Error Get Videos", throwable);
-                                }
-                            }),
+                            .subscribe(this::onResponseVideo, throwable -> Log.e(TAG, "accept: Error Get Videos", throwable)),
                     moviesAPI.reviews(data.getId())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Consumer<ReviewList>() {
-                                @Override
-                                public void accept(@io.reactivex.annotations.NonNull ReviewList reviewList) throws Exception {
-                                    onResponseReview(reviewList);
-                                }
-                            }, new Consumer<Throwable>() {
-                                @Override
-                                public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
-                                    Log.e(TAG, "accept: Error Get Reviews", throwable);
-                                }
-                            })
+                            .subscribe(this::onResponseReview, throwable -> Log.e(TAG, "accept: Error Get Reviews", throwable))
             );
         }
     }
@@ -413,7 +378,7 @@ public class DetailMovieFragment extends Fragment {
     }
 
     public void onResponseVideo(@NonNull VideosList response) {
-        Log.d(TAG, "onResponseVideo: " + response.toString());
+        Log.d(TAG, "onResponseVideo: " + response);
         if (response.getVideos() != null) {
             bindVideo(response.getVideos());
         }

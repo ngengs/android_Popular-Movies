@@ -11,7 +11,7 @@ import java.util.List;
  * Created by ngengs on 7/1/2017.
  */
 
-@SuppressWarnings({"DefaultFileTemplate", "WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class ReviewList implements Parcelable {
     public static final Creator<ReviewList> CREATOR = new Creator<ReviewList>() {
         @Override

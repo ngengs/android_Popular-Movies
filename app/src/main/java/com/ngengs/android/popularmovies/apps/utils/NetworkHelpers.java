@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by ngengs on 7/4/2017.
  */
 
-@SuppressWarnings({"DefaultFileTemplate", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public class NetworkHelpers {
     public static Retrofit provideRetrofit() {
         return new Retrofit.Builder()
