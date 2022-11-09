@@ -43,6 +43,15 @@ android {
         viewBinding = true
     }
 
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def newName = output.outputFile.name
+            newName = newName.replace("app-", applicationId + "-")
+            newName = newName.replace("-release", "-v" + versionName + "-build." + getBuildDate() + "-release")
+            outputFileName = newName
+        }
+    }
+
     signingConfigs {
         release {
             if (keystoreProperties != null) {
@@ -74,14 +83,6 @@ android {
             buildConfigField 'String', 'API_KEY', API_KEY_RELEASE
             proguardFiles getDefaultProguardFile('proguard-android.txt')
             proguardFiles fileTree(include: ['*.pro'], dir: 'proguards').asList().toArray()
-            applicationVariants.all { variant ->
-                variant.outputs.all { output ->
-                    def newName = output.outputFile.name
-                    newName = newName.replace("app-", applicationId + "-")
-                    newName = newName.replace("-release", "-v" + versionName + "-build." + getBuildDate() + "-release")
-                    outputFileName = newName
-                }
-            }
         }
         debug {
             minifyEnabled false
