@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail
 import com.ngengs.android.popularmovies.apps.databinding.ItemMovieListBinding
+import com.ngengs.android.popularmovies.apps.globals.Values
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers
 import com.squareup.picasso.Picasso
 
@@ -15,7 +16,7 @@ import com.squareup.picasso.Picasso
  * Created by rizky.kharisma on 09/11/22.
  * @ngengs
  */
-class MovieListAdapter @JvmOverloads constructor(
+class MovieListAdapter(
     private val context: Context,
     private val clickListener: ClickListener,
     private val data: MutableList<MoviesDetail> = mutableListOf(),
@@ -27,7 +28,7 @@ class MovieListAdapter @JvmOverloads constructor(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val imageUrl = data[position].posterPath
+        val imageUrl = data[position].getPosterPath(Values.TYPE_DEFAULT_IMAGE_THUMB)
         if (imageUrl != null) Picasso.get().load(imageUrl).noFade()
             .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white))
             .into(holder.binding.imagePoster)

@@ -14,7 +14,7 @@ import com.ngengs.android.popularmovies.apps.databinding.ItemReviewListBinding
  * Created by rizky.kharisma on 09/11/22.
  * @ngengs
  */
-class ReviewListAdapter @JvmOverloads constructor(
+class ReviewListAdapter(
     private val context: Context,
     private val clickListener: ClickListener,
     private val data: MutableList<ReviewDetail> = mutableListOf(),

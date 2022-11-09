@@ -16,7 +16,7 @@ import com.squareup.picasso.Picasso
  * Created by rizky.kharisma on 09/11/22.
  * @ngengs
  */
-class VideoListAdapter @JvmOverloads constructor(
+class VideoListAdapter(
     private val context: Context,
     private val clickListener: ClickListener,
     private val data: MutableList<VideosDetail> = mutableListOf(),

@@ -16,7 +16,11 @@ import com.google.android.material.snackbar.Snackbar
 import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.adapters.ReviewListAdapter
 import com.ngengs.android.popularmovies.apps.adapters.VideoListAdapter
-import com.ngengs.android.popularmovies.apps.data.*
+import com.ngengs.android.popularmovies.apps.data.MoviesDetail
+import com.ngengs.android.popularmovies.apps.data.ReviewDetail
+import com.ngengs.android.popularmovies.apps.data.ReviewList
+import com.ngengs.android.popularmovies.apps.data.VideosDetail
+import com.ngengs.android.popularmovies.apps.data.VideosList
 import com.ngengs.android.popularmovies.apps.data.local.MoviesProviderHelper
 import com.ngengs.android.popularmovies.apps.databinding.FragmentDetailMovieBinding
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment.OnFragmentInteractionListener
@@ -72,7 +76,7 @@ class DetailMovieFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentDetailMovieBinding.inflate(inflater, container, false)
         val view: View = binding.root
-        moviesProviderHelper = MoviesProviderHelper(context)
+        moviesProviderHelper = MoviesProviderHelper(requireContext())
         if (data != null) {
             Log.d(TAG, "onCreateView: data status: not null")
             createLayout(savedInstanceState)
@@ -119,8 +123,9 @@ class DetailMovieFragment : Fragment() {
 
     private fun bindOldData() {
         data?.let { movie ->
-            if (movie.backdropPath != null) {
-                mListener?.onFragmentChangeHeaderImage(movie.backdropPath)
+            val backdropPath = movie.getBackdropPath(Values.TYPE_DEFAULT_IMAGE_THUMB).orEmpty()
+            if (backdropPath.isNotEmpty()) {
+                mListener?.onFragmentChangeHeaderImage(backdropPath)
             }
             if (movie.getPosterPath(3) != null) {
                 Picasso.get()
@@ -185,8 +190,8 @@ class DetailMovieFragment : Fragment() {
                 binding.textMovieLanguage.text =
                     movie.spokenLanguages.joinToString(", ") { it.name }
             }
-            if (movie.status.isNotEmpty()) binding.textMovieStatus.text = movie.status
-            if (movie.tagline.isNotEmpty()) {
+            if (movie.status?.isNotEmpty() == true) binding.textMovieStatus.text = movie.status
+            if (movie.tagline?.isNotEmpty() == true) {
                 binding.textMovieTagline.text = movie.tagline
                 binding.textMovieTagline.visibility = View.VISIBLE
             }
@@ -347,7 +352,7 @@ class DetailMovieFragment : Fragment() {
     }
 
     private fun onResponseReview(response: ReviewList) {
-        Log.d(TAG, "onResponseReview: " + response.review.size)
+        Log.d(TAG, "onResponseReview: " + response.review?.size)
         response.review?.let { bindReview(it) }
     }
 
@@ -414,7 +419,6 @@ class DetailMovieFragment : Fragment() {
         private const val TAG = "DetailMovieFragment"
         private const val ARG_DATA = "DATA"
 
-        @JvmStatic
         fun newInstance(moviesDetail: MoviesDetail) = DetailMovieFragment().apply {
             val args = Bundle().apply { putParcelable(ARG_DATA, moviesDetail) }
             arguments = args

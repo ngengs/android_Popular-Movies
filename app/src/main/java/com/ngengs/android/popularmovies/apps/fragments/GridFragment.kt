@@ -77,7 +77,7 @@ class GridFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentGridBinding.inflate(inflater, container, false)
         val view: View = binding.root
-        moviesProviderHelper = MoviesProviderHelper(context)
+        moviesProviderHelper = MoviesProviderHelper(requireContext())
         createLayout(savedInstanceState)
         mListener?.onAttachHandler()
         initializeViewAction()
@@ -268,7 +268,7 @@ class GridFragment : Fragment() {
         if (moviesList.statusMessage == null && movies.size > 0) {
             adapter.add(movies)
         }
-        if (movies.size == 0) {
+        if (movies.isEmpty()) {
             binding.tools.visibility = View.VISIBLE
             binding.imageTools.setImageDrawable(
                 getDrawable(
@@ -383,7 +383,7 @@ class GridFragment : Fragment() {
         binding.tools.visibility = View.GONE
         disposable = Observable.fromPublisher(object : Flowable<MoviesList?>() {
             override fun subscribeActual(s: Subscriber<in MoviesList?>) {
-                val movieList = moviesProviderHelper.favorites
+                val movieList = moviesProviderHelper.getFavorites()
                 if (movieList != null) s.onNext(movieList) else s.onError(null)
                 s.onComplete()
             }
@@ -421,8 +421,8 @@ class GridFragment : Fragment() {
         // Catch Offline data
         Log.d(TAG, "createLayout: catch old data")
         val temp = when (sortType) {
-            Values.TYPE_POPULAR -> moviesProviderHelper.popular
-            Values.TYPE_HIGH_RATED -> moviesProviderHelper.topRated
+            Values.TYPE_POPULAR -> moviesProviderHelper.getPopular()
+            Values.TYPE_HIGH_RATED -> moviesProviderHelper.getTopRated()
             else -> null
         }
         temp?.let { onResponse(it) }
@@ -462,7 +462,6 @@ class GridFragment : Fragment() {
          * @param sort Type of sort ([Values.TYPE_POPULAR], [Values.TYPE_HIGH_RATED], [Values.TYPE_FAVORITE]])
          * @return A new instance of fragment GridFragment.
          */
-        @JvmStatic
         fun newInstance(sort: Int): GridFragment = GridFragment().apply {
             val args = Bundle().apply { putInt(ARGS_SORT_TYPE, sort) }
             arguments = args
