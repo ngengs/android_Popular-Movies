@@ -1,25 +1,20 @@
 package com.ngengs.android.popularmovies.apps.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.databinding.ItemMovieListBinding;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * Created by ngengs on 6/15/2017.
@@ -39,18 +34,20 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         this.clickListener = clickListener;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_movie_list, parent, false));
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ItemMovieListBinding binding = ItemMovieListBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new ViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String imageUrl = data.get(position).getPosterPath();
         if (imageUrl != null)
-            Picasso.with(context).load(imageUrl).noFade().placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white)).into(holder.image);
-        holder.rankPosition.setText(context.getResources().getString(R.string.movie_position, (position + 1)));
+            Picasso.with(context).load(imageUrl).noFade().placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white)).into(holder.binding.imagePoster);
+        holder.binding.imagePoster.setOnClickListener(view -> holder.itemClick());
+        holder.binding.rankPosition.setText(context.getResources().getString(R.string.movie_position, (position + 1)));
     }
 
     @Override
@@ -100,17 +97,13 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.imagePoster)
-        ImageView image;
-        @BindView(R.id.rankPosition)
-        TextView rankPosition;
+        ItemMovieListBinding binding;
 
-        ViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
+        ViewHolder(ItemMovieListBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
 
-        @OnClick(R.id.itemRoot)
         void itemClick() {
             clickListener.OnClickListener(getAdapterPosition());
         }

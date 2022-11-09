@@ -312,9 +312,9 @@
 
     </android.support.v7.widget.CardView>
 
-    <include layout="@layout/video_layout" />
+    <include android:id="@+id/videoLayout" layout="@layout/video_layout" />
 
-    <include layout="@layout/review_layout" />
+    <include android:id="@+id/reviewLayout" layout="@layout/review_layout" />
 
     <RelativeLayout
         android:id="@+id/rootProgressBar"

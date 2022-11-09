@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 // Signing definition
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -24,17 +26,20 @@ int versionPatch = versionProperties['VERSION_PATCH'] as int
 int versionBuild = versionProperties['VERSION_BUILD'] as int // always bump build number.
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "26"
+    compileSdkVersion rootProject.compileSdkVersion
     defaultConfig {
         applicationId "com.ngengs.android.popularmovies.apps"
-        minSdkVersion 16
+        minSdkVersion rootProject.minSdkVersion
         //noinspection OldTargetApi
-        targetSdkVersion 25
+        targetSdkVersion rootProject.targetSdkVersion
         versionCode((versionMajor * 10000000) + (versionMinor * 100000) + (versionPatch * 100) + versionBuild)
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 
     signingConfigs {
@@ -67,11 +72,11 @@ android {
             }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
-                variant.outputs.each { output ->
+                variant.outputs.all { output ->
                     def newName = output.outputFile.name
                     newName = newName.replace("app-", applicationId + "-")
                     newName = newName.replace("-release", "-v" + versionName + "-build." + getBuildDate() + "-release")
-                    output.outputFile = new File(output.outputFile.parent, newName)
+                    outputFileName = newName
                 }
             }
         }
@@ -86,6 +91,16 @@ android {
         buildTypes.each {
             it.buildConfigField 'String', 'API_KEY', API_KEY
         }
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
+    packagingOptions {
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
     }
 
     lintOptions {
@@ -175,24 +190,22 @@ VERSION_BUILD=${build}
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile 'com.android.support:cardview-v7:25.4.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:design:25.4.0'
-    compile 'com.android.support:recyclerview-v7:25.4.0'
-    compile 'com.google.code.gson:gson:2.8.1'
-    compile 'com.jakewharton:butterknife:8.6.0'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'io.reactivex.rxjava2:rxjava:2.1.1'
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
-    compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.android.support:support-v4:25.3.1'
-    testCompile 'junit:junit:4.12'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:cardview-v7:28.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.android.support:support-v4:28.0.0'
+    testImplementation 'junit:junit:4.13.2'
 }

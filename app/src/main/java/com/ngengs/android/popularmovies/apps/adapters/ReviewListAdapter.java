@@ -1,23 +1,19 @@
 package com.ngengs.android.popularmovies.apps.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.data.ReviewDetail;
+import com.ngengs.android.popularmovies.apps.databinding.ItemReviewListBinding;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * Created by ngengs on 7/1/2017.
@@ -37,20 +33,22 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Vi
         data = new ArrayList<>();
     }
 
+    @NonNull
     @Override
-    public ReviewListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ReviewListAdapter.ViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_review_list, parent, false));
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ItemReviewListBinding binding = ItemReviewListBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new ViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(ReviewListAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: position: " + position + " size: " + getItemCount());
         ReviewDetail review = data.get(position);
-        holder.reviewPeople.setText(review.getAuthor());
-        holder.reviewText.setText(context.getString(R.string.review_text, review.getContent()));
-        if (position == (getItemCount() - 1)) holder.reviewSeparator.setVisibility(View.GONE);
-        else holder.reviewSeparator.setVisibility(View.VISIBLE);
+        holder.binding.reviewPeople.setText(review.getAuthor());
+        holder.binding.reviewText.setText(context.getString(R.string.review_text, review.getContent()));
+        if (position == (getItemCount() - 1)) holder.binding.reviewSeparator.setVisibility(View.GONE);
+        else holder.binding.reviewSeparator.setVisibility(View.VISIBLE);
+        holder.binding.rootReview.setOnClickListener(view -> holder.itemClick());
     }
 
     @Override
@@ -83,21 +81,13 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Vi
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.reviewText)
-        TextView reviewText;
-        @BindView(R.id.reviewPeople)
-        TextView reviewPeople;
-        @BindView(R.id.rootReview)
-        LinearLayout rootReview;
-        @BindView(R.id.reviewSeparator)
-        View reviewSeparator;
+        ItemReviewListBinding binding;
 
-        ViewHolder(View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        ViewHolder(ItemReviewListBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
 
-        @OnClick(R.id.rootReview)
         void itemClick() {
             clickListener.onClickListener(getAdapterPosition());
         }

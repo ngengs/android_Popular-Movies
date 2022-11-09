@@ -23,6 +23,7 @@ import com.ngengs.android.popularmovies.apps.adapters.MovieListAdapter;
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
 import com.ngengs.android.popularmovies.apps.data.MoviesList;
 import com.ngengs.android.popularmovies.apps.data.local.MoviesProviderHelper;
+import com.ngengs.android.popularmovies.apps.databinding.FragmentGridBinding;
 import com.ngengs.android.popularmovies.apps.globals.Values;
 import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration;
 import com.ngengs.android.popularmovies.apps.utils.MoviesAPI;
@@ -34,10 +35,6 @@ import org.reactivestreams.Subscriber;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -56,18 +53,19 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class GridFragment extends Fragment {
     private static final String TAG = "GridFragment";
-    @BindView(R.id.recyclerView)
-    RecyclerView rv;
-    @BindView(R.id.progressBar)
-    ProgressBar progressBar;
-    @BindView(R.id.textTools)
-    TextView textMessage;
-    @BindView(R.id.imageTools)
-    ImageView imageTools;
-    @BindView(R.id.tools)
-    View tools;
-    @BindView(R.id.swipeRefresh)
-    SwipeRefreshLayout swipeRefreshLayout;
+    FragmentGridBinding binding;
+//    @BindView(R.id.recyclerView)
+//    RecyclerView rv;
+//    @BindView(R.id.progressBar)
+//    ProgressBar progressBar;
+//    @BindView(R.id.textTools)
+//    TextView textMessage;
+//    @BindView(R.id.imageTools)
+//    ImageView imageTools;
+//    @BindView(R.id.tools)
+//    View tools;
+//    @BindView(R.id.swipeRefresh)
+//    SwipeRefreshLayout swipeRefreshLayout;
     private GridLayoutManager layoutManager;
     private GridSpacesItemDecoration layoutDecoration;
     private Snackbar snackbar;
@@ -104,8 +102,6 @@ public class GridFragment extends Fragment {
     };
     private OnFragmentInteractionListener mListener;
 
-    private Unbinder unbinder;
-
     public GridFragment() {
         // Required empty public constructor
     }
@@ -137,13 +133,18 @@ public class GridFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_grid, container, false);
+        binding = FragmentGridBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
         context = view.getContext();
-        unbinder = ButterKnife.bind(this, view);
         moviesProviderHelper = new MoviesProviderHelper(context);
         createLayout(savedInstanceState);
         if (mListener != null) mListener.onAttachHandler();
+        initializeViewAction();
         return view;
+    }
+
+    private void initializeViewAction() {
+        binding.imageTools.setOnClickListener(view -> imageToolsClick());
     }
 
     @Override
@@ -172,7 +173,7 @@ public class GridFragment extends Fragment {
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
-        if (unbinder != null) unbinder.unbind();
+        binding = null;
     }
 
     public int getSortType() {
@@ -220,8 +221,8 @@ public class GridFragment extends Fragment {
         changeData = true;
 
         // Make sure all view not visible
-        rv.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
+        binding.recyclerView.setVisibility(View.GONE);
+        binding.progressBar.setVisibility(View.GONE);
 
         adapter = new MovieListAdapter(context, new MovieListAdapter.ClickListener() {
             @Override
@@ -238,12 +239,12 @@ public class GridFragment extends Fragment {
         layoutManager = new GridLayoutManager(context, gridSpan);
         layoutDecoration = new GridSpacesItemDecoration(gridSpan, getResources().getDimensionPixelSize(R.dimen.grid_spacing));
 
-        rv.setLayoutManager(layoutManager);
-        rv.addItemDecoration(layoutDecoration);
-        rv.setAdapter(adapter);
-        rv.setHasFixedSize(true);
-        rv.setNestedScrollingEnabled(false);
-        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        binding.recyclerView.setLayoutManager(layoutManager);
+        binding.recyclerView.addItemDecoration(layoutDecoration);
+        binding.recyclerView.setAdapter(adapter);
+        binding.recyclerView.setHasFixedSize(true);
+        binding.recyclerView.setNestedScrollingEnabled(false);
+        binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @SuppressWarnings("EmptyMethod")
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -269,17 +270,14 @@ public class GridFragment extends Fragment {
         });
 
         forceRefresh = false;
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                forceRefresh = true;
-                pageNow = 0;
-                pageTotal = 1;
-                fromPagination = false;
-                if (sortType == Values.TYPE_POPULAR) getPopularMovies();
-                else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
-                else getFavoriteMovies();
-            }
+        binding.swipeRefresh.setOnRefreshListener(() -> {
+            forceRefresh = true;
+            pageNow = 0;
+            pageTotal = 1;
+            fromPagination = false;
+            if (sortType == Values.TYPE_POPULAR) getPopularMovies();
+            else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
+            else getFavoriteMovies();
         });
 
         moviesAPI = NetworkHelpers.provideAPI();
@@ -292,9 +290,9 @@ public class GridFragment extends Fragment {
             if (temp != null) {
                 adapter.clear();
                 adapter.add(temp);
-                rv.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.GONE);
-                tools.setVisibility(View.GONE);
+                binding.recyclerView.setVisibility(View.VISIBLE);
+                binding.progressBar.setVisibility(View.GONE);
+                binding.tools.setVisibility(View.GONE);
                 doChangeTitle();
             }
             processLoadData = savedInstanceState.getBoolean("PROCESS_LOAD_DATA", false);
@@ -323,10 +321,10 @@ public class GridFragment extends Fragment {
     public void updateSpanColumn(int span) {
         if (layoutManager != null) layoutManager.setSpanCount(span);
         else layoutManager = new GridLayoutManager(context, span);
-        rv.setLayoutManager(layoutManager);
-        rv.removeItemDecoration(layoutDecoration);
+        binding.recyclerView.setLayoutManager(layoutManager);
+        binding.recyclerView.removeItemDecoration(layoutDecoration);
         layoutDecoration = new GridSpacesItemDecoration(span, getResources().getDimensionPixelSize(R.dimen.grid_spacing));
-        rv.addItemDecoration(layoutDecoration);
+        binding.recyclerView.addItemDecoration(layoutDecoration);
     }
 
     public void scrollToPosition(int position) {
@@ -334,7 +332,7 @@ public class GridFragment extends Fragment {
     }
 
     private void onResponse(@NonNull MoviesList moviesList) {
-        if (rv.getVisibility() == View.GONE) rv.setVisibility(View.VISIBLE);
+        if (binding.recyclerView.getVisibility() == View.GONE) binding.recyclerView.setVisibility(View.VISIBLE);
 
         if (forceRefresh) adapter.clear();
 
@@ -343,7 +341,7 @@ public class GridFragment extends Fragment {
             snackbar.dismiss();
             snackbar = null;
         }
-        if (tools.getVisibility() == View.VISIBLE) tools.setVisibility(View.GONE);
+        if (binding.tools.getVisibility() == View.VISIBLE) binding.tools.setVisibility(View.GONE);
         fromPagination = false;
         pageTotal = moviesList.getTotalPage();
         pageNow = moviesList.getPage();
@@ -352,17 +350,17 @@ public class GridFragment extends Fragment {
             adapter.add(movies);
         }
         if (movies.size() == 0) {
-            tools.setVisibility(View.VISIBLE);
-            imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_movie_white));
-            textMessage.setText(R.string.data_empty);
+            binding.tools.setVisibility(View.VISIBLE);
+            binding.imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_movie_white));
+            binding.textTools.setText(R.string.data_empty);
         }
         Log.d(TAG, "onResponse: pageNow: " + pageNow + " pageTotal: " + pageTotal);
         Log.d(TAG, "onResponse: finish Response");
     }
 
     private void onComplete() {
-        if (progressBar.getVisibility() == View.VISIBLE) progressBar.setVisibility(View.GONE);
-        if (swipeRefreshLayout.isRefreshing()) swipeRefreshLayout.setRefreshing(false);
+        if (binding.progressBar.getVisibility() == View.VISIBLE) binding.progressBar.setVisibility(View.GONE);
+        if (binding.swipeRefresh.isRefreshing()) binding.swipeRefresh.setRefreshing(false);
         if (forceRefresh) forceRefresh = false;
 
         processLoadData = false;
@@ -372,22 +370,22 @@ public class GridFragment extends Fragment {
     }
 
     private void onFailure(@NonNull Throwable t) {
-        if (progressBar.getVisibility() == View.VISIBLE) progressBar.setVisibility(View.GONE);
-        if (rv.getVisibility() == View.VISIBLE && adapter.getItemCount() == 0)
-            rv.setVisibility(View.GONE);
+        if (binding.progressBar.getVisibility() == View.VISIBLE) binding.progressBar.setVisibility(View.GONE);
+        if (binding.recyclerView.getVisibility() == View.VISIBLE && adapter.getItemCount() == 0)
+            binding.recyclerView.setVisibility(View.GONE);
 
         if (fromPagination) {
-            imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_refresh_white));
-            textMessage.setText(R.string.error_next_page);
-            tools.setVisibility(View.VISIBLE);
+            binding.imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_refresh_white));
+            binding.textTools.setText(R.string.error_next_page);
+            binding.tools.setVisibility(View.VISIBLE);
         } else if (adapter.getItemCount() == 0) {
-            imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_cloud_off_white));
-            textMessage.setText(R.string.error_no_connection);
-            tools.setVisibility(View.VISIBLE);
+            binding.imageTools.setImageDrawable(ResourceHelpers.getDrawable(context, R.drawable.ic_cloud_off_white));
+            binding.textTools.setText(R.string.error_no_connection);
+            binding.tools.setVisibility(View.VISIBLE);
         }
 
         if (snackbar != null) snackbar.dismiss();
-        snackbar = Snackbar.make(textMessage, R.string.error_cant_get_data_check_connection, BaseTransientBottomBar.LENGTH_INDEFINITE);
+        snackbar = Snackbar.make(binding.textTools, R.string.error_cant_get_data_check_connection, BaseTransientBottomBar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.retry, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -406,7 +404,6 @@ public class GridFragment extends Fragment {
         super.onPause();
     }
 
-    @OnClick(R.id.imageTools)
     void imageToolsClick() {
         if (sortType == Values.TYPE_POPULAR) getPopularMovies();
         else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies();
@@ -419,8 +416,8 @@ public class GridFragment extends Fragment {
             Log.d(TAG, "getPopularMovies: now. page: " + pageNow);
             loading = true;
             processLoadData = true;
-            if (!forceRefresh || changeData) progressBar.setVisibility(View.VISIBLE);
-            tools.setVisibility(View.GONE);
+            if (!forceRefresh || changeData) binding.progressBar.setVisibility(View.VISIBLE);
+            binding.tools.setVisibility(View.GONE);
 
             Log.d(TAG, "getPopularMovies: page: " + pageNow);
             disposable = moviesAPI.listMoviesPopular(pageNow + 1)
@@ -446,20 +443,17 @@ public class GridFragment extends Fragment {
             Log.d(TAG, "getTopRatedMovies: now. page: " + pageNow);
             loading = true;
             processLoadData = true;
-            if (!forceRefresh || changeData) progressBar.setVisibility(View.VISIBLE);
-            tools.setVisibility(View.GONE);
+            if (!forceRefresh || changeData) binding.progressBar.setVisibility(View.VISIBLE);
+            binding.tools.setVisibility(View.GONE);
 
             disposable = moviesAPI.listMoviesTopRated(pageNow + 1)
                     .subscribeOn(Schedulers.io())
-                    .doOnNext(new Consumer<MoviesList>() {
-                        @Override
-                        public void accept(@io.reactivex.annotations.NonNull MoviesList moviesList) throws Exception {
-                            Log.d(TAG, "getTopRatedMovies: page: " + pageNow);
-                            moviesProviderHelper.saveMovies(moviesList.getMovies());
-                            if (pageNow == 0) {
-                                moviesProviderHelper.deleteTopRated();
-                                moviesProviderHelper.saveTopRated(moviesList.getMovies());
-                            }
+                    .doOnNext(moviesList -> {
+                        Log.d(TAG, "getTopRatedMovies: page: " + pageNow);
+                        moviesProviderHelper.saveMovies(moviesList.getMovies());
+                        if (pageNow == 0) {
+                            moviesProviderHelper.deleteTopRated();
+                            moviesProviderHelper.saveTopRated(moviesList.getMovies());
                         }
                     })
                     .observeOn(AndroidSchedulers.mainThread())
@@ -471,8 +465,8 @@ public class GridFragment extends Fragment {
         Log.d(TAG, "getFavoriteMovies: now");
         loading = true;
         processLoadData = true;
-        if (changeData) progressBar.setVisibility(View.VISIBLE);
-        tools.setVisibility(View.GONE);
+        if (changeData) binding.progressBar.setVisibility(View.VISIBLE);
+        binding.tools.setVisibility(View.GONE);
 
         disposable = Observable.fromPublisher(new Flowable<MoviesList>() {
             @Override

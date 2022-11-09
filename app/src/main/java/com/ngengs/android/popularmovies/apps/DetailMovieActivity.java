@@ -5,42 +5,27 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.ngengs.android.popularmovies.apps.data.MoviesDetail;
+import com.ngengs.android.popularmovies.apps.databinding.ActivityDetailMovieBinding;
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
 @SuppressWarnings("FieldCanBeLocal")
 public class DetailMovieActivity extends AppCompatActivity implements DetailMovieFragment.OnFragmentInteractionListener {
     private static final String TAG = "DetailMovieActivity";
-
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.detailHeaderImage)
-    ImageView imageHeader;
-    @BindView(R.id.fabFavorite)
-    FloatingActionButton fab;
-    @BindView(R.id.fragmentDetail)
-    FrameLayout detailFragmentLayout;
+    private ActivityDetailMovieBinding binding;
 
     private MoviesDetail data;
     private FragmentManager fragmentManager;
@@ -51,10 +36,10 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail_movie);
-        ButterKnife.bind(this);
+        binding = ActivityDetailMovieBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
 
         data = getIntent().getParcelableExtra("DATA");
         if (data == null) {
@@ -70,18 +55,20 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
 
         fragmentManager = getSupportFragmentManager();
 
-        if (detailFragmentLayout != null) {
-            if (savedInstanceState == null) {
-                Log.d(TAG, "onCreate: attach fragment");
-                detailMovieFragment = DetailMovieFragment.newInstance(data);
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.add(detailFragmentLayout.getId(), detailMovieFragment);
-                fragmentTransaction.commit();
-            } else {
-                detailMovieFragment = (DetailMovieFragment) fragmentManager.findFragmentById(detailFragmentLayout.getId());
-            }
+        if (savedInstanceState == null) {
+            Log.d(TAG, "onCreate: attach fragment");
+            detailMovieFragment = DetailMovieFragment.newInstance(data);
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(binding.fragmentDetail.getId(), detailMovieFragment);
+            fragmentTransaction.commit();
+        } else {
+            detailMovieFragment = (DetailMovieFragment) fragmentManager.findFragmentById(binding.fragmentDetail.getId());
         }
+        initializeViewAction();
+    }
 
+    private void initializeViewAction() {
+        binding.fabFavorite.setOnClickListener(view -> onFavoriteClick());
     }
 
     @SuppressWarnings("EmptyMethod")
@@ -127,7 +114,6 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
         return super.onOptionsItemSelected(item);
     }
 
-    @OnClick(R.id.fabFavorite)
     void onFavoriteClick() {
         detailMovieFragment.changeFavorite();
     }
@@ -153,9 +139,9 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
     @Override
     public void onFragmentChangeFavorite(MoviesDetail data, boolean isFavorite, boolean isRefresh) {
         if (isFavorite)
-            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
+            binding.fabFavorite.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_white));
         else
-            fab.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
+            binding.fabFavorite.setImageDrawable(ResourceHelpers.getDrawable(this, R.drawable.ic_favorite_border_white));
     }
 
     @Override
@@ -170,7 +156,7 @@ public class DetailMovieActivity extends AppCompatActivity implements DetailMovi
                     .load(imageUri)
                     .centerCrop()
                     .resize(Resources.getSystem().getDisplayMetrics().widthPixels, getResources().getDimensionPixelSize(R.dimen.image_description_header))
-                    .into(imageHeader);
+                    .into(binding.detailHeaderImage);
         }
     }
 }

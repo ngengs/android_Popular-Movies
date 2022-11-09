@@ -7,20 +7,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import com.ngengs.android.popularmovies.apps.R;
 import com.ngengs.android.popularmovies.apps.data.VideosDetail;
+import com.ngengs.android.popularmovies.apps.databinding.ItemVideoListBinding;
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * Created by ngengs on 6/30/2017.
@@ -42,8 +37,8 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_video_list, parent, false));
+        ItemVideoListBinding binding = ItemVideoListBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new ViewHolder(binding);
     }
 
     @Override
@@ -53,16 +48,17 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
         Log.d(TAG, "onBindViewHolder: " + videos.getType());
         if (videos.isYoutubeVideo()) {
             Log.d(TAG, "onBindViewHolder: " + videos.getYoutubeThumbnail());
-            holder.itemRoot.setVisibility(View.VISIBLE);
+            holder.binding.itemRoot.setVisibility(View.VISIBLE);
             Picasso.with(context)
                     .load(videos.getYoutubeThumbnail())
                     .noFade()
                     .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white))
-                    .into(holder.imageVideo);
+                    .into(holder.binding.imageVideo);
 
         } else {
-            holder.itemRoot.setVisibility(View.GONE);
+            holder.binding.itemRoot.setVisibility(View.GONE);
         }
+        holder.binding.itemRoot.setOnClickListener(view -> holder.itemClick());
     }
 
     @Override
@@ -95,17 +91,13 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.imageVideo)
-        ImageView imageVideo;
-        @BindView(R.id.itemRoot)
-        FrameLayout itemRoot;
+        ItemVideoListBinding binding;
 
-        ViewHolder(View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        ViewHolder(ItemVideoListBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
 
-        @OnClick(R.id.itemRoot)
         void itemClick() {
             clickListener.onClickListener(getAdapterPosition());
         }
