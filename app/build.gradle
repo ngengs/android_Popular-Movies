@@ -26,6 +26,16 @@ int versionMinor = versionProperties['VERSION_MINOR'] as int
 int versionPatch = versionProperties['VERSION_PATCH'] as int
 int versionBuild = versionProperties['VERSION_BUILD'] as int // always bump build number.
 
+// Config definition
+def configPropertiesFile = rootProject.file('config.properties')
+def configProperties = null
+if (configPropertiesFile.exists()) {
+    configProperties = new Properties()
+    configProperties.load(new FileInputStream(configPropertiesFile))
+} else {
+    throw new Exception('Configuration properties file not Found')
+}
+
 android {
     compileSdkVersion rootProject.compileSdkVersion
     defaultConfig {
@@ -45,10 +55,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            def newName = output.outputFile.name
-            newName = newName.replace("app-", applicationId + "-")
-            newName = newName.replace("-release", "-v" + versionName + "-build." + getBuildDate() + "-release")
-            outputFileName = newName
+            outputFileName = "${applicationId}-v${versionName}-build.${getBuildDate()}-${variant.name}.apk"
         }
     }
 
@@ -80,7 +87,7 @@ android {
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
             }
-            buildConfigField 'String', 'API_KEY', API_KEY_RELEASE
+            buildConfigField 'String', 'API_KEY', configProperties['API_KEY_RELEASE']
             proguardFiles getDefaultProguardFile('proguard-android.txt')
             proguardFiles fileTree(include: ['*.pro'], dir: 'proguards').asList().toArray()
         }
@@ -88,7 +95,7 @@ android {
             minifyEnabled false
             versionNameSuffix "-debug"
             debuggable true
-            buildConfigField 'String', 'API_KEY', API_KEY_DEBUG
+            buildConfigField 'String', 'API_KEY', configProperties['API_KEY_DEBUG']
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.debug
             }

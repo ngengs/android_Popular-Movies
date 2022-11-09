@@ -11,3 +11,4 @@
 *.jks
 /app/keystore/
 /keystore.properties
+/config.properties
