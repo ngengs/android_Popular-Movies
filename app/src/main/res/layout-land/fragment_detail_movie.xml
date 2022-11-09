@@ -8,7 +8,7 @@
     tools:context="com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment">
 
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardMainDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
         </RelativeLayout>
 
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -98,7 +98,7 @@
             android:layout_weight="0.5"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -135,9 +135,9 @@
                         android:textSize="@dimen/text_size_large" />
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/taglineView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -175,9 +175,9 @@
                         android:textSize="@dimen/text_size_large" />
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <include layout="@layout/video_layout" />
+            <include android:id="@+id/videoLayout" layout="@layout/video_layout" />
 
         </LinearLayout>
 
@@ -191,7 +191,7 @@
             android:layout_weight="0.5"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/detailView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -351,7 +351,7 @@
                         android:textSize="@dimen/text_size_large" />
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
             <RelativeLayout
                 android:id="@+id/rootProgressBar"
@@ -373,7 +373,7 @@
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp">
 
-        <include layout="@layout/review_layout" />
+        <include android:id="@+id/reviewLayout" layout="@layout/review_layout" />
     </FrameLayout>
 
 </LinearLayout>
