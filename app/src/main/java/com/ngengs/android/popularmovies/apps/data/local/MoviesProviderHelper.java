@@ -15,7 +15,6 @@ import java.util.List;
  * Created by ngengs on 7/4/2017.
  */
 
-@SuppressWarnings("DefaultFileTemplate")
 public class MoviesProviderHelper {
     private final Context context;
 

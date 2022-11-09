@@ -11,10 +11,10 @@ import com.ngengs.android.popularmovies.apps.globals.LocalDatabase;
  * Created by ngengs on 7/3/2017.
  */
 
-@SuppressWarnings({"WeakerAccess", "unused", "DefaultFileTemplate"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class MoviesEntry implements BaseColumns {
 
-    public static final Uri CONTENT_URI = LocalDatabase.BASE_CONTENT_URI.buildUpon().appendPath(LocalDatabase.PATH_MOVIES).build();
+    public static final Uri CONTENT_URI = LocalDatabase.INSTANCE.getBASE_CONTENT_URI().buildUpon().appendPath(LocalDatabase.PATH_MOVIES).build();
 
     public static final String CONTENT_DIR_TYPE =
             ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + LocalDatabase.CONTENT_AUTHORITY + "/" + LocalDatabase.PATH_MOVIES;

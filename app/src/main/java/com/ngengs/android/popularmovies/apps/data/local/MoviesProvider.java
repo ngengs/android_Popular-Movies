@@ -21,7 +21,7 @@ import java.util.HashSet;
  * Created by ngengs on 7/3/2017.
  */
 
-@SuppressWarnings({"WeakerAccess", "unused", "DefaultFileTemplate"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class MoviesProvider extends ContentProvider {
     public static final String TAG = "MoviesProvider";
 

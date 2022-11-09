@@ -180,9 +180,9 @@ public class MoviesDetail implements Parcelable {
 
     public String getPosterPath(int sizeType) {
         if (posterPath != null && !posterPath.equals("")) {
-            String size = Values.IMAGE_SIZE_PATH[0];
-            if (sizeType >= 0 && sizeType < Values.IMAGE_SIZE_PATH.length)
-                size = Values.IMAGE_SIZE_PATH[sizeType];
+            String size = Values.INSTANCE.getIMAGE_SIZE_PATH()[0];
+            if (sizeType >= 0 && sizeType < Values.INSTANCE.getIMAGE_SIZE_PATH().length)
+                size = Values.INSTANCE.getIMAGE_SIZE_PATH()[sizeType];
             return Values.URL_IMAGE + size + posterPath;
         } else return null;
     }
@@ -205,9 +205,9 @@ public class MoviesDetail implements Parcelable {
 
     public String getBackdropPath(int sizeType) {
         if (backdropPath != null && !backdropPath.equals("")) {
-            String size = Values.IMAGE_SIZE_BACKDROP[0];
-            if (sizeType >= 0 && sizeType < Values.IMAGE_SIZE_BACKDROP.length)
-                size = Values.IMAGE_SIZE_BACKDROP[sizeType];
+            String size = Values.INSTANCE.getIMAGE_SIZE_BACKDROP()[0];
+            if (sizeType >= 0 && sizeType < Values.INSTANCE.getIMAGE_SIZE_BACKDROP().length)
+                size = Values.INSTANCE.getIMAGE_SIZE_BACKDROP()[sizeType];
             return Values.URL_IMAGE + size + backdropPath;
         } else return null;
     }

@@ -10,7 +10,7 @@ import com.ngengs.android.popularmovies.apps.globals.LocalDatabase;
  * Created by ngengs on 7/3/2017.
  */
 
-@SuppressWarnings({"WeakerAccess", "unused", "DefaultFileTemplate"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class MoviesPopular implements BaseColumns {
     public static final Uri CONTENT_URI = MoviesEntry.CONTENT_URI.buildUpon()
             .appendPath(LocalDatabase.PATH_POPULAR)
