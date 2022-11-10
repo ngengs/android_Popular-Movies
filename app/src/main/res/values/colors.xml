@@ -13,5 +13,5 @@
     <color name="colorRatingBad">#F44336</color>
 
     <color name="reviewTextBackground">#87DDDDDD</color>
-    <color name="toolbarMenuColor">#000</color>
+    <color name="icon_color">#000</color>
 </resources>

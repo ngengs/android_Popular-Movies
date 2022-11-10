@@ -2,5 +2,5 @@
 <resources>
     <color name="colorBackground">#303030</color>
     <color name="reviewTextBackground">#87000000</color>
-    <color name="toolbarMenuColor">#FFF</color>
+    <color name="icon_color">#FFF</color>
 </resources>
