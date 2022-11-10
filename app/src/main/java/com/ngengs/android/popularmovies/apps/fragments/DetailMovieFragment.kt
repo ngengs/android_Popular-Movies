@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.adapters.ReviewListAdapter
@@ -29,11 +30,10 @@ import com.ngengs.android.popularmovies.apps.data.remote.youtubeVideo
 import com.ngengs.android.popularmovies.apps.databinding.FragmentDetailMovieBinding
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment.OnFragmentInteractionListener
 import com.ngengs.android.popularmovies.apps.globals.Values
-import com.ngengs.android.popularmovies.apps.utils.networks.MoviesAPI
-import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getColor
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getDrawable
-import com.squareup.picasso.Picasso
+import com.ngengs.android.popularmovies.apps.utils.networks.MoviesAPI
+import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -129,16 +129,16 @@ class DetailMovieFragment : Fragment() {
         data?.let { movie ->
             val backdropPath = movie.getBackdropPath(Values.TYPE_DEFAULT_IMAGE_THUMB).orEmpty()
             if (backdropPath.isNotEmpty()) {
-                mListener?.onFragmentChangeHeaderImage(backdropPath)
+                mListener?.onFragmentChangeHeaderImage(backdropPath, movie.getBackdropPath(1))
             }
             if (movie.getPosterPath(3) != null) {
-                Picasso.get()
+                Glide.with(this)
                     .load(movie.getPosterPath(3))
                     .placeholder(getDrawable(requireContext(), R.drawable.ic_collections_white))
-                    .resize(
-                        resources.getDimensionPixelSize(R.dimen.image_description_thumbnail_width),
-                        0
-                    )
+//                    .resize(
+//                        resources.getDimensionPixelSize(R.dimen.image_description_thumbnail_width),
+//                        0
+//                    )
                     .into(binding.imageDetailThumb)
             }
             bindUpdatedData()
@@ -449,7 +449,7 @@ class DetailMovieFragment : Fragment() {
         fun onFragmentShowShare()
         fun onFragmentChangeFavorite(data: MoviesDetail?, isFavorite: Boolean, isRefresh: Boolean)
         fun onFragmentChangeTitle(title: String)
-        fun onFragmentChangeHeaderImage(imageUri: String?)
+        fun onFragmentChangeHeaderImage(imageUri: String?, thumbnailUri: String?)
     }
 
     companion object {

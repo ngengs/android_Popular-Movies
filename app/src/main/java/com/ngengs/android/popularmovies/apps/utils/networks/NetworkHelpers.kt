@@ -22,7 +22,7 @@ object NetworkHelpers {
     private const val WRITE_TIMEOUT = 60
     private const val TIMEOUT = 60
 
-    private fun provideOkHttp(context: Context): OkHttpClient {
+    fun provideOkHttp(context: Context): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor()
         if (BuildConfig.DEBUG) loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 

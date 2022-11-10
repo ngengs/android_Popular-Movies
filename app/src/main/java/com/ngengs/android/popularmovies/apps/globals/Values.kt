@@ -23,6 +23,7 @@ object Values {
     const val URL_IMAGE = "https://image.tmdb.org/t/p/"
     const val URL_VIDEO_YOUTUBE = "https://www.youtube.com/watch?v="
     const val URL_VIDEO_YOUTUBE_THUMB = "https://img.youtube.com/vi/%s/hqdefault.jpg"
+    const val URL_VIDEO_YOUTUBE_SMALL_THUMB = "https://img.youtube.com/vi/%s/default.jpg"
     val IMAGE_SIZE_PATH = arrayOf("original", "w92", "w154", "w185", "w342", "w500", "w780")
     val IMAGE_SIZE_BACKDROP = arrayOf("original", "w300", "w780", "w1280")
 

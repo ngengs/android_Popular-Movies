@@ -9,8 +9,7 @@ import com.ngengs.android.popularmovies.apps.globals.Values
 
 fun MoviesDetail.getPosterPath(sizeType: Int): String? {
     return if (posterPath?.isNotEmpty() == true) {
-        var size = Values.IMAGE_SIZE_PATH[0]
-        if (sizeType >= 0 && sizeType < Values.IMAGE_SIZE_PATH.size) size = Values.IMAGE_SIZE_PATH[sizeType]
+        val size = Values.IMAGE_SIZE_PATH.getOrNull(sizeType) ?: Values.IMAGE_SIZE_PATH.first()
         Values.URL_IMAGE + size + posterPath
     } else null
 }
@@ -18,9 +17,7 @@ fun MoviesDetail.getPosterPath(sizeType: Int): String? {
 
 fun MoviesDetail.getBackdropPath(sizeType: Int): String? {
     return if (backdropPath?.isNotEmpty() == true) {
-        var size = Values.IMAGE_SIZE_BACKDROP[0]
-        if (sizeType >= 0 && sizeType < Values.IMAGE_SIZE_BACKDROP.size) size =
-            Values.IMAGE_SIZE_BACKDROP[sizeType]
+        val size = Values.IMAGE_SIZE_BACKDROP.getOrNull(sizeType) ?: Values.IMAGE_SIZE_BACKDROP.first()
         Values.URL_IMAGE + size + backdropPath
     } else null
 }
@@ -32,4 +29,8 @@ val VideosDetail.youtubeVideo: String? get() =
 
 val VideosDetail.youtubeThumbnail: String? get() = if (key.isNotEmpty() && isYoutubeVideo) {
     String.format(Values.URL_VIDEO_YOUTUBE_THUMB, key)
+} else null
+
+val VideosDetail.youtubeSmallThumbnail: String? get() = if (key.isNotEmpty() && isYoutubeVideo) {
+    String.format(Values.URL_VIDEO_YOUTUBE_SMALL_THUMB, key)
 } else null

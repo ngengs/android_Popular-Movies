@@ -9,7 +9,7 @@ import kotlinx.parcelize.Parcelize
  * @ngengs
  */
 @Parcelize
-data class MoviesList @JvmOverloads constructor(
+data class MoviesList(
     @SerializedName("page")
     val page: Int = 0,
     @SerializedName("total_result")

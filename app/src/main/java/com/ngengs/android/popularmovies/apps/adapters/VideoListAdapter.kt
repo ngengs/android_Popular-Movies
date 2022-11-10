@@ -6,13 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.data.remote.VideosDetail
 import com.ngengs.android.popularmovies.apps.data.remote.isYoutubeVideo
+import com.ngengs.android.popularmovies.apps.data.remote.youtubeSmallThumbnail
 import com.ngengs.android.popularmovies.apps.data.remote.youtubeThumbnail
 import com.ngengs.android.popularmovies.apps.databinding.ItemVideoListBinding
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers
-import com.squareup.picasso.Picasso
+import com.ngengs.android.popularmovies.apps.utils.images.GlideUtils
 
 /**
  * Created by rizky.kharisma on 09/11/22.
@@ -40,12 +42,18 @@ class VideoListAdapter(
         if (videos.isYoutubeVideo) {
             Log.d(TAG, "onBindViewHolder: " + videos.youtubeThumbnail)
             holder.binding.itemRoot.visibility = View.VISIBLE
-            Picasso.get()
+            Glide.with(holder.binding.imageVideo.context)
                 .load(videos.youtubeThumbnail)
-                .noFade()
+                .thumbnail(
+                    GlideUtils.thumbnailBuilder(
+                        holder.binding.imageVideo.context,
+                        videos.youtubeSmallThumbnail
+                    )
+                )
                 .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white))
                 .into(holder.binding.imageVideo)
         } else {
+            Glide.with(holder.binding.imageVideo.context).clear(holder.binding.imageVideo)
             holder.binding.itemRoot.visibility = View.GONE
         }
         holder.binding.itemRoot.setOnClickListener { clickListener.onClickListener(position) }

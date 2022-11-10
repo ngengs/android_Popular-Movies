@@ -3,7 +3,6 @@ package com.ngengs.android.popularmovies.apps
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -14,13 +13,14 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentManager
+import com.bumptech.glide.Glide
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail
 import com.ngengs.android.popularmovies.apps.databinding.ActivityMainBinding
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment
 import com.ngengs.android.popularmovies.apps.fragments.GridFragment
 import com.ngengs.android.popularmovies.apps.globals.Values
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getDrawable
-import com.squareup.picasso.Picasso
+import com.ngengs.android.popularmovies.apps.utils.images.GlideUtils
 
 /**
  * Created by rizky.kharisma on 10/11/22.
@@ -224,13 +224,16 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
         }
     }
 
-    override fun onFragmentChangeHeaderImage(imageUri: String?) {
+    override fun onFragmentChangeHeaderImage(imageUri: String?, thumbnailsUri: String?) {
         if (isMultiLayout()) {
-            Picasso.get()
-                .load(imageUri)
-                .centerCrop()
-                .resize(Resources.getSystem().displayMetrics.widthPixels, resources.getDimensionPixelSize(R.dimen.image_description_header))
-                .into(binding.detailHeaderImage)
+            binding.detailHeaderImage?.let { imageView ->
+                Glide.with(this)
+                    .load(imageUri)
+                    .thumbnail(GlideUtils.thumbnailBuilder(imageView.context, thumbnailsUri))
+                    .centerCrop()
+//                .resize(Resources.getSystem().displayMetrics.widthPixels, resources.getDimensionPixelSize(R.dimen.image_description_header))
+                    .into(imageView)
+            }
         }
     }
 

@@ -15,13 +15,11 @@
 
     <ImageView
         android:id="@+id/imageVideo"
-        android:layout_width="wrap_content"
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:contentDescription="@string/video_image"
-        android:maxHeight="@dimen/image_video_thumbnail_max_height"
-        android:minHeight="50dp"
         android:scaleType="centerInside"
         app:srcCompat="@drawable/ic_collections_white" />
 
