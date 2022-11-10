@@ -55,11 +55,7 @@ class GridFragment : Fragment() {
     private var fromPagination = false
     private var changeData = false
     private var processLoadData = true
-//    private val actionComplete = Action { this.onComplete() }
-//    private val moviesListConsumer =
-//        Consumer { moviesList: MoviesList -> this.onResponse(moviesList) }
     private lateinit var moviesDB: MoviesDatabaseHelper
-//    private val errorConsumer = Consumer { t: Throwable -> onFailure(t) }
     private var mListener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
