@@ -25,10 +25,12 @@ class MoviesDatabaseHelper(context: Context) {
     private val dao get() = db.moviesDao()
 
     fun getFavorites(): Maybe<MoviesList?> =
-        dao.getFavorites().map { data-> data.mapNotNull { it.movies?.toMoviesDetail() }.toMovieList() }
+        dao.getFavorites()
+            .map { data -> data.mapNotNull { it.movies?.toMoviesDetail() }.toMovieList() }
 
     fun getPopular(): Maybe<MoviesList?> =
-        dao.getPopular().map { data -> data.mapNotNull { it.movies?.toMoviesDetail() }.toMovieList() }
+        dao.getPopular()
+            .map { data -> data.mapNotNull { it.movies?.toMoviesDetail() }.toMovieList() }
 
     fun deletePopular(): Completable = dao.deletePopular()
 
@@ -36,14 +38,15 @@ class MoviesDatabaseHelper(context: Context) {
         dao.savePopularOnly(movies.map { MoviesPopular(movieId = it.id) })
 
     fun getTopRated(): Maybe<MoviesList?> =
-        dao.getTopRated().map { data -> data.mapNotNull { it.movies?.toMoviesDetail() }.toMovieList() }
+        dao.getTopRated()
+            .map { data -> data.mapNotNull { it.movies?.toMoviesDetail() }.toMovieList() }
 
     fun deleteTopRated(): Completable {
         return dao.deleteTopRated()
     }
 
     fun saveTopRated(movies: List<MoviesDetail>): Completable {
-            return dao.saveTopRatedOnly(movies.map { MoviesTopRated(movieId = it.id) })
+        return dao.saveTopRatedOnly(movies.map { MoviesTopRated(movieId = it.id) })
     }
 
     fun saveMovies(movies: List<MoviesDetail>): Completable =
@@ -58,7 +61,7 @@ class MoviesDatabaseHelper(context: Context) {
     }
 
     fun removeFromFavorites(movieId: Int): Completable =
-        dao.removeFromFavorites(MoviesFavorites(movieId = movieId))
+        isFavorite(movieId).flatMapCompletable { dao.removeFromFavorites(it) }
 
     fun isFavorite(movieId: Int): Maybe<MoviesFavorites?> = dao.getFavorite(movieId)
 

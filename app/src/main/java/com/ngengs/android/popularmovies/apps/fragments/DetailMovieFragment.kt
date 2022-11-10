@@ -426,9 +426,10 @@ class DetailMovieFragment : Fragment() {
         return loadFromServer
     }
 
-    fun getShareContent(): String? {
-        var shareUrl: String? = ""
-        if (videoListAdapter.itemCount > 0) shareUrl = videoListAdapter.get(0)!!.youtubeVideo
+    fun getShareContent(): String {
+        val shareUrl =
+            if (videoListAdapter.itemCount > 0) videoListAdapter.get(0)?.youtubeVideo.orEmpty()
+            else ""
         return resources.getString(R.string.share_content, data!!.title, shareUrl)
     }
 

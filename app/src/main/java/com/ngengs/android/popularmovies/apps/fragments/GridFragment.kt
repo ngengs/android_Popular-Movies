@@ -253,13 +253,13 @@ class GridFragment : Fragment() {
     }
 
     private fun onResponse(moviesList: MoviesList) {
-        if (binding.recyclerView.visibility == View.GONE) binding.recyclerView.visibility =
-            View.VISIBLE
+        if (binding.recyclerView.visibility == View.GONE) {
+            binding.recyclerView.visibility = View.VISIBLE
+        }
         if (forceRefresh) adapter.clear()
         snackbar?.dismiss()
         snackbar = null
-        if (binding.tools.visibility == View.VISIBLE) binding.tools.visibility =
-            View.GONE
+        if (binding.tools.visibility == View.VISIBLE) binding.tools.visibility = View.GONE
         fromPagination = false
         pageTotal = moviesList.totalPage
         pageNow = moviesList.page
@@ -293,6 +293,7 @@ class GridFragment : Fragment() {
     }
 
     private fun onFailure(t: Throwable) {
+        Log.e(TAG, "onFailure: ", t)
         if (binding.progressBar.visibility == View.VISIBLE) binding.progressBar.visibility =
             View.GONE
         if (binding.recyclerView.visibility == View.VISIBLE && adapter.itemCount == 0) binding.recyclerView.visibility =
@@ -306,7 +307,8 @@ class GridFragment : Fragment() {
             )
             binding.textTools.setText(R.string.error_next_page)
             binding.tools.visibility = View.VISIBLE
-        } else if (adapter.itemCount == 0) {
+        } else if (adapter.itemCount == 0 || pageNow == 0) {
+            adapter.clear()
             binding.imageTools.setImageDrawable(
                 getDrawable(requireContext(), R.drawable.ic_cloud_off_white)
             )
@@ -321,7 +323,6 @@ class GridFragment : Fragment() {
         )
         snackbar?.setAction(R.string.retry) { if (sortType == Values.TYPE_POPULAR) getPopularMovies() else if (sortType == Values.TYPE_HIGH_RATED) getTopRatedMovies() else getFavoriteMovies() }
         snackbar?.show()
-        Log.e(TAG, "onFailure: ", t)
     }
 
     private fun imageToolsClick() {
