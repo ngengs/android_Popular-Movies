@@ -30,13 +30,4 @@ data class VideosDetail(
     val statusCode: Int? = null,
     @SerializedName("status_message")
     val statusMessage: String? = null,
-) : Parcelable {
-    val isYoutubeVideo: Boolean get() = site.equals("youtube", ignoreCase = true)
-
-    val youtubeVideo: String? get() =
-        if (key.isNotEmpty() && isYoutubeVideo) Values.URL_VIDEO_YOUTUBE + key else null
-
-    val youtubeThumbnail: String? get() = if (key.isNotEmpty() && isYoutubeVideo) {
-        String.format(Values.URL_VIDEO_YOUTUBE_THUMB, key)
-    } else null
-}
+) : Parcelable

@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.data.remote.VideosDetail
+import com.ngengs.android.popularmovies.apps.data.remote.isYoutubeVideo
+import com.ngengs.android.popularmovies.apps.data.remote.youtubeThumbnail
 import com.ngengs.android.popularmovies.apps.databinding.ItemVideoListBinding
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers
 import com.squareup.picasso.Picasso

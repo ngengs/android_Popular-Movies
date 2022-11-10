@@ -65,21 +65,4 @@ data class MoviesDetail(
     val statusCode: Int? = null,
     @SerializedName("status_message")
     val statusMessage: String? = null
-) : Parcelable {
-    fun getPosterPath(sizeType: Int): String? {
-        return if (posterPath?.isNotEmpty() == true) {
-            var size = Values.IMAGE_SIZE_PATH[0]
-            if (sizeType >= 0 && sizeType < Values.IMAGE_SIZE_PATH.size) size = Values.IMAGE_SIZE_PATH[sizeType]
-            Values.URL_IMAGE + size + posterPath
-        } else null
-    }
-
-    fun getBackdropPath(sizeType: Int): String? {
-        return if (backdropPath?.isNotEmpty() == true) {
-            var size = Values.IMAGE_SIZE_BACKDROP[0]
-            if (sizeType >= 0 && sizeType < Values.IMAGE_SIZE_BACKDROP.size) size =
-                Values.IMAGE_SIZE_BACKDROP[sizeType]
-            Values.URL_IMAGE + size + backdropPath
-        } else null
-    }
-}
+) : Parcelable

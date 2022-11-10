@@ -22,6 +22,10 @@ import com.ngengs.android.popularmovies.apps.data.remote.ReviewDetail
 import com.ngengs.android.popularmovies.apps.data.remote.ReviewList
 import com.ngengs.android.popularmovies.apps.data.remote.VideosDetail
 import com.ngengs.android.popularmovies.apps.data.remote.VideosList
+import com.ngengs.android.popularmovies.apps.data.remote.getBackdropPath
+import com.ngengs.android.popularmovies.apps.data.remote.getPosterPath
+import com.ngengs.android.popularmovies.apps.data.remote.isYoutubeVideo
+import com.ngengs.android.popularmovies.apps.data.remote.youtubeVideo
 import com.ngengs.android.popularmovies.apps.databinding.FragmentDetailMovieBinding
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment.OnFragmentInteractionListener
 import com.ngengs.android.popularmovies.apps.globals.Values
@@ -30,7 +34,6 @@ import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getColor
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getDrawable
 import com.squareup.picasso.Picasso
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers

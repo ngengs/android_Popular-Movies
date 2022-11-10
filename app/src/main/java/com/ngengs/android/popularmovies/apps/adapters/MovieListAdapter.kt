@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail
+import com.ngengs.android.popularmovies.apps.data.remote.getPosterPath
 import com.ngengs.android.popularmovies.apps.databinding.ItemMovieListBinding
 import com.ngengs.android.popularmovies.apps.globals.Values
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers
