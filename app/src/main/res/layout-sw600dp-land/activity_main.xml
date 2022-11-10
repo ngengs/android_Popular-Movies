@@ -71,7 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:padding="@dimen/margin_none"
-                    android:theme="@style/Base.ThemeOverlay.AppCompat.Dark"
+                    android:theme="@style/AppTheme.AppBarOverlay"
                     app:layout_collapseMode="pin"
                     tools:ignore="InconsistentLayout" />
 
@@ -131,7 +131,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                android:theme="@style/Base.ThemeOverlay.AppCompat.Dark"
+                android:theme="@style/AppTheme.AppBarOverlay"
                 app:layout_scrollFlags="scroll|enterAlways" />
 
         </com.google.android.material.appbar.AppBarLayout>

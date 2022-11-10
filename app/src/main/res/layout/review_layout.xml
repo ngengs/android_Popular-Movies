@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/margin_default"
-            android:background="#87000000"
+            android:background="@color/reviewTextBackground"
             android:padding="@dimen/margin_default"
             android:text="@string/review"
             android:textAllCaps="true"

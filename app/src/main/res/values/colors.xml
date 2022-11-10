@@ -4,11 +4,14 @@
     <color name="colorPrimaryDark">#006064</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorAccentTransparent">#96ff4081</color>
-    <color name="colorBackground">#303030</color>
+    <color name="colorBackground">#FDFDFD</color>
 
     <!--Rating Color-->
     <color name="colorRatingPerfect">#1B5E20</color>
     <color name="colorRatingGood">#689F38</color>
     <color name="colorRatingNormal">#AAA</color>
     <color name="colorRatingBad">#F44336</color>
+
+    <color name="reviewTextBackground">#87DDDDDD</color>
+    <color name="toolbarMenuColor">#000</color>
 </resources>

@@ -29,7 +29,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/margin_none"
-        android:background="@color/colorBackground"
         android:orientation="vertical"
         android:padding="@dimen/margin_large"
         android:visibility="visible">

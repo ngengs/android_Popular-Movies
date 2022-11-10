@@ -94,7 +94,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#87000000"
+                android:background="@color/reviewTextBackground"
                 android:padding="@dimen/margin_default"
                 android:text="@string/synopsis"
                 android:textAllCaps="true"
@@ -132,7 +132,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#87000000"
+                android:background="@color/reviewTextBackground"
                 android:padding="@dimen/margin_default"
                 android:text="@string/tagline"
                 android:textAllCaps="true"
@@ -169,7 +169,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#87000000"
+                android:background="@color/reviewTextBackground"
                 android:padding="@dimen/margin_default"
                 android:text="@string/detail"
                 android:textAllCaps="true"
