@@ -1,17 +1,10 @@
 package com.ngengs.android.popularmovies.apps.data.remote
 
-import android.content.ContentValues
-import android.database.Cursor
 import android.os.Parcelable
-import android.provider.BaseColumns
-import android.util.Log
 import com.google.gson.annotations.SerializedName
-import com.ngengs.android.popularmovies.apps.data.local.MoviesEntry
 import com.ngengs.android.popularmovies.apps.globals.Values
 import kotlinx.parcelize.Parcelize
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 /**
  * Created by rizky.kharisma on 10/11/22.
@@ -88,64 +81,5 @@ data class MoviesDetail(
                 Values.IMAGE_SIZE_BACKDROP[sizeType]
             Values.URL_IMAGE + size + backdropPath
         } else null
-    }
-
-    fun toContentValues(): ContentValues {
-        val values = ContentValues()
-        values.put(BaseColumns._ID, id)
-        values.put(MoviesEntry.COLUMN_ORIGINAL_TITLE, originalTitle)
-        values.put(MoviesEntry.COLUMN_OVERVIEW, overview)
-        values.put(MoviesEntry.COLUMN_RELEASE_DATE, releaseDate.toString())
-        values.put(MoviesEntry.COLUMN_POSTER_PATH, posterPath)
-        values.put(MoviesEntry.COLUMN_POPULARITY, popularity)
-        values.put(MoviesEntry.COLUMN_TITLE, title)
-        values.put(MoviesEntry.COLUMN_AVERAGE_VOTE, voteAverage)
-        values.put(MoviesEntry.COLUMN_VOTE_COUNT, voteCount)
-        values.put(MoviesEntry.COLUMN_BACKDROP_PATH, backdropPath)
-        return values
-    }
-
-    companion object {
-        @JvmStatic
-        fun fromCursor(cursor: Cursor): MoviesDetail {
-            val movieId = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID))
-            val movieTitle = cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_TITLE))
-            val movieOriginalTitle =
-                cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_ORIGINAL_TITLE))
-            val movieOverview = cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_OVERVIEW))
-            val releaseString =
-                cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_RELEASE_DATE))
-            val movieDate: Date? = if (releaseString != null && releaseString != "") {
-                val formatter = SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy")
-                try {
-                    formatter.parse(releaseString)
-                } catch (e: ParseException) {
-                    Log.e("MoviesDetail", "fromCursor: ", e)
-                    null
-                }
-            } else null
-            val moviePosterPath =
-                cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_POSTER_PATH))
-            val moviePopularity =
-                cursor.getDouble(cursor.getColumnIndex(MoviesEntry.COLUMN_POPULARITY))
-            val movieVoteAverage =
-                cursor.getDouble(cursor.getColumnIndex(MoviesEntry.COLUMN_AVERAGE_VOTE))
-            val movieVoteCount = cursor.getInt(cursor.getColumnIndex(MoviesEntry.COLUMN_VOTE_COUNT))
-            val movieBackdropPath =
-                cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_BACKDROP_PATH))
-
-            return MoviesDetail(
-                id = movieId,
-                title = movieTitle,
-                originalTitle = movieOriginalTitle,
-                overview = movieOverview,
-                releaseDate = movieDate,
-                posterPath = moviePosterPath,
-                popularity = moviePopularity,
-                voteAverage = movieVoteAverage,
-                voteCount = movieVoteCount.toLong(),
-                backdropPath = movieBackdropPath,
-            )
-        }
     }
 }

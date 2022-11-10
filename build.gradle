@@ -44,4 +44,9 @@ ext {
     minSdkVersion = 21
     targetSdkVersion = 32
     compileSdkVersion = 32
+
+    // Dependencies
+    roomVersion = '2.4.3'
+    okHttpVersion = '4.10.0'
+    retrofitVersion = '2.9.0'
 }

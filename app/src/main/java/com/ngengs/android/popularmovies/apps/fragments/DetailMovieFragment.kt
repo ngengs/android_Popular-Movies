@@ -16,12 +16,12 @@ import com.google.android.material.snackbar.Snackbar
 import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.adapters.ReviewListAdapter
 import com.ngengs.android.popularmovies.apps.adapters.VideoListAdapter
+import com.ngengs.android.popularmovies.apps.data.local.MoviesDatabaseHelper
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail
 import com.ngengs.android.popularmovies.apps.data.remote.ReviewDetail
 import com.ngengs.android.popularmovies.apps.data.remote.ReviewList
 import com.ngengs.android.popularmovies.apps.data.remote.VideosDetail
 import com.ngengs.android.popularmovies.apps.data.remote.VideosList
-import com.ngengs.android.popularmovies.apps.data.local.MoviesProviderHelper
 import com.ngengs.android.popularmovies.apps.databinding.FragmentDetailMovieBinding
 import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment.OnFragmentInteractionListener
 import com.ngengs.android.popularmovies.apps.globals.Values
@@ -30,6 +30,7 @@ import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getColor
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getDrawable
 import com.squareup.picasso.Picasso
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -61,7 +62,7 @@ class DetailMovieFragment : Fragment() {
     private lateinit var videoListAdapter: VideoListAdapter
     private lateinit var reviewListAdapter: ReviewListAdapter
 
-    private lateinit var moviesProviderHelper: MoviesProviderHelper
+    private lateinit var moviesDB: MoviesDatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +77,7 @@ class DetailMovieFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentDetailMovieBinding.inflate(inflater, container, false)
         val view: View = binding.root
-        moviesProviderHelper = MoviesProviderHelper(requireContext())
+        moviesDB = MoviesDatabaseHelper(requireContext())
         if (data != null) {
             Log.d(TAG, "onCreateView: data status: not null")
             createLayout(savedInstanceState)
@@ -254,14 +255,32 @@ class DetailMovieFragment : Fragment() {
                 bindVideo(tempVideo)
                 bindReview(tempReview)
             } else getDetailMovie()
+
+            mListener?.onFragmentChangeFavorite(data, favoriteMovies, false)
         } else {
+            Log.d(TAG, "isFavorite start, check data")
             data?.let {
-                favoriteMovies = moviesProviderHelper.isFavorite(it.id)
-                bindOldData()
-                getDetailMovie()
+                Log.d(TAG, "isFavorite start, data exist")
+                disposable.add(
+                    moviesDB.isFavorite(it.id)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doFinally {
+                            Log.d(TAG, "isFavorite finish")
+                            bindOldData()
+                            getDetailMovie()
+                            mListener?.onFragmentChangeFavorite(data, favoriteMovies, false)
+                        }
+                        .subscribe({ favorite ->
+                            Log.d(TAG, "isFavorite local=${favorite?.id}")
+                            favoriteMovies = favorite != null
+                        }, { throwable ->
+                            Log.d(TAG, "isFavorite failed", throwable)
+                            favoriteMovies = false
+                        })
+                )
             }
         }
-        mListener?.onFragmentChangeFavorite(data, favoriteMovies, false)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -286,9 +305,14 @@ class DetailMovieFragment : Fragment() {
             disposable.addAll(
                 moviesAPI.detail(movie.id)
                     .subscribeOn(Schedulers.io())
-                    .doOnNext { moviesDetail: MoviesDetail ->
-                        Log.d(TAG, "accept: doOnNext: " + moviesDetail.id)
-                        moviesProviderHelper.saveMovies(moviesDetail)
+                    .doOnNext {
+                        Log.d(TAG, "accept: doOnNext: " + it.id)
+                        disposable.add(
+                            moviesDB.saveMovies(it)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe()
+                        )
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -326,7 +350,7 @@ class DetailMovieFragment : Fragment() {
         bindData()
     }
 
-    fun onFailure(t: Throwable) {
+    private fun onFailure(t: Throwable) {
         if (binding.rootProgressBar.visibility == View.VISIBLE) binding.rootProgressBar.visibility =
             View.GONE
         if (binding.detailView.visibility == View.VISIBLE) binding.detailView.visibility = View.GONE
@@ -381,11 +405,20 @@ class DetailMovieFragment : Fragment() {
     fun getMoviesId(): Int = data?.id ?: -1
 
     fun changeFavorite() {
+        Log.d(TAG, "changeFavorite")
         data?.let { movie ->
-            if (favoriteMovies) moviesProviderHelper.removeFromFavorites(movie.id)
-            else moviesProviderHelper.addToFavorites(movie.id)
-            favoriteMovies = !favoriteMovies
-            mListener?.onFragmentChangeFavorite(movie, favoriteMovies, true)
+            val favoriteJob = if (favoriteMovies) {
+                moviesDB.removeFromFavorites(movie.id)
+            } else moviesDB.addToFavorites(movie.id)
+            disposable.add(
+                favoriteJob.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        Log.d(TAG, "changeFavorite finish")
+                        favoriteMovies = !favoriteMovies
+                        mListener?.onFragmentChangeFavorite(movie, favoriteMovies, true)
+                    }) { Log.d(TAG, "changeFavorite error", it) }
+            )
         }
     }
 

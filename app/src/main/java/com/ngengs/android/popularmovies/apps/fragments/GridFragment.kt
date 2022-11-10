@@ -14,7 +14,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.adapters.MovieListAdapter
-import com.ngengs.android.popularmovies.apps.data.local.MoviesProviderHelper
+import com.ngengs.android.popularmovies.apps.data.local.MoviesDatabaseHelper
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesList
 import com.ngengs.android.popularmovies.apps.databinding.FragmentGridBinding
@@ -24,14 +24,13 @@ import com.ngengs.android.popularmovies.apps.utils.GridSpacesItemDecoration
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getDrawable
 import com.ngengs.android.popularmovies.apps.utils.networks.MoviesAPI
 import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers
-import io.reactivex.Flowable
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
-import org.reactivestreams.Subscriber
 
 
 /**
@@ -50,7 +49,7 @@ class GridFragment : Fragment() {
     private var snackbar: Snackbar? = null
     private lateinit var moviesAPI: MoviesAPI
     private lateinit var adapter: MovieListAdapter
-    private var disposable: Disposable? = null
+    private var disposable: CompositeDisposable = CompositeDisposable()
     private var sortType = 0
     private var pageTotal = 1
     private var pageNow = 0
@@ -62,7 +61,7 @@ class GridFragment : Fragment() {
     private val actionComplete = Action { this.onComplete() }
     private val moviesListConsumer =
         Consumer { moviesList: MoviesList -> this.onResponse(moviesList) }
-    private lateinit var moviesProviderHelper: MoviesProviderHelper
+    private lateinit var moviesDB: MoviesDatabaseHelper
     private val errorConsumer = Consumer { t: Throwable -> onFailure(t) }
     private var mListener: OnFragmentInteractionListener? = null
 
@@ -79,7 +78,7 @@ class GridFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentGridBinding.inflate(inflater, container, false)
         val view: View = binding.root
-        moviesProviderHelper = MoviesProviderHelper(requireContext())
+        moviesDB = MoviesDatabaseHelper(requireContext())
         createLayout(savedInstanceState)
         mListener?.onAttachHandler()
         initializeViewAction()
@@ -102,12 +101,12 @@ class GridFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         mListener = null
-        disposable?.let { if (!it.isDisposed) it.dispose() }
+        if (!disposable.isDisposed) disposable.dispose()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        disposable?.let { if (!it.isDisposed) it.dispose() }
+        if (!disposable.isDisposed) disposable.dispose()
         _binding = null
     }
 
@@ -128,12 +127,10 @@ class GridFragment : Fragment() {
     private fun doMoviePressed(position: Int) {
         Log.d(TAG, "doMoviePressed: $position")
         mListener?.let { listener ->
-            disposable?.let {
-                it.dispose()
-                disposable = null
-                onComplete()
-            }
-            val dataPressed = adapter.get(position) ?: throw IllegalAccessException("Can't press unsupported movie")
+            if (!disposable.isDisposed) disposable.dispose()
+            onComplete()
+            val dataPressed = adapter.get(position)
+                ?: throw IllegalAccessException("Can't press unsupported movie")
             listener.onFragmentClickMovies(position, dataPressed)
 
         } ?: throw UnsupportedOperationException()
@@ -267,7 +264,7 @@ class GridFragment : Fragment() {
         pageTotal = moviesList.totalPage
         pageNow = moviesList.page
         val movies = moviesList.movies
-        if (moviesList.statusMessage == null && movies.size > 0) {
+        if (moviesList.statusMessage == null && movies.isNotEmpty()) {
             adapter.add(movies)
         }
         if (movies.isEmpty()) {
@@ -333,47 +330,44 @@ class GridFragment : Fragment() {
 
     private fun getPopularMovies() {
         Log.d(TAG, "getPopularMovies: pageNow: $pageNow pageTotal: $pageTotal")
-        if (pageNow < pageTotal) {
-            Log.d(TAG, "getPopularMovies: now. page: $pageNow")
-            loading = true
-            processLoadData = true
-            if (!forceRefresh || changeData) binding.progressBar.visibility = View.VISIBLE
-            binding.tools.visibility = View.GONE
-            Log.d(TAG, "getPopularMovies: page: $pageNow")
-            disposable = moviesAPI.listMoviesPopular(pageNow + 1)
-                .subscribeOn(Schedulers.io())
-                .doOnNext { moviesList: MoviesList ->
-                    Log.d(TAG, "getPopularMovies: page: $pageNow")
-                    moviesProviderHelper.saveMovies(moviesList.movies)
-                    if (pageNow == 0) {
-                        moviesProviderHelper.deletePopular()
-                        moviesProviderHelper.savePopular(moviesList.movies)
-                    }
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(moviesListConsumer, errorConsumer, actionComplete)
-        }
+        fetchServerData(
+            moviesAPI.listMoviesPopular(pageNow + 1)
+        ) { listOf(moviesDB.deletePopular(), moviesDB.savePopular(it.movies)) }
     }
 
     private fun getTopRatedMovies() {
+        Log.d(TAG, "getTopRatedMovies: pageNow: $pageNow pageTotal: $pageTotal")
+        fetchServerData(
+            moviesAPI.listMoviesTopRated(pageNow + 1)
+        ) { listOf(moviesDB.deleteTopRated(), moviesDB.saveTopRated(it.movies)) }
+    }
+
+    private fun fetchServerData(moviesApiTarget: Observable<MoviesList>, saveCategoryJob: (MoviesList) -> Collection<Completable>) {
         if (pageNow < pageTotal) {
-            Log.d(TAG, "getTopRatedMovies: now. page: $pageNow")
+            Log.d(TAG, "fetchServerData: now. page: $pageNow")
             loading = true
             processLoadData = true
             if (!forceRefresh || changeData) binding.progressBar.visibility = View.VISIBLE
             binding.tools.visibility = View.GONE
-            disposable = moviesAPI.listMoviesTopRated(pageNow + 1)
-                .subscribeOn(Schedulers.io())
-                .doOnNext { moviesList: MoviesList ->
-                    Log.d(TAG, "getTopRatedMovies: page: $pageNow")
-                    moviesProviderHelper.saveMovies(moviesList.movies)
-                    if (pageNow == 0) {
-                        moviesProviderHelper.deleteTopRated()
-                        moviesProviderHelper.saveTopRated(moviesList.movies)
-                    }
-                }
+            Log.d(TAG, "fetchServerData: page: $pageNow")
+            disposable.add(moviesApiTarget.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext {
+                    Log.d(TAG, "fetchServerData: save data page: $pageNow")
+                    val saveJob = mutableListOf(moviesDB.saveMovies(it.movies))
+                    if (pageNow == 0) {
+                        saveJob.addAll(saveCategoryJob(it))
+                    }
+                    disposable.add(Completable.merge(saveJob)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            Log.d(TAG, "fetchServerData: success")
+                        }) { throwable -> Log.d(TAG, "fetchServerData: error", throwable) }
+                    )
+                }
                 .subscribe(moviesListConsumer, errorConsumer, actionComplete)
+            )
         }
     }
 
@@ -383,19 +377,17 @@ class GridFragment : Fragment() {
         processLoadData = true
         if (changeData) binding.progressBar.visibility = View.VISIBLE
         binding.tools.visibility = View.GONE
-        disposable = Observable.fromPublisher(object : Flowable<MoviesList?>() {
-            override fun subscribeActual(s: Subscriber<in MoviesList?>) {
-                val movieList = moviesProviderHelper.getFavorites()
-                if (movieList != null) s.onNext(movieList) else s.onError(null)
-                s.onComplete()
-            }
-        })
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(moviesListConsumer, errorConsumer, actionComplete)
+        disposable.add(
+            moviesDB.getFavorites()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doFinally(actionComplete)
+                .subscribe(moviesListConsumer, errorConsumer)
+        )
     }
 
     fun changeType(sortType: Int) {
+        Log.d(TAG, "changeType")
         this.sortType = sortType
         forceRefresh = true
         pageNow = 0
@@ -403,7 +395,7 @@ class GridFragment : Fragment() {
         loading = false
         changeData = true
         doChangeTitle()
-        disposable?.let { if (!it.isDisposed) it.dispose() }
+//        if (!disposable.isDisposed) disposable.dispose()
         when (this.sortType) {
             Values.TYPE_POPULAR -> {
                 bindOldData()
@@ -423,11 +415,19 @@ class GridFragment : Fragment() {
         // Catch Offline data
         Log.d(TAG, "bindOldData: catch old data")
         val temp = when (sortType) {
-            Values.TYPE_POPULAR -> moviesProviderHelper.getPopular()
-            Values.TYPE_HIGH_RATED -> moviesProviderHelper.getTopRated()
+            Values.TYPE_POPULAR -> moviesDB.getPopular()
+            Values.TYPE_HIGH_RATED -> moviesDB.getTopRated()
             else -> null
         }
-        temp?.let { onResponse(it) }
+        temp?.let { tempJob ->
+            disposable.add(tempJob.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    Log.d(TAG, "bindOldData: finishOld Data")
+                    it?.let { onResponse(it) }
+                }) { Log.d(TAG, "bindOldData: error", it) }
+            )
+        }
     }
 
     fun addMovies(item: MoviesDetail) {
