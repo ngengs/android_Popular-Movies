@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -34,9 +35,9 @@ import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getColor
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getDrawable
 import com.ngengs.android.popularmovies.apps.utils.networks.MoviesAPI
 import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
 /**
@@ -55,7 +56,6 @@ class DetailMovieFragment : Fragment() {
 
     private var data: MoviesDetail? = null
     private lateinit var moviesAPI: MoviesAPI
-    private val disposable = CompositeDisposable()
     private var loadFromServer = false
     private var loadVideoFromServer = false
     private var loadReviewFromServer = false
@@ -107,14 +107,12 @@ class DetailMovieFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!disposable.isDisposed) disposable.dispose()
         _binding = null
     }
 
     override fun onDetach() {
         super.onDetach()
         mListener = null
-        if (!disposable.isDisposed) disposable.dispose()
     }
 
     private fun getRatingColor(score: Double): Int = if (score >= Values.RATING_SCORE_PERFECT)
@@ -264,24 +262,15 @@ class DetailMovieFragment : Fragment() {
             Log.d(TAG, "isFavorite start, check data")
             data?.let {
                 Log.d(TAG, "isFavorite start, data exist")
-                disposable.add(
-                    moviesDB.isFavorite(it.id)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doFinally {
-                            Log.d(TAG, "isFavorite finish")
-                            bindOldData()
-                            getDetailMovie()
-                            mListener?.onFragmentChangeFavorite(data, favoriteMovies, false)
-                        }
-                        .subscribe({ favorite ->
-                            Log.d(TAG, "isFavorite local=${favorite?.id}")
-                            favoriteMovies = favorite != null
-                        }, { throwable ->
-                            Log.d(TAG, "isFavorite failed", throwable)
-                            favoriteMovies = false
-                        })
-                )
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val result = moviesDB.isFavorite(it.id)
+                    favoriteMovies = result
+                    launch(Dispatchers.Main) {
+                        bindOldData()
+                        getDetailMovie()
+                        mListener?.onFragmentChangeFavorite(data, favoriteMovies, false)
+                    }
+                }
             }
         }
     }
@@ -305,42 +294,41 @@ class DetailMovieFragment : Fragment() {
             binding.rootProgressBar.visibility = View.VISIBLE
             binding.taglineView.visibility = View.GONE
             binding.detailView.visibility = View.GONE
-            disposable.addAll(
-                moviesAPI.detail(movie.id)
-                    .subscribeOn(Schedulers.io())
-                    .doOnNext {
-                        Log.d(TAG, "accept: doOnNext: " + it.id)
-                        disposable.add(
-                            moviesDB.saveMovies(it)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe()
-                        )
+            lifecycleScope.launch {
+                listOf(
+                    launch(Dispatchers.IO) {
+                        try {
+                            val result = moviesAPI.detail(movie.id)
+                            onResponse(result)
+                            moviesDB.saveMovies(result)
+                        } catch (e: Exception) {
+                            onFailure(e)
+                        }
+                    },
+                    launch(Dispatchers.IO) {
+                        try {
+                            val result = moviesAPI.videos(movie.id)
+                            onResponseVideo(result)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "accept: Error Get Videos", e)
+                        }
+                    },
+                    launch(Dispatchers.IO) {
+                        try {
+                            val result = moviesAPI.reviews(movie.id)
+                            onResponseReview(result)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "accept: Error Get Videos", e)
+                        }
                     }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { response: MoviesDetail -> this.onResponse(response) },
-                        { t: Throwable -> onFailure(t) }
-                    ),
-                moviesAPI.videos(movie.id)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { response: VideosList -> this.onResponseVideo(response) },
-                        { t: Throwable -> Log.e(TAG, "accept: Error Get Videos", t) }
-                    ),
-                moviesAPI.reviews(movie.id)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { response: ReviewList -> this.onResponseReview(response) },
-                        { t: Throwable? -> Log.e(TAG, "accept: Error Get Reviews", t) }
-                    )
-            )
+                ).joinAll()
+            }
         }
     }
 
-    private fun onResponse(response: MoviesDetail) {
+    private fun onResponse(
+        response: MoviesDetail
+    ) = lifecycleScope.launch(Dispatchers.Main) {
         Log.d(TAG, "onResponse: $response")
         if (binding.rootProgressBar.visibility == View.VISIBLE) binding.rootProgressBar.visibility =
             View.GONE
@@ -353,7 +341,7 @@ class DetailMovieFragment : Fragment() {
         bindData()
     }
 
-    private fun onFailure(t: Throwable) {
+    private fun onFailure(t: Throwable) = lifecycleScope.launch(Dispatchers.Main) {
         if (binding.rootProgressBar.visibility == View.VISIBLE) binding.rootProgressBar.visibility =
             View.GONE
         if (binding.detailView.visibility == View.VISIBLE) binding.detailView.visibility = View.GONE
@@ -373,12 +361,12 @@ class DetailMovieFragment : Fragment() {
         Log.e(TAG, "onFailure: ", t)
     }
 
-    private fun onResponseVideo(response: VideosList) {
+    private fun onResponseVideo(response: VideosList) = lifecycleScope.launch(Dispatchers.Main) {
         Log.d(TAG, "onResponseVideo: $response")
         bindVideo(response.videos)
     }
 
-    private fun onResponseReview(response: ReviewList) {
+    private fun onResponseReview(response: ReviewList) = lifecycleScope.launch(Dispatchers.Main){
         Log.d(TAG, "onResponseReview: " + response.review.size)
         bindReview(response.review)
     }
@@ -400,28 +388,19 @@ class DetailMovieFragment : Fragment() {
         reviewListAdapter.add(review)
     }
 
-    fun setData(data: MoviesDetail?) {
-        this.data = data
-        createLayout(null)
-    }
-
     fun getMoviesId(): Int = data?.id ?: -1
 
-    fun changeFavorite() {
+    fun changeFavorite() = lifecycleScope.launch(Dispatchers.IO) {
         Log.d(TAG, "changeFavorite")
         data?.let { movie ->
-            val favoriteJob = if (favoriteMovies) {
-                moviesDB.removeFromFavorites(movie.id)
-            } else moviesDB.addToFavorites(movie.id)
-            disposable.add(
-                favoriteJob.subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        Log.d(TAG, "changeFavorite finish")
-                        favoriteMovies = !favoriteMovies
-                        mListener?.onFragmentChangeFavorite(movie, favoriteMovies, true)
-                    }) { Log.d(TAG, "changeFavorite error", it) }
-            )
+            try {
+                if (favoriteMovies) moviesDB.removeFromFavorites(movie.id)
+                else moviesDB.addToFavorites(movie.id)
+                favoriteMovies = !favoriteMovies
+                mListener?.onFragmentChangeFavorite(movie, favoriteMovies, true)
+            } catch (e: Exception) {
+                Log.d(TAG, "changeFavorite error", e)
+            }
         }
     }
 

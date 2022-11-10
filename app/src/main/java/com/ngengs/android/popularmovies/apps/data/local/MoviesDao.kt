@@ -6,8 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.ngengs.android.popularmovies.apps.globals.LocalDatabase
-import io.reactivex.Completable
-import io.reactivex.Maybe
 
 /**
  * Created by rizky.kharisma on 11/11/22.
@@ -16,38 +14,38 @@ import io.reactivex.Maybe
 @Dao
 abstract class MoviesDao {
     @Query("SELECT * from ${LocalDatabase.PATH_FAVORITES}")
-    abstract fun getFavorites(): Maybe<List<MoviesFavoritesAndDetail>>
+    abstract suspend fun getFavorites(): List<MoviesFavoritesAndDetail>
 
     @Query("SELECT * from ${LocalDatabase.PATH_POPULAR}")
-    abstract fun getPopular(): Maybe<List<MoviesPopularAndDetail>>
+    abstract suspend fun getPopular(): List<MoviesPopularAndDetail>
 
     @Query("DELETE from ${LocalDatabase.PATH_POPULAR}")
-    abstract fun deletePopular(): Completable
+    abstract suspend fun deletePopular()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun savePopularOnly(populars: List<MoviesPopular>): Completable
+    abstract suspend fun savePopularOnly(populars: List<MoviesPopular>)
 
     @Query("SELECT * from ${LocalDatabase.PATH_TOP_RATED}")
-    abstract fun getTopRated(): Maybe<List<MoviesTopRatedAndDetail>>
+    abstract suspend fun getTopRated(): List<MoviesTopRatedAndDetail>
 
     @Query("DELETE from ${LocalDatabase.PATH_TOP_RATED}")
-    abstract fun deleteTopRated(): Completable
+    abstract suspend fun deleteTopRated()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun saveTopRatedOnly(topRated: List<MoviesTopRated>): Completable
+    abstract suspend fun saveTopRatedOnly(topRated: List<MoviesTopRated>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun saveMovies(movies: List<Movies>): Completable
+    abstract suspend fun saveMovies(movies: List<Movies>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun saveMovies(movies: Movies): Completable
+    abstract suspend fun saveMovies(movies: Movies)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun addToFavorites(moviesFavorites: MoviesFavorites): Completable
+    abstract suspend fun addToFavorites(moviesFavorites: MoviesFavorites)
 
     @Delete
-    abstract fun removeFromFavorites(moviesFavorites: MoviesFavorites): Completable
+    abstract fun removeFromFavorites(moviesFavorites: MoviesFavorites)
 
     @Query("SELECT * from ${LocalDatabase.PATH_FAVORITES} WHERE ${LocalDatabase.COLUMN_MOVIE_ID_KEY}=:moviesId")
-    abstract fun getFavorite(moviesId: Int): Maybe<MoviesFavorites?>
+    abstract suspend fun getFavorite(moviesId: Int): MoviesFavorites?
 }
