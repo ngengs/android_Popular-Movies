@@ -50,7 +50,7 @@ class VideoListAdapter(
                         videos.youtubeSmallThumbnail
                     )
                 )
-                .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_white))
+                .placeholder(ResourceHelpers.getDrawable(context, R.drawable.ic_collections_daynight))
                 .into(holder.binding.imageVideo)
         } else {
             Glide.with(holder.binding.imageVideo.context).clear(holder.binding.imageVideo)
@@ -60,6 +60,8 @@ class VideoListAdapter(
     }
 
     override fun getItemCount(): Int = data.size
+
+    override fun getItemId(position: Int): Long = data[position].id.hashCode().toLong()
 
     fun add(data: List<VideosDetail>) {
         val oldSize = itemCount
@@ -74,7 +76,6 @@ class VideoListAdapter(
     }
 
     fun get(position: Int): VideosDetail? = data.getOrNull(position)
-    fun get(): List<VideosDetail> = data
 
     interface ClickListener {
         fun onClickListener(position: Int)

@@ -7,7 +7,7 @@
     tools:context="com.ngengs.android.popularmovies.apps.screen.moviedetail.MovieDetailFragment">
 
 
-    <!-- Header Card -->
+    <!-- Video Card -->
     <FrameLayout
         android:id="@+id/videoLayoutRoot"
         android:layout_width="0dp"
@@ -29,7 +29,7 @@
     </FrameLayout>
 
 
-    <!--    Synopsis Card     -->
+    <!--    Review Card     -->
     <FrameLayout
         android:id="@+id/reviewLayoutRoot"
         android:layout_width="match_parent"
@@ -50,7 +50,7 @@
             android:layout_marginBottom="@dimen/detail_end_item_bottom_margin" />
     </FrameLayout>
 
-    <!--    Tagline Card     -->
+    <!--    Loading     -->
     <RelativeLayout
         android:id="@+id/rootProgressBar"
         android:layout_width="0dp"
@@ -66,8 +66,7 @@
             android:layout_centerInParent="true" />
     </RelativeLayout>
 
-
-    <!--    Video Card     -->
+    <!-- Header Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardMainDetail"
         android:layout_width="0dp"
@@ -79,6 +78,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        card_view:cardBackgroundColor="@color/cardBackground"
         card_view:cardCornerRadius="@dimen/card_corner_default"
         card_view:cardElevation="@dimen/card_elevation_default"
         tools:visibility="gone">
@@ -132,7 +132,7 @@
                 android:contentDescription="@string/poster_image"
                 android:minHeight="@dimen/image_description_thumbnail_min_height"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/ic_collections_white" />
+                app:srcCompat="@drawable/ic_collections_daynight" />
 
 
         </RelativeLayout>
@@ -153,6 +153,7 @@
         app:layout_constraintLeft_toRightOf="@id/constraintGuideline"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardMainDetail"
+        card_view:cardBackgroundColor="@color/cardBackground"
         card_view:cardCornerRadius="@dimen/card_corner_default"
         card_view:cardElevation="@dimen/card_elevation_default">
 
@@ -307,7 +308,7 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Progress bar -->
+    <!-- Synopsis bar -->
     <androidx.cardview.widget.CardView
         android:id="@+id/synopsisView"
         android:layout_width="0dp"
@@ -319,6 +320,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/constraintGuideline"
         app:layout_constraintTop_toBottomOf="@id/cardMainDetail"
+        card_view:cardBackgroundColor="@color/cardBackground"
         card_view:cardCornerRadius="@dimen/card_corner_default"
         card_view:cardElevation="@dimen/card_elevation_default">
 
@@ -351,7 +353,7 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Review Card -->
+    <!-- Tagline Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/taglineView"
         android:layout_width="0dp"
@@ -363,6 +365,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/constraintGuideline"
         app:layout_constraintTop_toBottomOf="@id/synopsisView"
+        card_view:cardBackgroundColor="@color/cardBackground"
         card_view:cardCornerRadius="@dimen/card_corner_default"
         card_view:cardElevation="@dimen/card_elevation_default">
 

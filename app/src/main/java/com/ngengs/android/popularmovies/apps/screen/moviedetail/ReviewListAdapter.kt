@@ -38,6 +38,8 @@ class ReviewListAdapter(
 
     override fun getItemCount(): Int = data.size
 
+    override fun getItemId(position: Int): Long = data[position].id.hashCode().toLong()
+
     fun add(data: List<ReviewDetail>) {
         val oldSize = itemCount
         this.data.addAll(data)
@@ -51,7 +53,6 @@ class ReviewListAdapter(
     }
 
     fun get(position: Int): ReviewDetail? = data.getOrNull(position)
-    fun get(): List<ReviewDetail> = data
 
     interface ClickListener {
         fun onClickListener(position: Int)

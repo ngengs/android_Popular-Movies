@@ -69,6 +69,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/margin_large"
-        app:srcCompat="@drawable/ic_favorite_border_white" />
+        app:srcCompat="@drawable/ic_favorite_border_daynight" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

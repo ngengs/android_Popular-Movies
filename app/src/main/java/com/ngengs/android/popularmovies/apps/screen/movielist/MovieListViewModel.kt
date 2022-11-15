@@ -64,10 +64,10 @@ class MovieListViewModel(
 
     fun addOrRemoveFavoriteMovie(movie: MoviesDetail, isAdd: Boolean) {
         if (isFavoriteType()) {
-            val oldMoviesList = getOldMovieList()
-            val firstSize = oldMoviesList.size
+            val oldMoviesList = getOldMovieList().filter { it.movies.isNotEmpty() }
             val tempMovies = oldMoviesList.lastOrNull() ?: MoviesList()
             val oldList = oldMoviesList.flatMap { it.movies }.toMutableList()
+            val firstSize = oldList.size
             if (isAdd) {
                 if (oldList.find { it.id == movie.id } == null) oldList.add(movie)
             } else {
@@ -75,13 +75,19 @@ class MovieListViewModel(
                 if (index >= 0) oldList.removeAt(index)
             }
             if (firstSize != oldList.size) {
-                val result = MoviesList(
-                    page = tempMovies.page,
-                    totalResult = oldList.size,
-                    totalPage = tempMovies.totalPage,
-                    movies = oldList
-                )
-                _movies.value = Resource.Success(mutableListOf(result))
+                val result = if (oldList.size == 0) {
+                    mutableListOf()
+                } else {
+                    mutableListOf(
+                        MoviesList(
+                            page = tempMovies.page,
+                            totalResult = oldList.size,
+                            totalPage = tempMovies.totalPage,
+                            movies = oldList
+                        )
+                    )
+                }
+                _movies.value = Resource.Success(result)
             }
         }
     }
@@ -90,25 +96,14 @@ class MovieListViewModel(
     fun isTopRatedType() = sortType.value == Values.TYPE_HIGH_RATED
     fun isFavoriteType() = sortType.value == Values.TYPE_FAVORITE
 
-    private suspend fun fetchPopular() {
+    private suspend fun fetchPopular() =
         fetchNetworkData { moviesRepository.getPopularMovies(it) }
-    }
 
-    private suspend fun fetchTopRated() {
+    private suspend fun fetchTopRated() =
         fetchNetworkData { moviesRepository.getTopRatedMovies(it) }
-    }
 
-    private suspend fun fetchFavorite() {
-        val now = pageNow.value ?: 0
-        if (now == 0) viewModelScope.launch(Dispatchers.Main) {
-            _movies.value = Resource.Loading(true)
-        }
-        when (val response = moviesRepository.getFavoriteMovies(now)) {
-            is Resource.Failure -> onFailure(response)
-            is Resource.Loading -> onLoading(response)
-            is Resource.Success -> onSuccess(response)
-        }
-    }
+    private suspend fun fetchFavorite() =
+        fetchNetworkData { moviesRepository.getFavoriteMovies(it) }
 
     private fun onLoading(response: Resource.Loading<MoviesList>) =
         viewModelScope.launch(Dispatchers.Main) {

@@ -10,6 +10,7 @@ import com.ngengs.android.popularmovies.apps.data.source.MoviesRepository
 import com.ngengs.android.popularmovies.apps.utils.debugTrySuspend
 import com.ngengs.android.popularmovies.apps.utils.networks.FailureType
 import com.ngengs.android.popularmovies.apps.utils.networks.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -65,11 +66,15 @@ class MoviesRepositoryImpl(
         emit(result)
     }
 
-    override suspend fun getFavoriteMovies(page: Int): Resource<MoviesList> = try {
-        val data = localDataSource.getFavoriteMovies(page)
-        Resource.Success(data)
-    } catch (e: Exception) {
-        Resource.Failure(e, FailureType.EMPTY)
+    override fun getFavoriteMovies(page: Int): Flow<Resource<MoviesList>> = flow {
+        if (page == 0) emit(Resource.Loading(true))
+        val result = try {
+            val data = localDataSource.getFavoriteMovies(page)
+            Resource.Success(data)
+        } catch (e: Exception) {
+            Resource.Failure(e, FailureType.EMPTY)
+        }
+        emit(result)
     }
 
     override fun getDetailMovies(id: Int): Flow<Resource<MoviesDetail>> = flow {

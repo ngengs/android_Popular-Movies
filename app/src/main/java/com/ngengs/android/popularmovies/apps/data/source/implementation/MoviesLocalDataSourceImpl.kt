@@ -23,7 +23,7 @@ class MoviesLocalDataSourceImpl(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : MoviesLocalDataSource {
     override suspend fun getFavoriteMovies(page: Int): MoviesList = withContext(dispatcher) {
-        moviesDao.getFavorites().mapNotNull { it.movies?.toMoviesDetail() }.toMovieList() ?: throw Exception("Data not found")
+        moviesDao.getFavorites().mapNotNull { it.movies?.toMoviesDetail() }.toMovieList() ?: MoviesList()
     }
 
     override suspend fun getDetailMovies(movieId: Int): MoviesDetail = withContext(dispatcher) {

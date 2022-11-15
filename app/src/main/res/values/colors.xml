@@ -12,6 +12,8 @@
     <color name="colorRatingNormal">#AAA</color>
     <color name="colorRatingBad">#F44336</color>
 
+    <color name="cardBackground">@color/cardview_light_background</color>
     <color name="reviewTextBackground">#87DDDDDD</color>
     <color name="icon_color">#000</color>
+    <color name="videoIndicatorColor">#FFFFFF</color>
 </resources>

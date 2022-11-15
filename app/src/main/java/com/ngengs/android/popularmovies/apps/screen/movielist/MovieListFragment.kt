@@ -70,9 +70,8 @@ class MovieListFragment : Fragment() {
     private fun observeData() {
         viewModel.movies.observe(viewLifecycleOwner) { movies ->
             when (movies) {
-                is Resource.Loading -> {
+                is Resource.Loading ->
                     onLoading((movies.tempData?.size ?: 1) >= 1, movies.tempData)
-                }
                 is Resource.Failure -> {
                     onFailure(movies.throwable, movies.oldData?.size ?: 0)
                     onComplete()
@@ -111,13 +110,11 @@ class MovieListFragment : Fragment() {
         _binding = null
     }
 
-    private fun doMoviePressed(position: Int) {
+    private fun doMoviePressed(position: Int, movie: MoviesDetail) {
         Log.d(TAG, "doMoviePressed: $position")
         mListener?.let { listener ->
             onComplete()
-            val dataPressed = adapter.get(position)
-                ?: throw IllegalAccessException("Can't press unsupported movie")
-            listener.onFragmentClickMovies(position, dataPressed)
+            listener.onFragmentClickMovies(position, movie)
 
         } ?: throw UnsupportedOperationException()
     }
@@ -136,11 +133,12 @@ class MovieListFragment : Fragment() {
         adapter = MovieListAdapter(
             requireContext(),
             object : MovieListAdapter.ClickListener {
-                override fun onClickListener(position: Int) {
-                    doMoviePressed(position)
+                override fun onClickListener(position: Int, movie: MoviesDetail) {
+                    doMoviePressed(position, movie)
                 }
             }
         )
+        adapter.setHasStableIds(true)
         val gridSpan: Int =
             if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 4 else 2
         layoutManager = GridLayoutManager(context, gridSpan)
@@ -186,21 +184,21 @@ class MovieListFragment : Fragment() {
         if (binding.recyclerView.visibility == View.GONE) {
             binding.recyclerView.visibility = View.VISIBLE
         }
-        if (moviesList.size == 1) adapter.clear()
+        if (moviesList.size <= 1) adapter.clear()
         snackbar?.dismiss()
         snackbar = null
         if (binding.tools.visibility == View.VISIBLE) binding.tools.visibility = View.GONE
 
         val movies = if (adapter.itemCount == 0 && moviesList.size > 1) {
             moviesList.flatMap { it.movies }
-        } else moviesList.last().movies
+        } else moviesList.lastOrNull()?.movies.orEmpty()
         if (movies.isNotEmpty()) {
             adapter.add(movies)
         }
-        if (moviesList.isEmpty()) {
+        if (adapter.itemCount == 0 && movies.isEmpty()) {
             binding.tools.visibility = View.VISIBLE
             binding.imageTools.setImageDrawable(
-                getDrawable(requireContext(), R.drawable.ic_movie_white)
+                getDrawable(requireContext(), R.drawable.ic_movie_daynight)
             )
             binding.textTools.setText(R.string.data_empty)
         }
@@ -233,7 +231,7 @@ class MovieListFragment : Fragment() {
             binding.imageTools.setImageDrawable(
                 getDrawable(
                     requireContext(),
-                    R.drawable.ic_refresh_white
+                    R.drawable.ic_refresh_daynight
                 )
             )
             binding.textTools.setText(R.string.error_next_page)
@@ -241,7 +239,7 @@ class MovieListFragment : Fragment() {
         } else if (adapter.itemCount == 0 || oldDataSize == 0) {
             adapter.clear()
             binding.imageTools.setImageDrawable(
-                getDrawable(requireContext(), R.drawable.ic_cloud_off_white)
+                getDrawable(requireContext(), R.drawable.ic_cloud_off_daynight)
             )
             binding.textTools.setText(R.string.error_no_connection)
             binding.tools.visibility = View.VISIBLE

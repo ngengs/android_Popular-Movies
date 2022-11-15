@@ -210,11 +210,11 @@ class MovieListActivity: AppCompatActivity(), MovieListFragment.OnFragmentIntera
             Log.d(TAG, "onFragmentChangeFavorite: now")
             if (isFavorite)
                 binding.fabFavorite?.setImageDrawable(getDrawable(this,
-                    R.drawable.ic_favorite_white
+                    R.drawable.ic_favorite_daynight
                 ))
             else
                 binding.fabFavorite?.setImageDrawable(getDrawable(this,
-                    R.drawable.ic_favorite_border_white
+                    R.drawable.ic_favorite_border_daynight
                 ))
 
             if (data != null && isRefresh) viewModel.addOrRemoveFavoriteMovie(data, isFavorite)

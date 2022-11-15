@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_detail_share"
-        android:icon="@drawable/ic_share_white"
+        android:icon="@drawable/ic_share_daynight"
         android:title="@string/menu_share"
         android:visible="false"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_detail_close"
         android:checked="true"
-        android:icon="@drawable/ic_close_white"
+        android:icon="@drawable/ic_close_daynight"
         android:title="@string/menu_close"
         android:visible="false"
         app:showAsAction="always" />

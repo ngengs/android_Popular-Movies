@@ -39,7 +39,7 @@
             android:layout_height="75dp"
             android:layout_marginBottom="@dimen/margin_large"
             android:contentDescription="@string/image_tools"
-            app:srcCompat="@drawable/ic_cloud_off_white" />
+            app:srcCompat="@drawable/ic_cloud_off_daynight" />
 
         <TextView
             android:id="@+id/textTools"

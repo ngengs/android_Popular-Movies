@@ -137,7 +137,7 @@ class MovieDetailFragment : Fragment() {
             if (movie.getPosterPath(3) != null) {
                 Glide.with(this)
                     .load(movie.getPosterPath(3))
-                    .placeholder(getDrawable(requireContext(), R.drawable.ic_collections_white))
+                    .placeholder(getDrawable(requireContext(), R.drawable.ic_collections_daynight))
                     .into(binding.imageDetailThumb)
             }
             bindUpdatedData(data)
@@ -221,6 +221,7 @@ class MovieDetailFragment : Fragment() {
                 }
 
             })
+        videoListAdapter.setHasStableIds(true)
         binding.videoLayout.recyclerVideo.adapter = videoListAdapter
         binding.reviewLayout.recyclerReview.layoutManager = LinearLayoutManager(context)
         binding.reviewLayout.recyclerReview.setHasFixedSize(true)
@@ -235,6 +236,7 @@ class MovieDetailFragment : Fragment() {
                     }
                 }
             })
+        reviewListAdapter.setHasStableIds(true)
         binding.reviewLayout.recyclerReview.adapter = reviewListAdapter
     }
 

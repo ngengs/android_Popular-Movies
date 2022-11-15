@@ -71,6 +71,6 @@
         android:layout_marginRight="@dimen/margin_large"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/ic_favorite_border_white" />
+        app:srcCompat="@drawable/ic_favorite_border_daynight" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

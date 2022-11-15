@@ -21,7 +21,7 @@
         android:adjustViewBounds="true"
         android:contentDescription="@string/video_image"
         android:scaleType="centerInside"
-        app:srcCompat="@drawable/ic_collections_white" />
+        app:srcCompat="@drawable/ic_collections_daynight" />
 
     <ImageView
         android:layout_width="wrap_content"

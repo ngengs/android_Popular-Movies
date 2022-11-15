@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        card_view:cardBackgroundColor="@color/cardBackground"
         android:layout_marginBottom="@dimen/margin_default"
         card_view:cardCornerRadius="@dimen/card_corner_none"
         card_view:cardElevation="@dimen/card_elevation_none">
@@ -33,7 +34,7 @@
                 android:contentDescription="@string/poster_image"
                 android:minHeight="@dimen/image_description_thumbnail_min_height"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/ic_collections_white" />
+                app:srcCompat="@drawable/ic_collections_daynight" />
 
             <TextView
                 android:id="@+id/textMovieOriginalTitle"
@@ -83,6 +84,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/margin_default"
+        card_view:cardBackgroundColor="@color/cardBackground"
         card_view:cardCornerRadius="@dimen/card_corner_default"
         card_view:cardElevation="@dimen/card_elevation_default">
 
@@ -121,6 +123,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/margin_default"
+        card_view:cardBackgroundColor="@color/cardBackground"
         card_view:cardCornerRadius="@dimen/card_corner_default"
         card_view:cardElevation="@dimen/card_elevation_default">
 
@@ -158,6 +161,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/margin_default"
+        card_view:cardBackgroundColor="@color/cardBackground"
         card_view:cardCornerRadius="@dimen/card_corner_default"
         card_view:cardElevation="@dimen/card_elevation_default">
 
