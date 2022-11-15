@@ -9,6 +9,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 
 
 /**
@@ -32,7 +33,7 @@ object NetworkHelpers {
             .writeTimeout(WRITE_TIMEOUT.toLong(), TimeUnit.SECONDS)
             .readTimeout(TIMEOUT.toLong(), TimeUnit.SECONDS)
             .addInterceptor(loggingInterceptor)
-            .cache(cache)
+//            .cache(cache)
             .build()
     }
 
@@ -42,7 +43,12 @@ object NetworkHelpers {
         .client(okHttpClient)
         .build()
 
-    fun provideAPI(context: Context): MoviesAPI {
-        return provideRetrofit(provideOkHttp(context)).create(MoviesAPI::class.java)
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun <T: Any> provideAPI(context: Context, apiClass: KClass<T>): T {
+        return provideRetrofit(provideOkHttp(context)).create(apiClass.java)
+    }
+
+    fun moviesAPI(context: Context): MoviesAPI {
+        return provideAPI(context, MoviesAPI::class)
     }
 }

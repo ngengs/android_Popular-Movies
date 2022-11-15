@@ -51,4 +51,6 @@ ext {
     retrofitVersion = '2.9.0'
     glideVersion = '4.14.2'
     glideOkHttpVersion = '4.14.2'
+    lifecycle_version = '2.5.1'
+    fragmentVersion = '1.5.4'
 }

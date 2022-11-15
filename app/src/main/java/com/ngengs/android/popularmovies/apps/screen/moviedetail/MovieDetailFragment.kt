@@ -1,42 +1,36 @@
-package com.ngengs.android.popularmovies.apps.fragments
+package com.ngengs.android.popularmovies.apps.screen.moviedetail
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import com.ngengs.android.popularmovies.apps.MoviesViewModelFactory
 import com.ngengs.android.popularmovies.apps.R
-import com.ngengs.android.popularmovies.apps.adapters.ReviewListAdapter
-import com.ngengs.android.popularmovies.apps.adapters.VideoListAdapter
-import com.ngengs.android.popularmovies.apps.data.local.MoviesDatabaseHelper
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail
 import com.ngengs.android.popularmovies.apps.data.remote.ReviewDetail
-import com.ngengs.android.popularmovies.apps.data.remote.ReviewList
 import com.ngengs.android.popularmovies.apps.data.remote.VideosDetail
-import com.ngengs.android.popularmovies.apps.data.remote.VideosList
 import com.ngengs.android.popularmovies.apps.data.remote.getBackdropPath
 import com.ngengs.android.popularmovies.apps.data.remote.getPosterPath
 import com.ngengs.android.popularmovies.apps.data.remote.isYoutubeVideo
 import com.ngengs.android.popularmovies.apps.data.remote.youtubeVideo
 import com.ngengs.android.popularmovies.apps.databinding.FragmentDetailMovieBinding
-import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment.OnFragmentInteractionListener
 import com.ngengs.android.popularmovies.apps.globals.Values
+import com.ngengs.android.popularmovies.apps.screen.moviedetail.MovieDetailFragment.OnFragmentInteractionListener
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getColor
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getDrawable
-import com.ngengs.android.popularmovies.apps.utils.networks.MoviesAPI
-import com.ngengs.android.popularmovies.apps.utils.networks.NetworkHelpers
+import com.ngengs.android.popularmovies.apps.utils.networks.Resource
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
@@ -45,32 +39,20 @@ import java.text.NumberFormat
  * Activities that contain this fragment must implement the
  * [OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [DetailMovieFragment.newInstance] factory method to
+ * Use the [MovieDetailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class DetailMovieFragment : Fragment() {
+class MovieDetailFragment : Fragment() {
 
     private var _binding: FragmentDetailMovieBinding? = null
     private val binding: FragmentDetailMovieBinding get() = _binding!!
     private var snackbar: Snackbar? = null
 
-    private var data: MoviesDetail? = null
-    private lateinit var moviesAPI: MoviesAPI
-    private var loadFromServer = false
-    private var loadVideoFromServer = false
-    private var loadReviewFromServer = false
-    private var favoriteMovies = false
-
     private var mListener: OnFragmentInteractionListener? = null
     private lateinit var videoListAdapter: VideoListAdapter
     private lateinit var reviewListAdapter: ReviewListAdapter
 
-    private lateinit var moviesDB: MoviesDatabaseHelper
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let { data = it.getParcelable(ARG_DATA) }
-    }
+    private val viewModel by viewModels<MovieDetailViewModel> { MoviesViewModelFactory }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,21 +61,18 @@ class DetailMovieFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentDetailMovieBinding.inflate(inflater, container, false)
-        val view: View = binding.root
-        moviesDB = MoviesDatabaseHelper(requireContext())
-        if (data != null) {
-            Log.d(TAG, "onCreateView: data status: not null")
-            createLayout(savedInstanceState)
-        } else {
-            Log.d(TAG, "onCreateView: data status: null")
-            binding.detailView.visibility = View.GONE
-            binding.taglineView.visibility = View.GONE
-            loadFromServer = false
-            loadVideoFromServer = false
-            loadReviewFromServer = false
-            favoriteMovies = false
+        createLayout()
+        arguments?.let {  arg ->
+            val movieDetail = arg.getParcelable(ARG_DATA) as? MoviesDetail
+            movieDetail?.let { viewModel.setTempMovieDetail(it) }
         }
-        return view
+        viewModel.fetchMovieData()
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeData()
     }
 
     override fun onAttach(context: Context) {
@@ -115,6 +94,32 @@ class DetailMovieFragment : Fragment() {
         mListener = null
     }
 
+    private fun observeData() {
+        viewModel.movieDetail.observe(viewLifecycleOwner) {
+            when(it) {
+                is Resource.Failure -> onFailure(it.throwable)
+                is Resource.Loading -> {
+                    if (it.state) {
+                        binding.rootProgressBar.visibility = View.VISIBLE
+                        binding.taglineView.visibility = View.GONE
+                        binding.detailView.visibility = View.GONE
+                    }
+                    bindOldData(it.tempData)
+                }
+                is Resource.Success -> onResponse(it.data)
+            }
+        }
+        viewModel.favoriteMovie.observe(viewLifecycleOwner) {
+            mListener?.onFragmentChangeFavorite(it.first, it.second, false)
+        }
+        viewModel.movieVideo.observe(viewLifecycleOwner) {
+            if (it is Resource.Success) bindVideo(it.data)
+        }
+        viewModel.movieReview.observe(viewLifecycleOwner) {
+            if (it is Resource.Success) bindReview(it.data)
+        }
+    }
+
     private fun getRatingColor(score: Double): Int = if (score >= Values.RATING_SCORE_PERFECT)
         getColor(requireContext(), R.color.colorRatingPerfect)
     else if (score < Values.RATING_SCORE_PERFECT && score >= Values.RATING_SCORE_GOOD)
@@ -123,7 +128,7 @@ class DetailMovieFragment : Fragment() {
         getColor(requireContext(), R.color.colorRatingNormal)
     else getColor(requireContext(), R.color.colorRatingBad)
 
-    private fun bindOldData() {
+    private fun bindOldData(data: MoviesDetail?) {
         data?.let { movie ->
             val backdropPath = movie.getBackdropPath(Values.TYPE_DEFAULT_IMAGE_THUMB).orEmpty()
             if (backdropPath.isNotEmpty()) {
@@ -133,17 +138,13 @@ class DetailMovieFragment : Fragment() {
                 Glide.with(this)
                     .load(movie.getPosterPath(3))
                     .placeholder(getDrawable(requireContext(), R.drawable.ic_collections_white))
-//                    .resize(
-//                        resources.getDimensionPixelSize(R.dimen.image_description_thumbnail_width),
-//                        0
-//                    )
                     .into(binding.imageDetailThumb)
             }
-            bindUpdatedData()
+            bindUpdatedData(data)
         }
     }
 
-    private fun bindUpdatedData() {
+    private fun bindUpdatedData(data: MoviesDetail?) {
         data?.let { movie ->
             if (movie.title != null) mListener?.onFragmentChangeTitle(movie.title)
 
@@ -160,7 +161,7 @@ class DetailMovieFragment : Fragment() {
         }
     }
 
-    private fun bindData() {
+    private fun bindData(data: MoviesDetail?) {
         if (binding.detailView.visibility == View.GONE) binding.detailView.visibility = View.VISIBLE
         if (binding.rootProgressBar.visibility == View.VISIBLE) binding.rootProgressBar.visibility =
             View.GONE
@@ -196,17 +197,15 @@ class DetailMovieFragment : Fragment() {
             if (movie.tagline?.isNotEmpty() == true) {
                 binding.textMovieTagline.text = movie.tagline
                 binding.textMovieTagline.visibility = View.VISIBLE
+                binding.taglineView.visibility = View.VISIBLE
             }
-            bindUpdatedData()
+            bindUpdatedData(data)
         }
     }
 
-    private fun createLayout(savedInstanceState: Bundle?) {
+    private fun createLayout() {
         binding.detailView.visibility = View.GONE
         binding.taglineView.visibility = View.GONE
-        loadFromServer = false
-        loadVideoFromServer = false
-        loadReviewFromServer = false
         binding.videoLayout.recyclerVideo.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.videoLayout.recyclerVideo.setHasFixedSize(true)
@@ -237,93 +236,6 @@ class DetailMovieFragment : Fragment() {
                 }
             })
         binding.reviewLayout.recyclerReview.adapter = reviewListAdapter
-        moviesAPI = NetworkHelpers.provideAPI(requireContext())
-        Log.d(TAG, "createLayout: savedInstanceState: " + (savedInstanceState == null))
-        if (savedInstanceState != null) {
-            data = savedInstanceState.getParcelable("DATA")
-            loadFromServer = savedInstanceState.getBoolean("ALREADY_CONNECT", false)
-            loadVideoFromServer = savedInstanceState.getBoolean("ALREADY_VIDEO_CONNECT", false)
-            loadReviewFromServer = savedInstanceState.getBoolean("ALREADY_REVIEW_CONNECT", false)
-            favoriteMovies = savedInstanceState.getBoolean("FAVORITED_MOVIES", false)
-            val tempVideo: List<VideosDetail> =
-                savedInstanceState.getParcelableArrayList("DATA_VIDEO") ?: emptyList()
-            val tempReview: List<ReviewDetail> =
-                savedInstanceState.getParcelableArrayList("DATA_REVIEW") ?: emptyList()
-            Log.d(TAG, "createLayout: loadFromServer: $loadFromServer")
-            bindOldData()
-            if (loadFromServer && loadVideoFromServer && loadReviewFromServer) {
-                bindData()
-                bindVideo(tempVideo)
-                bindReview(tempReview)
-            } else getDetailMovie()
-
-            mListener?.onFragmentChangeFavorite(data, favoriteMovies, false)
-        } else {
-            Log.d(TAG, "isFavorite start, check data")
-            data?.let {
-                Log.d(TAG, "isFavorite start, data exist")
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val result = moviesDB.isFavorite(it.id)
-                    favoriteMovies = result
-                    launch(Dispatchers.Main) {
-                        bindOldData()
-                        getDetailMovie()
-                        mListener?.onFragmentChangeFavorite(data, favoriteMovies, false)
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable("DATA", data)
-        outState.putParcelableArrayList("DATA_VIDEO", ArrayList<Parcelable>(videoListAdapter.get()))
-        outState.putParcelableArrayList(
-            "DATA_REVIEW",
-            ArrayList<Parcelable>(reviewListAdapter.get())
-        )
-        outState.putBoolean("ALREADY_CONNECT", loadFromServer)
-        outState.putBoolean("ALREADY_VIDEO_CONNECT", loadVideoFromServer)
-        outState.putBoolean("ALREADY_REVIEW_CONNECT", loadReviewFromServer)
-        outState.putBoolean("FAVORITED_MOVIES", favoriteMovies)
-    }
-
-    private fun getDetailMovie() {
-        data?.let { movie ->
-            binding.rootProgressBar.visibility = View.VISIBLE
-            binding.taglineView.visibility = View.GONE
-            binding.detailView.visibility = View.GONE
-            lifecycleScope.launch {
-                listOf(
-                    launch(Dispatchers.IO) {
-                        try {
-                            val result = moviesAPI.detail(movie.id)
-                            onResponse(result)
-                            moviesDB.saveMovies(result)
-                        } catch (e: Exception) {
-                            onFailure(e)
-                        }
-                    },
-                    launch(Dispatchers.IO) {
-                        try {
-                            val result = moviesAPI.videos(movie.id)
-                            onResponseVideo(result)
-                        } catch (e: Exception) {
-                            Log.e(TAG, "accept: Error Get Videos", e)
-                        }
-                    },
-                    launch(Dispatchers.IO) {
-                        try {
-                            val result = moviesAPI.reviews(movie.id)
-                            onResponseReview(result)
-                        } catch (e: Exception) {
-                            Log.e(TAG, "accept: Error Get Videos", e)
-                        }
-                    }
-                ).joinAll()
-            }
-        }
     }
 
     private fun onResponse(
@@ -335,10 +247,8 @@ class DetailMovieFragment : Fragment() {
         if (binding.detailView.visibility == View.GONE) binding.detailView.visibility = View.VISIBLE
         snackbar?.dismiss()
         snackbar = null
-        data = response
-        Log.d(TAG, "onResponse: " + data!!.homepage)
-        loadFromServer = true
-        bindData()
+        Log.d(TAG, "onResponse: " + response.homepage)
+        bindData(response)
     }
 
     private fun onFailure(t: Throwable) = lifecycleScope.launch(Dispatchers.Main) {
@@ -353,26 +263,12 @@ class DetailMovieFragment : Fragment() {
             R.string.error_cant_get_data_check_connection,
             Snackbar.LENGTH_INDEFINITE
         )
-        snackbar?.setAction(R.string.retry) {
-            bindOldData()
-            getDetailMovie()
-        }
+        snackbar?.setAction(R.string.retry) { viewModel.fetchMovieData() }
         snackbar?.show()
         Log.e(TAG, "onFailure: ", t)
     }
 
-    private fun onResponseVideo(response: VideosList) = lifecycleScope.launch(Dispatchers.Main) {
-        Log.d(TAG, "onResponseVideo: $response")
-        bindVideo(response.videos)
-    }
-
-    private fun onResponseReview(response: ReviewList) = lifecycleScope.launch(Dispatchers.Main){
-        Log.d(TAG, "onResponseReview: " + response.review.size)
-        bindReview(response.review)
-    }
-
     private fun bindVideo(video: List<VideosDetail>) {
-        loadVideoFromServer = true
         videoListAdapter.clear()
         if (video.isNotEmpty()) {
             mListener?.onFragmentShowShare()
@@ -382,37 +278,28 @@ class DetailMovieFragment : Fragment() {
     }
 
     private fun bindReview(review: List<ReviewDetail>) {
-        loadReviewFromServer = true
         if (review.isNotEmpty()) binding.reviewLayout.cardReview.visibility = View.VISIBLE
         reviewListAdapter.clear()
         reviewListAdapter.add(review)
     }
 
-    fun getMoviesId(): Int = data?.id ?: -1
+    fun getMoviesId(): Int = viewModel.currentMovieId()
 
     fun changeFavorite() = lifecycleScope.launch(Dispatchers.IO) {
         Log.d(TAG, "changeFavorite")
-        data?.let { movie ->
-            try {
-                if (favoriteMovies) moviesDB.removeFromFavorites(movie.id)
-                else moviesDB.addToFavorites(movie.id)
-                favoriteMovies = !favoriteMovies
-                mListener?.onFragmentChangeFavorite(movie, favoriteMovies, true)
-            } catch (e: Exception) {
-                Log.d(TAG, "changeFavorite error", e)
-            }
-        }
+        viewModel.changeFavorite()
     }
 
     fun getStatusLoadedFromServer(): Boolean {
-        return loadFromServer
+        return viewModel.currentMovieId() != -1
     }
 
     fun getShareContent(): String {
         val shareUrl =
             if (videoListAdapter.itemCount > 0) videoListAdapter.get(0)?.youtubeVideo.orEmpty()
             else ""
-        return resources.getString(R.string.share_content, data!!.title, shareUrl)
+        val title = viewModel.currentMovieTitle()
+        return resources.getString(R.string.share_content, title, shareUrl)
     }
 
     /**
@@ -435,7 +322,7 @@ class DetailMovieFragment : Fragment() {
         private const val TAG = "DetailMovieFragment"
         private const val ARG_DATA = "DATA"
 
-        fun newInstance(moviesDetail: MoviesDetail) = DetailMovieFragment().apply {
+        fun newInstance(moviesDetail: MoviesDetail) = MovieDetailFragment().apply {
             val args = Bundle().apply { putParcelable(ARG_DATA, moviesDetail) }
             arguments = args
         }

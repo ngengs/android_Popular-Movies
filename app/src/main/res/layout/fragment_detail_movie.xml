@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment">
+    tools:context="com.ngengs.android.popularmovies.apps.screen.moviedetail.MovieDetailFragment">
 
 
     <androidx.cardview.widget.CardView

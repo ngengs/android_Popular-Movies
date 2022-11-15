@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.apps.adapters
+package com.ngengs.android.popularmovies.apps.screen.movielist
 
 import android.content.Context
 import android.util.Log

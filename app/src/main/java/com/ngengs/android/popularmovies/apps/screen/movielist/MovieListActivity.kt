@@ -1,7 +1,6 @@
-package com.ngengs.android.popularmovies.apps
+package com.ngengs.android.popularmovies.apps.screen.movielist
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -9,38 +8,39 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.appcompat.app.ActionBar
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
+import com.ngengs.android.popularmovies.apps.screen.moviedetail.MovieDetailActivity
+import com.ngengs.android.popularmovies.apps.MoviesViewModelFactory
+import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail
 import com.ngengs.android.popularmovies.apps.databinding.ActivityMainBinding
-import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment
-import com.ngengs.android.popularmovies.apps.fragments.GridFragment
+import com.ngengs.android.popularmovies.apps.screen.moviedetail.MovieDetailFragment
 import com.ngengs.android.popularmovies.apps.globals.Values
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getDrawable
 import com.ngengs.android.popularmovies.apps.utils.images.GlideUtils
+import com.ngengs.android.popularmovies.apps.utils.pref.MenuPref
 
 /**
  * Created by rizky.kharisma on 10/11/22.
  * @ngengs
  */
-class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListener, DetailMovieFragment.OnFragmentInteractionListener {
+class MovieListActivity: AppCompatActivity(), MovieListFragment.OnFragmentInteractionListener, MovieDetailFragment.OnFragmentInteractionListener {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var actionBar: ActionBar
     private lateinit var menuDetail: Menu
-    private lateinit var gridFragment: GridFragment
-    private var detailMovieFragment: DetailMovieFragment? = null
+    private lateinit var movieListFragment: MovieListFragment
+    private var movieDetailFragment: MovieDetailFragment? = null
     private lateinit var fragmentManager: FragmentManager
-    private lateinit var sharedPref: SharedPreferences
+    private lateinit var menuPref: MenuPref
     private var openDetail = false
 
+    private val viewModel: MovieListViewModel by viewModels { MoviesViewModelFactory }
+
     private val resultLauncher = registerForActivityResult(StartActivityForResult()) {
-        if (gridFragment.getSortType() == Values.TYPE_FAVORITE) {
-            Log.d(TAG, "onActivityResult: Refresh the favorite")
-            gridFragment.changeType(Values.TYPE_FAVORITE)
-        }
+        if (viewModel.isFavoriteType()) viewModel.refreshData()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,26 +48,22 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        actionBar = supportActionBar!!
         Log.d(TAG, "onCreate: now")
-        sharedPref = getPreferences(MODE_PRIVATE)
-        var sortType = sharedPref.getInt("SORT_TYPE_NOW", Values.TYPE_POPULAR)
-        when (sortType) {
-            Values.TYPE_POPULAR, Values.TYPE_HIGH_RATED, Values.TYPE_FAVORITE -> {}
-            else -> sortType = Values.TYPE_POPULAR
-        }
+        menuPref = MenuPref.instantiate(this)
+        val sortType = menuPref.sortType
+        viewModel.changeSortType(sortType, true)
         fragmentManager = supportFragmentManager
         if (savedInstanceState == null) {
             Log.d(TAG, "onCreate: attach fragment")
-            gridFragment = GridFragment.newInstance(sortType)
+            movieListFragment = MovieListFragment.newInstance(sortType)
             val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.add(binding.fragmentGrid.id, gridFragment)
+            fragmentTransaction.add(binding.fragmentGrid.id, movieListFragment)
             fragmentTransaction.commit()
         } else {
-            gridFragment = fragmentManager.findFragmentById(binding.fragmentGrid.id) as GridFragment
+            movieListFragment = fragmentManager.findFragmentById(binding.fragmentGrid.id) as MovieListFragment
             if (binding.fragmentDetail != null) {
                 if (fragmentManager.findFragmentById(binding.fragmentDetail!!.id) != null) {
-                    detailMovieFragment = fragmentManager.findFragmentById(binding.fragmentDetail!!.id) as DetailMovieFragment?
+                    movieDetailFragment = fragmentManager.findFragmentById(binding.fragmentDetail!!.id) as MovieDetailFragment?
                 }
             }
             openDetail = savedInstanceState.getBoolean("OPEN_DETAIL", false)
@@ -98,13 +94,7 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
                             return@setOnMenuItemClickListener true
                         }
                         R.id.menu_detail_share -> {
-                            Log.d(TAG, "onMenuItemClick: Share")
-                            val sendIntent = Intent()
-                            sendIntent.action = Intent.ACTION_SEND
-                            Log.d(TAG, "onClick: " + detailMovieFragment?.getShareContent().orEmpty())
-                            sendIntent.putExtra(Intent.EXTRA_TEXT, detailMovieFragment?.getShareContent().orEmpty())
-                            sendIntent.type = "text/plain"
-                            startActivity(Intent.createChooser(sendIntent, resources.getText(R.string.send_to)))
+                            shareItem()
                             return@setOnMenuItemClickListener true
                         }
                         else -> {
@@ -117,6 +107,18 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
         }
     }
 
+    private fun shareItem() {
+        if (movieDetailFragment?.getStatusLoadedFromServer() == true) {
+            Log.d(TAG, "onMenuItemClick: Share")
+            val sendIntent = Intent()
+            sendIntent.action = Intent.ACTION_SEND
+            Log.d(TAG, "onClick: " + movieDetailFragment?.getShareContent().orEmpty())
+            sendIntent.putExtra(Intent.EXTRA_TEXT, movieDetailFragment?.getShareContent().orEmpty())
+            sendIntent.type = "text/plain"
+            startActivity(Intent.createChooser(sendIntent, resources.getText(R.string.send_to)))
+        }
+    }
+
     private fun showMultiLayout(show: Boolean) {
         if (isMultiLayout()) {
             val params = binding.guideline?.layoutParams as ConstraintLayout.LayoutParams?
@@ -124,13 +126,13 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
                 openDetail = false
                 binding.rootDetailView?.visibility = View.GONE
                 params?.guidePercent = 1f
-                gridFragment.updateSpanColumn(4)
+                movieListFragment.updateSpanColumn(4)
             } else {
                 openDetail = true
                 binding.rootDetailView?.visibility = View.VISIBLE
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                     params?.guidePercent = 0.35f else params?.guidePercent = 0.5f
-                gridFragment.updateSpanColumn(2)
+                movieListFragment.updateSpanColumn(2)
             }
             binding.guideline?.layoutParams = params
         }
@@ -139,18 +141,20 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
     private fun onFavoriteClick() {
         if (isMultiLayout()) {
             Log.d(TAG, "onFavoriteClick: now")
-            detailMovieFragment?.changeFavorite()
+            movieDetailFragment?.changeFavorite()
         }
     }
 
     private fun onCloseMultiLayout() {
         if (isMultiLayout()) {
-            if (detailMovieFragment == null) detailMovieFragment = fragmentManager.findFragmentById(R.id.fragmentDetail) as DetailMovieFragment?
+            if (movieDetailFragment == null) movieDetailFragment = fragmentManager.findFragmentById(
+                R.id.fragmentDetail
+            ) as MovieDetailFragment?
             val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.remove(detailMovieFragment!!)
+            fragmentTransaction.remove(movieDetailFragment!!)
             fragmentTransaction.commit()
             binding.detailHeaderImage?.setImageResource(0)
-            detailMovieFragment = null
+            movieDetailFragment = null
             showMultiLayout(false)
         }
     }
@@ -163,11 +167,12 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.menu_popular, menu)
-        if (gridFragment.getSortType() == Values.TYPE_POPULAR)
+        if (viewModel.isPopularType())
             menu.findItem(R.id.menu_sort_by_popular).isChecked = true
-        else if (gridFragment.getSortType() == Values.TYPE_HIGH_RATED)
+        else if (viewModel.isTopRatedType())
             menu.findItem(R.id.menu_sort_by_top_rated).isChecked = true
-        else menu.findItem(R.id.menu_sort_by_favorite).isChecked = true
+        else if(viewModel.isFavoriteType())
+            menu.findItem(R.id.menu_sort_by_favorite).isChecked = true
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -179,9 +184,9 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
             else -> -1
         }
         if (sortType > -1) {
-            gridFragment.changeType(sortType)
+            movieListFragment.changeType(sortType)
             item.isChecked = true
-            sharedPref.edit().putInt("SORT_TYPE_NOW", sortType).apply()
+            menuPref.sortType = sortType
         }
         return super.onOptionsItemSelected(item)
     }
@@ -204,14 +209,15 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
         if (isMultiLayout()) {
             Log.d(TAG, "onFragmentChangeFavorite: now")
             if (isFavorite)
-                binding.fabFavorite?.setImageDrawable(getDrawable(this, R.drawable.ic_favorite_white))
+                binding.fabFavorite?.setImageDrawable(getDrawable(this,
+                    R.drawable.ic_favorite_white
+                ))
             else
-                binding.fabFavorite?.setImageDrawable(getDrawable(this, R.drawable.ic_favorite_border_white))
-            if (gridFragment.getSortType() == Values.TYPE_FAVORITE && isRefresh) {
-                data?.let {
-                    if (isFavorite) gridFragment.addMovies(it) else gridFragment.removeMovies(it)
-                }
-            }
+                binding.fabFavorite?.setImageDrawable(getDrawable(this,
+                    R.drawable.ic_favorite_border_white
+                ))
+
+            data?.let { viewModel.addOrRemoveFavoriteMovie(it, isFavorite) }
         }
     }
 
@@ -224,14 +230,13 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
         }
     }
 
-    override fun onFragmentChangeHeaderImage(imageUri: String?, thumbnailsUri: String?) {
+    override fun onFragmentChangeHeaderImage(imageUri: String?, thumbnailUri: String?) {
         if (isMultiLayout()) {
             binding.detailHeaderImage?.let { imageView ->
                 Glide.with(this)
                     .load(imageUri)
-                    .thumbnail(GlideUtils.thumbnailBuilder(imageView.context, thumbnailsUri))
+                    .thumbnail(GlideUtils.thumbnailBuilder(imageView.context, thumbnailUri))
                     .centerCrop()
-//                .resize(Resources.getSystem().displayMetrics.widthPixels, resources.getDimensionPixelSize(R.dimen.image_description_header))
                     .into(imageView)
             }
         }
@@ -239,18 +244,18 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
 
     override fun onFragmentClickMovies(position: Int, data: MoviesDetail) {
         if (!isMultiLayout()) {
-            val intent = Intent(this, DetailMovieActivity::class.java)
-                .putExtra("DATA", data)
+            val intent = Intent(this, MovieDetailActivity::class.java)
+                .putExtra(MovieDetailActivity.ARG_DATA, data)
             resultLauncher.launch(intent)
         } else {
             showMultiLayout(true)
             val fragmentDetail = binding.fragmentDetail
             if (isMultiLayout() && fragmentDetail != null) {
                 var changeFragment = true
-                if (detailMovieFragment != null) {
+                if (movieDetailFragment != null) {
                     // Check is fragment same as the clicked data
                     val temp =
-                        fragmentManager.findFragmentById(fragmentDetail.id) as DetailMovieFragment?
+                        fragmentManager.findFragmentById(fragmentDetail.id) as MovieDetailFragment?
                     val tempMoviesId = temp?.getMoviesId() ?: -1
                     Log.d(TAG, "onFragmentClickMovies: old id: $tempMoviesId")
                     Log.d(TAG, "onFragmentClickMovies: new id: " + data.id)
@@ -260,20 +265,20 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
                 if (changeFragment) {
                     // Clear button favorite
                     onFragmentChangeFavorite(null, isFavorite = false, isRefresh = false)
-                    detailMovieFragment = DetailMovieFragment.newInstance(data)
+                    movieDetailFragment = MovieDetailFragment.newInstance(data)
                     val fragmentTransaction = fragmentManager.beginTransaction()
-                    fragmentTransaction.replace(fragmentDetail.id, detailMovieFragment!!)
+                    fragmentTransaction.replace(fragmentDetail.id, movieDetailFragment!!)
                     fragmentTransaction.commit()
                     binding.appbarDetail?.setExpanded(true)
                     binding.scrollDetail?.scrollTo(0, 0)
-                    gridFragment.scrollToPosition(position)
+                    movieListFragment.scrollToPosition(position)
                 }
             }
         }
     }
 
     override fun onFragmentChangeTitle(sortType: Int) {
-        actionBar.title = when (sortType) {
+        supportActionBar?.title = when (sortType) {
             Values.TYPE_POPULAR -> resources.getString(R.string.title_popular)
             Values.TYPE_HIGH_RATED -> resources.getString(R.string.title_top_rated)
             else -> resources.getString(R.string.title_favorite)
@@ -286,6 +291,5 @@ class MainActivity: AppCompatActivity(), GridFragment.OnFragmentInteractionListe
 
     companion object {
         private const val TAG = "MainActivity"
-        private const val RESULT_DETAIL = 10
     }
 }

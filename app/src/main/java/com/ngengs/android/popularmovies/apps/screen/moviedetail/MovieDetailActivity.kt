@@ -1,4 +1,4 @@
-package com.ngengs.android.popularmovies.apps
+package com.ngengs.android.popularmovies.apps.screen.moviedetail
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,10 +10,10 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
+import com.ngengs.android.popularmovies.apps.R
 import com.ngengs.android.popularmovies.apps.data.remote.MoviesDetail
 import com.ngengs.android.popularmovies.apps.databinding.ActivityDetailMovieBinding
-import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment
-import com.ngengs.android.popularmovies.apps.fragments.DetailMovieFragment.Companion.newInstance
+import com.ngengs.android.popularmovies.apps.screen.moviedetail.MovieDetailFragment.Companion.newInstance
 import com.ngengs.android.popularmovies.apps.utils.ResourceHelpers.getDrawable
 import com.ngengs.android.popularmovies.apps.utils.images.GlideUtils
 
@@ -21,11 +21,10 @@ import com.ngengs.android.popularmovies.apps.utils.images.GlideUtils
  * Created by rizky.kharisma on 10/11/22.
  * @ngengs
  */
-class DetailMovieActivity : AppCompatActivity(), DetailMovieFragment.OnFragmentInteractionListener {
+class MovieDetailActivity : AppCompatActivity(), MovieDetailFragment.OnFragmentInteractionListener {
     private lateinit var binding: ActivityDetailMovieBinding
-    private var data: MoviesDetail? = null
     private lateinit var fragmentManager: FragmentManager
-    private lateinit var detailMovieFragment: DetailMovieFragment
+    private lateinit var movieDetailFragment: MovieDetailFragment
     private lateinit var actionBar: ActionBar
     private var moviesShare = false
 
@@ -36,7 +35,7 @@ class DetailMovieActivity : AppCompatActivity(), DetailMovieFragment.OnFragmentI
 
         setSupportActionBar(binding.toolbar)
 
-        data = intent.getParcelableExtra("DATA") ?: kotlin.run {
+        val data : MoviesDetail? = intent.getParcelableExtra(ARG_DATA) ?: kotlin.run {
             Toast.makeText(this, "Something wrong with detail data", Toast.LENGTH_SHORT).show()
             finish()
             null
@@ -50,13 +49,13 @@ class DetailMovieActivity : AppCompatActivity(), DetailMovieFragment.OnFragmentI
 
         if (savedInstanceState == null) {
             Log.d(TAG, "onCreate: attach fragment")
-            detailMovieFragment = newInstance(data!!)
+            movieDetailFragment = newInstance(data!!)
             val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.add(binding.fragmentDetail.id, detailMovieFragment)
+            fragmentTransaction.add(binding.fragmentDetail.id, movieDetailFragment)
             fragmentTransaction.commit()
         } else {
-            detailMovieFragment =
-                (fragmentManager.findFragmentById(binding.fragmentDetail.id) as DetailMovieFragment?)!!
+            movieDetailFragment =
+                (fragmentManager.findFragmentById(binding.fragmentDetail.id) as MovieDetailFragment?)!!
         }
         initializeViewAction()
     }
@@ -78,26 +77,28 @@ class DetailMovieActivity : AppCompatActivity(), DetailMovieFragment.OnFragmentI
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == android.R.id.home) {
-            onBackPressed()
-            return true
-        } else if (id == R.id.menu_detail_share) {
-            shareItem()
-            return true
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            R.id.menu_detail_share -> {
+                shareItem()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun onFavoriteClick() {
-        detailMovieFragment.changeFavorite()
+        movieDetailFragment.changeFavorite()
     }
 
     private fun shareItem() {
-        if (detailMovieFragment.getStatusLoadedFromServer()) {
-            Log.d(TAG, "onClick: " + detailMovieFragment.getShareContent())
+        if (movieDetailFragment.getStatusLoadedFromServer()) {
+            Log.d(TAG, "onClick: " + movieDetailFragment.getShareContent())
             val sendIntent = Intent()
-                .putExtra(Intent.EXTRA_TEXT, detailMovieFragment.getShareContent())
+                .putExtra(Intent.EXTRA_TEXT, movieDetailFragment.getShareContent())
             sendIntent.action = Intent.ACTION_SEND
             sendIntent.type = "text/plain"
             startActivity(Intent.createChooser(sendIntent, resources.getText(R.string.send_to)))
@@ -115,20 +116,29 @@ class DetailMovieActivity : AppCompatActivity(), DetailMovieFragment.OnFragmentI
         isFavorite: Boolean,
         isRefresh: Boolean
     ) {
-        if (isFavorite) binding.fabFavorite.setImageDrawable(getDrawable(this, R.drawable.ic_favorite_white))
-        else binding.fabFavorite.setImageDrawable(getDrawable(this, R.drawable.ic_favorite_border_white))
+        if (isFavorite) binding.fabFavorite.setImageDrawable(getDrawable(this,
+            R.drawable.ic_favorite_white
+        ))
+        else binding.fabFavorite.setImageDrawable(getDrawable(this,
+            R.drawable.ic_favorite_border_white
+        ))
+    }
+
+    override fun onBackPressed() {
+        Log.d(TAG, "onBackPressed")
+        super.onBackPressed()
     }
 
     override fun onFragmentChangeTitle(title: String) {
         actionBar.title = title
     }
 
-    override fun onFragmentChangeHeaderImage(imageUri: String?, thumbnailsUri: String?) {
+    override fun onFragmentChangeHeaderImage(imageUri: String?, thumbnailUri: String?) {
         if (imageUri?.isNotEmpty() == true) {
             Glide.with(this)
                 .load(imageUri)
                 .thumbnail(
-                    GlideUtils.thumbnailBuilder(binding.detailHeaderImage.context, thumbnailsUri)
+                    GlideUtils.thumbnailBuilder(binding.detailHeaderImage.context, thumbnailUri)
                 )
                 .centerCrop()
                 .into(binding.detailHeaderImage)
@@ -137,5 +147,6 @@ class DetailMovieActivity : AppCompatActivity(), DetailMovieFragment.OnFragmentI
 
     companion object {
         private const val TAG = "DetailMovieActivity"
+        const val ARG_DATA = "DATA"
     }
 }

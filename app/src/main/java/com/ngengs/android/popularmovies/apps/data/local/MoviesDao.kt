@@ -1,5 +1,6 @@
 package com.ngengs.android.popularmovies.apps.data.local
 
+import android.provider.BaseColumns
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -18,6 +19,9 @@ abstract class MoviesDao {
 
     @Query("SELECT * from ${LocalDatabase.PATH_POPULAR}")
     abstract suspend fun getPopular(): List<MoviesPopularAndDetail>
+
+    @Query("SELECT * from ${LocalDatabase.PATH_MOVIES} WHERE ${BaseColumns._ID}=:moveId")
+    abstract suspend fun getDetailMovie(moveId: Int): Movies
 
     @Query("DELETE from ${LocalDatabase.PATH_POPULAR}")
     abstract suspend fun deletePopular()
