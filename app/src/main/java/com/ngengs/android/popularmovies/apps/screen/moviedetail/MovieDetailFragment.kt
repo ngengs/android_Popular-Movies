@@ -110,7 +110,7 @@ class MovieDetailFragment : Fragment() {
             }
         }
         viewModel.favoriteMovie.observe(viewLifecycleOwner) {
-            mListener?.onFragmentChangeFavorite(it.first, it.second, false)
+            mListener?.onFragmentChangeFavorite(it.first, it.second, it.third)
         }
         viewModel.movieVideo.observe(viewLifecycleOwner) {
             if (it is Resource.Success) bindVideo(it.data)

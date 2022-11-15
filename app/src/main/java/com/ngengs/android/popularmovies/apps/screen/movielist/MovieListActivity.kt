@@ -217,7 +217,7 @@ class MovieListActivity: AppCompatActivity(), MovieListFragment.OnFragmentIntera
                     R.drawable.ic_favorite_border_white
                 ))
 
-            data?.let { viewModel.addOrRemoveFavoriteMovie(it, isFavorite) }
+            if (data != null && isRefresh) viewModel.addOrRemoveFavoriteMovie(data, isFavorite)
         }
     }
 

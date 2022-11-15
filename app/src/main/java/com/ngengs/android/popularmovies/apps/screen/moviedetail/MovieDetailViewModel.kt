@@ -27,8 +27,8 @@ class MovieDetailViewModel(
     val movieVideo: LiveData<Resource<List<VideosDetail>>> = _movieVideo
     private val _movieReview = MutableLiveData<Resource<List<ReviewDetail>>>()
     val movieReview: LiveData<Resource<List<ReviewDetail>>> = _movieReview
-    private val _favoriteMovie = MutableLiveData<Pair<MoviesDetail, Boolean>>()
-    val favoriteMovie: LiveData<Pair<MoviesDetail, Boolean>> = _favoriteMovie
+    private val _favoriteMovie = MutableLiveData<Triple<MoviesDetail, Boolean, Boolean>>()
+    val favoriteMovie: LiveData<Triple<MoviesDetail, Boolean, Boolean>> = _favoriteMovie
 
     fun setTempMovieDetail(movie: MoviesDetail) {
         _movieDetail.value = Resource.Loading(false, movie)
@@ -82,7 +82,7 @@ class MovieDetailViewModel(
         movieDetail?.let { movie ->
             val result = moviesRepository.isFavoriteMovie(movie.id)
             viewModelScope.launch(Dispatchers.Main) {
-                _favoriteMovie.value = movie to result
+                _favoriteMovie.value = Triple(movie, result, false)
             }
         }
     }
@@ -94,7 +94,7 @@ class MovieDetailViewModel(
             viewModelScope.launch {
                 if (isFavorite) moviesRepository.removeFavoriteMovies(movie)
                 else moviesRepository.saveFavoriteMovies(movie)
-                _favoriteMovie.postValue(movie to !isFavorite)
+                _favoriteMovie.postValue(Triple(movie, !isFavorite, true))
             }
         }
     }
