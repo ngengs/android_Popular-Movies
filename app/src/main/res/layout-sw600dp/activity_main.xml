@@ -5,7 +5,6 @@
     android:id="@+id/rootConstrain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context="com.ngengs.android.popularmovies.apps.screen.movielist.MovieListActivity"
     tools:ignore="InconsistentLayout">
 
@@ -45,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
-                app:contentScrim="?attr/colorPrimaryDark"
+                app:contentScrim="?attr/colorPrimary"
                 app:expandedTitleGravity="bottom|center"
                 app:expandedTitleMarginBottom="@dimen/margin_large"
                 app:expandedTitleMarginEnd="@dimen/margin_none"

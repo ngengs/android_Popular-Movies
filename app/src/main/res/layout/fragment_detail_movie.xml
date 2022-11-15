@@ -312,9 +312,30 @@
 
     </androidx.cardview.widget.CardView>
 
-    <include android:id="@+id/videoLayout" layout="@layout/video_layout" />
+    <include
+        android:id="@+id/videoLayout"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        layout="@layout/video_layout"
+        android:layout_marginBottom="@dimen/margin_default"
+        android:layout_marginEnd="@dimen/margin_card_detail_horizontal"
+        android:layout_marginLeft="@dimen/margin_card_detail_horizontal"
+        android:layout_marginRight="@dimen/margin_card_detail_horizontal"
+        android:layout_marginStart="@dimen/margin_card_detail_horizontal"
+        android:layout_marginTop="@dimen/margin_default" />
 
-    <include android:id="@+id/reviewLayout" layout="@layout/review_layout" />
+    <include
+        android:id="@+id/reviewLayout"
+        layout="@layout/review_layout"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="@dimen/detail_end_item_bottom_margin"
+        android:layout_marginEnd="@dimen/margin_card_detail_horizontal"
+        android:layout_marginLeft="@dimen/margin_card_detail_horizontal"
+        android:layout_marginRight="@dimen/margin_card_detail_horizontal"
+        android:layout_marginStart="@dimen/margin_card_detail_horizontal"
+        android:layout_marginTop="@dimen/margin_default"
+        />
 
     <RelativeLayout
         android:id="@+id/rootProgressBar"

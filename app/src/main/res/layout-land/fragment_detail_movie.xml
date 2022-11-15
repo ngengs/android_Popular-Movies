@@ -1,41 +1,91 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     tools:context="com.ngengs.android.popularmovies.apps.screen.moviedetail.MovieDetailFragment">
 
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardMainDetail"
+    <!-- Header Card -->
+    <FrameLayout
+        android:id="@+id/videoLayoutRoot"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/constraintGuideline"
+        app:layout_constraintTop_toBottomOf="@id/taglineView">
+
+        <include
+            android:id="@+id/videoLayout"
+            layout="@layout/video_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="@dimen/margin_default"
+            android:layout_marginEnd="@dimen/margin_default"
+            android:layout_marginBottom="@dimen/margin_default" />
+
+    </FrameLayout>
+
+
+    <!--    Synopsis Card     -->
+    <FrameLayout
+        android:id="@+id/reviewLayoutRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/constraintBarrier"
+        app:layout_goneMarginTop="16dp">
+
+        <include
+            android:id="@+id/reviewLayout"
+            layout="@layout/review_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="@dimen/margin_default"
+            android:layout_marginRight="40dp"
+            android:layout_marginBottom="@dimen/detail_end_item_bottom_margin" />
+    </FrameLayout>
+
+    <!--    Tagline Card     -->
+    <RelativeLayout
+        android:id="@+id/rootProgressBar"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:padding="32dp"
+        app:layout_constraintLeft_toRightOf="@id/constraintGuideline"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardMainDetail">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+
+
+    <!--    Video Card     -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardMainDetail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/margin_large"
         android:layout_marginLeft="40dp"
+        android:layout_marginTop="16dp"
         android:layout_marginRight="40dp"
-        android:layout_marginTop="@dimen/margin_large"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         card_view:cardCornerRadius="@dimen/card_corner_default"
-        card_view:cardElevation="@dimen/card_elevation_default">
+        card_view:cardElevation="@dimen/card_elevation_default"
+        tools:visibility="gone">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <com.ngengs.android.popularmovies.apps.utils.ui.PosterImageView
-                android:id="@+id/imageDetailThumb"
-                android:layout_width="@dimen/image_description_thumbnail_width"
-                android:layout_height="match_parent"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:contentDescription="@string/poster_image"
-                android:minHeight="@dimen/image_description_thumbnail_min_height"
-                android:scaleType="fitCenter"
-                app:srcCompat="@drawable/ic_collections_white"/>
 
             <TextView
                 android:id="@+id/textMovieOriginalTitle"
@@ -44,13 +94,12 @@
                 android:layout_alignTop="@id/imageDetailThumb"
                 android:layout_margin="@dimen/margin_default"
                 android:layout_toEndOf="@id/imageDetailThumb"
-                android:layout_toRightOf="@id/imageDetailThumb"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-condensed"
                 android:maxLines="3"
                 android:text="@string/empty_string"
                 android:textSize="@dimen/text_size_title"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/textRating"
@@ -59,11 +108,10 @@
                 android:layout_centerVertical="true"
                 android:layout_margin="@dimen/margin_default"
                 android:layout_toEndOf="@id/imageDetailThumb"
-                android:layout_toRightOf="@id/imageDetailThumb"
                 android:fontFamily="sans-serif-light"
                 android:maxLines="1"
                 android:text="@string/empty_string"
-                android:textSize="@dimen/text_size_vote"/>
+                android:textSize="@dimen/text_size_vote" />
 
             <TextView
                 android:id="@+id/textMovieReleaseDate"
@@ -72,8 +120,19 @@
                 android:layout_alignBottom="@id/imageDetailThumb"
                 android:layout_margin="@dimen/margin_default"
                 android:layout_toEndOf="@id/imageDetailThumb"
-                android:layout_toRightOf="@id/imageDetailThumb"
-                android:text="@string/empty_string"/>
+                android:text="@string/empty_string" />
+
+            <com.ngengs.android.popularmovies.apps.utils.ui.PosterImageView
+                android:id="@+id/imageDetailThumb"
+                android:layout_width="@dimen/image_description_thumbnail_width"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:contentDescription="@string/poster_image"
+                android:minHeight="@dimen/image_description_thumbnail_min_height"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_collections_white" />
 
 
         </RelativeLayout>
@@ -81,301 +140,274 @@
 
     </androidx.cardview.widget.CardView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!--     Detail Card    -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/detailView"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:baselineAligned="false"
-        android:paddingLeft="40dp"
-        android:paddingStart="40dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/margin_default"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="40dp"
-        android:layout_marginRight="40dp"
-        android:orientation="horizontal"
-        android:weightSum="1">
+        android:layout_marginBottom="@dimen/margin_default"
+        app:layout_constraintLeft_toRightOf="@id/constraintGuideline"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardMainDetail"
+        card_view:cardCornerRadius="@dimen/card_corner_default"
+        card_view:cardElevation="@dimen/card_elevation_default">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingEnd="@dimen/margin_default"
-            android:paddingRight="@dimen/margin_default"
-            android:layout_weight="0.5"
             android:orientation="vertical">
 
-            <!--    Synopsis Card     -->
-            <androidx.cardview.widget.CardView
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/margin_default"
-                android:layout_marginLeft="@dimen/margin_none"
-                android:layout_marginRight="@dimen/margin_none"
-                card_view:cardCornerRadius="@dimen/card_corner_default"
-                card_view:cardElevation="@dimen/card_elevation_default">
+                android:background="@color/reviewTextBackground"
+                android:padding="@dimen/margin_default"
+                android:text="@string/detail"
+                android:textAllCaps="true"
+                android:textSize="@dimen/text_size_large"
+                android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/reviewTextBackground"
-                        android:padding="@dimen/margin_default"
-                        android:text="@string/synopsis"
-                        android:textAllCaps="true"
-                        android:textSize="@dimen/text_size_large"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textMovieSynopsis"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/empty_string"
-                        android:textIsSelectable="true"
-                        android:textSize="@dimen/text_size_large" />
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-            <!--    Tagline Card     -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/taglineView"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/margin_default"
-                android:layout_marginLeft="@dimen/margin_none"
-                android:layout_marginRight="@dimen/margin_none"
                 android:layout_marginTop="@dimen/margin_default"
-                card_view:cardCornerRadius="@dimen/card_corner_default"
-                card_view:cardElevation="@dimen/card_elevation_default">
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/genre"
+                android:textSize="@dimen/text_size_default" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/reviewTextBackground"
-                        android:padding="@dimen/margin_default"
-                        android:text="@string/tagline"
-                        android:textAllCaps="true"
-                        android:textSize="@dimen/text_size_large"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/textMovieTagline"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/empty_string"
-                        android:textSize="@dimen/text_size_large" />
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-            <!--    Video Card     -->
-            <include android:id="@+id/videoLayout" layout="@layout/video_layout" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/margin_default"
-            android:paddingStart="@dimen/margin_default"
-            android:layout_weight="0.5"
-            android:orientation="vertical">
-
-            <!--     Detail Card    -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/detailView"
+            <TextView
+                android:id="@+id/textMovieGenre"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:layout_marginBottom="@dimen/margin_default"
-                android:layout_marginLeft="@dimen/margin_none"
-                android:layout_marginRight="@dimen/margin_none"
-                card_view:cardCornerRadius="@dimen/card_corner_default"
-                card_view:cardElevation="@dimen/card_elevation_default">
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/empty_string"
+                android:textSize="@dimen/text_size_large" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/reviewTextBackground"
-                        android:padding="@dimen/margin_default"
-                        android:text="@string/detail"
-                        android:textAllCaps="true"
-                        android:textSize="@dimen/text_size_large"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/genre"
-                        android:textSize="@dimen/text_size_default" />
-
-                    <TextView
-                        android:id="@+id/textMovieGenre"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/empty_string"
-                        android:textSize="@dimen/text_size_large" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/budget"
-                        android:textSize="@dimen/text_size_default" />
-
-                    <TextView
-                        android:id="@+id/textMovieBudget"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/empty_string"
-                        android:textSize="@dimen/text_size_large" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/revenue"
-                        android:textSize="@dimen/text_size_default" />
-
-                    <TextView
-                        android:id="@+id/textMovieRevenue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/empty_string"
-                        android:textSize="@dimen/text_size_large" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/company"
-                        android:textSize="@dimen/text_size_default" />
-
-                    <TextView
-                        android:id="@+id/textMovieCompany"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/empty_string"
-                        android:textSize="@dimen/text_size_large" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/country"
-                        android:textSize="@dimen/text_size_default" />
-
-                    <TextView
-                        android:id="@+id/textMovieCountry"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/empty_string"
-                        android:textSize="@dimen/text_size_large" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/language"
-                        android:textSize="@dimen/text_size_default" />
-
-                    <TextView
-                        android:id="@+id/textMovieLanguage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/empty_string"
-                        android:textSize="@dimen/text_size_large" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/status"
-                        android:textSize="@dimen/text_size_default" />
-
-                    <TextView
-                        android:id="@+id/textMovieStatus"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_default"
-                        android:paddingLeft="@dimen/margin_default"
-                        android:paddingRight="@dimen/margin_default"
-                        android:text="@string/empty_string"
-                        android:textSize="@dimen/text_size_large" />
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <RelativeLayout
-                android:id="@+id/rootProgressBar"
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="32dp">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/budget"
+                android:textSize="@dimen/text_size_default" />
 
-                <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true" />
-            </RelativeLayout>
+            <TextView
+                android:id="@+id/textMovieBudget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/empty_string"
+                android:textSize="@dimen/text_size_large" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/revenue"
+                android:textSize="@dimen/text_size_default" />
+
+            <TextView
+                android:id="@+id/textMovieRevenue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/empty_string"
+                android:textSize="@dimen/text_size_large" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/company"
+                android:textSize="@dimen/text_size_default" />
+
+            <TextView
+                android:id="@+id/textMovieCompany"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/empty_string"
+                android:textSize="@dimen/text_size_large" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/country"
+                android:textSize="@dimen/text_size_default" />
+
+            <TextView
+                android:id="@+id/textMovieCountry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/empty_string"
+                android:textSize="@dimen/text_size_large" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/language"
+                android:textSize="@dimen/text_size_default" />
+
+            <TextView
+                android:id="@+id/textMovieLanguage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/empty_string"
+                android:textSize="@dimen/text_size_large" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/status"
+                android:textSize="@dimen/text_size_default" />
+
+            <TextView
+                android:id="@+id/textMovieStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/empty_string"
+                android:textSize="@dimen/text_size_large" />
         </LinearLayout>
-    </LinearLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
+    </androidx.cardview.widget.CardView>
+
+    <!-- Progress bar -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/synopsisView"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingLeft="40dp"
-        android:paddingRight="40dp">
+        android:layout_gravity="center"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="@dimen/margin_default"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/constraintGuideline"
+        app:layout_constraintTop_toBottomOf="@id/cardMainDetail"
+        card_view:cardCornerRadius="@dimen/card_corner_default"
+        card_view:cardElevation="@dimen/card_elevation_default">
 
-        <include android:id="@+id/reviewLayout" layout="@layout/review_layout" />
-    </FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-</LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/reviewTextBackground"
+                android:padding="@dimen/margin_default"
+                android:text="@string/synopsis"
+                android:textAllCaps="true"
+                android:textSize="@dimen/text_size_large"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textMovieSynopsis"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/empty_string"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/text_size_large" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Review Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/taglineView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="@dimen/margin_default"
+        android:layout_marginEnd="@dimen/margin_default"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/constraintGuideline"
+        app:layout_constraintTop_toBottomOf="@id/synopsisView"
+        card_view:cardCornerRadius="@dimen/card_corner_default"
+        card_view:cardElevation="@dimen/card_elevation_default">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/reviewTextBackground"
+                android:padding="@dimen/margin_default"
+                android:text="@string/tagline"
+                android:textAllCaps="true"
+                android:textSize="@dimen/text_size_large"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textMovieTagline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_default"
+                android:paddingLeft="@dimen/margin_default"
+                android:paddingRight="@dimen/margin_default"
+                android:text="@string/empty_string"
+                android:textSize="@dimen/text_size_large" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/constraintBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="videoLayoutRoot, detailView, synopsisView"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/constraintGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

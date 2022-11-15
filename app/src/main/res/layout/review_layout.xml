@@ -5,12 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_marginBottom="@dimen/detail_end_item_bottom_margin"
-    android:layout_marginEnd="@dimen/margin_card_detail_horizontal"
-    android:layout_marginLeft="@dimen/margin_card_detail_horizontal"
-    android:layout_marginRight="@dimen/margin_card_detail_horizontal"
-    android:layout_marginStart="@dimen/margin_card_detail_horizontal"
-    android:layout_marginTop="@dimen/margin_default"
     android:visibility="gone"
     card_view:cardCornerRadius="@dimen/card_corner_default"
     card_view:cardElevation="@dimen/card_elevation_default">
